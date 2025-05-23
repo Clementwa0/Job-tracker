@@ -1,139 +1,225 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'sonner';
 
-const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  
-  const { register } = useAuth();
+const registerSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    setIsSubmitting(true);
+type RegisterFormData = z.infer<typeof registerSchema>;
+
+export default function Register() {
+  const { register: registerUser } = useAuth();
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema)
+  });
+
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      await register(name, email, password);
+      await registerUser({
+        name: data.name,
+        email: data.email,
+        password: data.password
+      });
+      toast.success('Registration successful!');
     } catch (error) {
-      setError('Registration failed. Please try again.');
-      console.error('Registration error:', error);
-    } finally {
-      setIsSubmitting(false);
+      toast.error('Registration failed. Please try again.');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 space-y-8">
-        <div className="flex flex-col items-center">
-          {/* Logo area */}
-          <div className="mb-2">
-            <svg className="h-12 w-12 text-primary" fill="none" viewBox="0 0 48 48">
-              <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="4" />
-              <path d="M16 24l6 6 10-10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Left Panel - Brand Content */}
+      <div className="lg:w-[45%] bg-gradient-to-b from-blue-50 to-sky-50 p-8 lg:p-12 flex flex-col justify-between">
+        <div className="space-y-12">
+          {/* Logo */}
+          <div className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-sky-700 bg-clip-text text-transparent">
+            JobNest
           </div>
-          <h1 className="text-3xl font-extrabold text-gray-900">JobTrail</h1>
-          <h2 className="mt-2 text-xl font-semibold text-gray-700">Create your account</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Or{' '}
-            <Link to="/login" className="font-medium text-primary hover:text-primary/80 transition">
-              sign in to your account
-            </Link>
-          </p>
+          
+          {/* Hero Content */}
+          <div className="space-y-6">
+            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
+              Track Your Applications – Stay Organized, Get Hired
+            </h1>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Sign up to manage your job applications, interviews, and follow-ups all in one place.
+            </p>
+          </div>
+
+          {/* Value Props */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[
+              {
+                icon: "📈",
+                title: "Track Progress",
+                desc: "Visualize your job hunt journey"
+              },
+              {
+                icon: "🔔",
+                title: "Smart Alerts",
+                desc: "Never miss deadlines or interviews"
+              },
+              {
+                icon: "📋",
+                title: "Centralized",
+                desc: "All your job data in one hub"
+              }
+            ].map((prop) => (
+              <div key={prop.title} className="space-y-2">
+                <div className="text-3xl">{prop.icon}</div>
+                <h3 className="font-semibold text-gray-900">{prop.title}</h3>
+                <p className="text-sm text-gray-600">{prop.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <form className="mt-6 space-y-5" onSubmit={handleSubmit} autoComplete="off">
-          {error && (
-            <div className="bg-red-100 border border-red-300 text-red-700 px-3 py-2 rounded text-sm">
-              {error}
+
+        {/* Social Proof */}
+        <div className="hidden lg:block text-sm text-gray-500 mt-8">
+          Helping 20,000+ job seekers stay ahead
+        </div>
+      </div>
+
+      {/* Right Panel - Registration Form */}
+      <div className="lg:w-[55%] px-8 lg:px-16 py-12 flex items-center justify-center bg-white">
+        <div className="w-full max-w-[480px] space-y-8">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-bold text-gray-900">Create Your JobNest Account</h2>
+            <p className="text-gray-600">Let’s streamline your job hunt</p>
+          </div>
+
+          {/* SSO Buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { name: 'Google', icon: 'google.svg' },
+              { name: 'GitHub', icon: 'github.svg' },
+              { name: 'Microsoft', icon: 'microsoft.svg' },
+              { name: 'Apple', icon: 'apple.svg' }
+            ].map((provider) => (
+              <button
+                key={provider.name}
+                className="flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 rounded-xl
+                hover:bg-gray-50 transition-all duration-200 text-gray-700 text-sm font-medium"
+              >
+                <span>{provider.name}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
             </div>
-          )}
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              required
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:ring-primary focus:border-primary sm:text-sm transition"
-              placeholder="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              disabled={isSubmitting}
-            />
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-white text-gray-500">or use your email</span>
+            </div>
           </div>
-          <div>
-            <label htmlFor="email-address" className="block text-sm font-medium text-gray-700 mb-1">
-              Email address
-            </label>
-            <input
-              id="email-address"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:ring-primary focus:border-primary sm:text-sm transition"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isSubmitting}
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:ring-primary focus:border-primary sm:text-sm transition"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isSubmitting}
-            />
-          </div>
-          <div>
-            <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-1">
-              Confirm Password
-            </label>
-            <input
-              id="confirm-password"
-              name="confirm-password"
-              type="password"
-              required
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:ring-primary focus:border-primary sm:text-sm transition"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              disabled={isSubmitting}
-            />
-          </div>
-          <div>
+
+          {/* Registration Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="space-y-4">
+              {/* Name Input */}
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                  Full Name
+                </label>
+                <input
+                  {...register('name')}
+                  type="text"
+                  className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 shadow-sm
+                    focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  placeholder="Enter your full name"
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
+                )}
+              </div>
+
+              {/* Email Input */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Email Address
+                </label>
+                <input
+                  {...register('email')}
+                  type="email"
+                  className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 shadow-sm
+                    focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  placeholder="Enter your email"
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+                )}
+              </div>
+
+              {/* Password Input */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <input
+                  {...register('password')}
+                  type="password"
+                  className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 shadow-sm
+                    focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  placeholder="Create a password"
+                />
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
+                )}
+              </div>
+
+              {/* Confirm Password Input */}
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                  Confirm Password
+                </label>
+                <input
+                  {...register('confirmPassword')}
+                  type="password"
+                  className="mt-1 w-full px-4 py-3 rounded-xl border border-gray-300 shadow-sm
+                    focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                  placeholder="Confirm your password"
+                />
+                {errors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-500">{errors.confirmPassword.message}</p>
+                )}
+              </div>
+            </div>
+
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:bg-primary/70 transition"
+              className="w-full py-3 px-6 rounded-xl text-base font-semibold text-white
+                bg-gradient-to-r from-blue-600 to-sky-600 
+                hover:from-blue-700 hover:to-sky-700
+                focus:outline-none focus:ring-4 focus:ring-blue-500/20
+                transition-all duration-200 ease-in-out
+                disabled:opacity-50 disabled:cursor-not-allowed
+                transform hover:-translate-y-0.5"
             >
-              {isSubmitting ? 'Creating account...' : 'Create account'}
+              {isSubmitting ? 'Creating Account...' : 'Sign Up for JobNest'}
             </button>
-          </div>
-        </form>
+
+            <p className="text-center text-sm text-gray-600">
+              Already tracking jobs?{' '}
+              <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                Log in
+              </a>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );
-};
-
-export default Register;
+}

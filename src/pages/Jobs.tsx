@@ -4,11 +4,11 @@ import { useJobs, JobStatus } from '../context/JobsContext';
 import JobCard from '../components/JobCard';
 import { Link } from 'react-router-dom';
 
-type ViewMode = 'kanban' | 'list';
+type ViewMode = 'Grid' | 'list';
 
 const Jobs = () => {
   const { jobs, isLoading } = useJobs();
-  const [viewMode, setViewMode] = useState<ViewMode>('kanban');
+  const [viewMode, setViewMode] = useState<ViewMode>('Grid');
 
   // Define all job statuses in the order we want to display them
   const jobStatuses: JobStatus[] = ['saved', 'applied', 'interview', 'offer', 'accepted', 'rejected'];
@@ -42,14 +42,14 @@ const Jobs = () => {
             <div className="flex flex-wrap gap-3 items-center">
               <div className="flex rounded-lg shadow-sm overflow-hidden">
                 <button
-                  onClick={() => setViewMode('kanban')}
+                  onClick={() => setViewMode('Grid')}
                   className={`px-4 py-2.5 text-sm font-medium transition-colors ${
-                    viewMode === 'kanban'
+                    viewMode === 'Grid'
                       ? 'bg-primary text-white'
                       : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  Kanban
+                  Grid
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
@@ -90,9 +90,9 @@ const Jobs = () => {
             ))}
           </div>
         ) : (
-          <div className={viewMode === 'kanban' ? 'space-y-6' : ''}>
-            {/* Kanban View */}
-            {viewMode === 'kanban' && (
+          <div className={viewMode === 'Grid' ? 'space-y-6' : ''}>
+            {/* Grid View */}
+            {viewMode === 'Grid' && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {jobStatuses.map(status => {
                   const statusJobs = getJobsByStatus(status);
