@@ -60,7 +60,7 @@ const features = [
   },
   {
     icon: <LayoutDashboard className="w-6 h-6 text-primary" />,
-    title: "Visual Kanban Board",
+    title: "Visual Grid Board",
     description: "Drag and drop job cards across stages like Applied, Interviewing, and Offer.",
   },
   {
