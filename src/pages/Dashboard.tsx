@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PageLayout from '../components/layouts/PageLayout';
 import { useJobs, JobStatus } from '../context/JobsContext';
@@ -6,6 +5,31 @@ import { Link } from 'react-router-dom';
 import JobCard from '../components/JobCard';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { format, parseISO, subDays, eachDayOfInterval } from 'date-fns';
+import { TrendingUp, Users, Award, Calendar } from 'lucide-react';
+
+const StatsCard = ({ title, value, icon, trend }: {
+  title: string;
+  value: number | string;
+  icon: React.ReactNode;
+  trend: string;
+}) => (
+  <div className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-200">
+    <div className="flex items-start justify-between">
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-gray-600">{title}</p>
+        <p className="text-2xl font-bold">{value}</p>
+      </div>
+      <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+        {icon}
+      </div>
+    </div>
+    <div className="mt-2 flex items-center text-sm">
+      <span className={`font-medium ${trend.includes('↑') ? 'text-green-600' : 'text-gray-600'}`}>
+        {trend}
+      </span>
+    </div>
+  </div>
+);
 
 const Dashboard = () => {
   const { jobs, isLoading } = useJobs();
@@ -78,43 +102,58 @@ const Dashboard = () => {
 
   return (
     <PageLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+      <div className="space-y-8">
+        {/* Enhanced Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white p-6 rounded-xl shadow-sm border border-border">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Welcome Back 👋</h1>
+            <p className="text-gray-500 mt-1">Here's what's happening with your job applications.</p>
+          </div>
           <Link
             to="/jobs/new"
-            className="mt-3 sm:mt-0 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+            className="mt-4 sm:mt-0 px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 
+            transition-all duration-200 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl 
+            hover:shadow-primary/20 active:transform-none flex items-center justify-center gap-2"
           >
-            Add New Job
+            <span className="text-sm font-medium">Add New Job</span>
+            <span className="text-lg">+</span>
           </Link>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-32 bg-gray-100 rounded-lg animate-pulse"></div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-32 bg-gray-100 rounded-xl animate-pulse"></div>
             ))}
           </div>
         ) : (
           <>
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-border">
-                <h3 className="text-sm font-medium text-gray-500">Total Applications</h3>
-                <p className="mt-2 text-3xl font-semibold">{totalApplications}</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-border">
-                <h3 className="text-sm font-medium text-gray-500">Active Applications</h3>
-                <p className="mt-2 text-3xl font-semibold">{totalActive}</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-border">
-                <h3 className="text-sm font-medium text-gray-500">Success Rate</h3>
-                <p className="mt-2 text-3xl font-semibold">{successRate}%</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border border-border">
-                <h3 className="text-sm font-medium text-gray-500">Upcoming Interviews</h3>
-                <p className="mt-2 text-3xl font-semibold">{upcomingInterviews}</p>
-              </div>
+            {/* Enhanced Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+              <StatsCard
+                title="Total Applications"
+                value={totalApplications}
+                icon={<Users className="w-6 h-6" />}
+                trend={totalApplications > 0 ? "+12% ↑" : "0%"}
+              />
+              <StatsCard
+                title="Active Applications"
+                value={totalActive}
+                icon={<TrendingUp className="w-6 h-6" />}
+                trend={totalActive > 0 ? "+5% ↑" : "0%"}
+              />
+              <StatsCard
+                title="Success Rate"
+                value={`${successRate}%`}
+                icon={<Award className="w-6 h-6" />}
+                trend={successRate > 0 ? "+2% ↑" : "0%"}
+              />
+              <StatsCard
+                title="Upcoming Interviews"
+                value={upcomingInterviews}
+                icon={<Calendar className="w-6 h-6" />}
+                trend={upcomingInterviews > 0 ? "Next: Today" : "None"}
+              />
             </div>
 
             {/* Charts Section - Pie Chart and Timeline */}
