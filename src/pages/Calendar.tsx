@@ -79,27 +79,35 @@ const Calendar = () => {
     <PageLayout>
       <div className="space-y-4 md:space-y-6">
         {/* Header Section */}
-        <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-          <h1 className="text-xl md:text-2xl font-bold">Interview Calendar</h1>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={previousMonth}
-              className="flex-1 sm:flex-none px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 min-w-[80px]"
-            >
-              Previous
-            </button>
-            <button
-              onClick={goToToday}
-              className="flex-1 sm:flex-none px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 min-w-[80px]"
-            >
-              Today
-            </button>
-            <button
-              onClick={nextMonth}
-              className="flex-1 sm:flex-none px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 min-w-[80px]"
-            >
-              Next
-            </button>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6 space-y-4">
+          <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Interview Calendar</h1>
+              <p className="text-sm text-gray-500 mt-1">Manage your upcoming interviews</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={previousMonth}
+                className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-gray-200 
+                hover:bg-gray-50 active:bg-gray-100 transition-colors duration-200 text-sm font-medium"
+              >
+                ←
+              </button>
+              <button
+                onClick={goToToday}
+                className="flex-1 sm:flex-none px-4 py-2 rounded-lg bg-primary text-white
+                hover:bg-primary/90 active:bg-primary/80 transition-colors duration-200 text-sm font-medium"
+              >
+                Today
+              </button>
+              <button
+                onClick={nextMonth}
+                className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-gray-200
+                hover:bg-gray-50 active:bg-gray-100 transition-colors duration-200 text-sm font-medium"
+              >
+                →
+              </button>
+            </div>
           </div>
         </div>
 
