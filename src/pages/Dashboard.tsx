@@ -3,6 +3,7 @@ import PageLayout from '../components/layouts/PageLayout';
 import { useJobs, JobStatus } from '../context/JobsContext';
 import { Link } from 'react-router-dom';
 import JobCard from '../components/JobCard';
+import { useAuth } from '../context/AuthContext'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { format, parseISO, subDays, eachDayOfInterval } from 'date-fns';
 import { TrendingUp, Users, Award, Calendar } from 'lucide-react';
@@ -33,6 +34,7 @@ const StatsCard = ({ title, value, icon, trend }: {
 
 const Dashboard = () => {
   const { jobs, isLoading } = useJobs();
+  const { user } = useAuth();
 
   // Calculate statistics
   const getStatusCount = (status: JobStatus) => {
@@ -106,7 +108,7 @@ const Dashboard = () => {
         {/* Enhanced Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white p-6 rounded-xl shadow-sm border border-border">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Welcome Back 👋</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Welcome Back 👋 {user?.name}</h1>
             <p className="text-gray-500 mt-1">Here's what's happening with your job applications.</p>
           </div>
           <Link
