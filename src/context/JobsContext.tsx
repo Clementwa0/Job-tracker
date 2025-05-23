@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -54,7 +53,7 @@ interface JobsContextType {
   getJobs: () => Promise<void>;
   getJobsByStatus: (status: JobStatus) => Job[];
   getJobById: (id: string) => Job | undefined;
-  addJob: (job: Omit<Job, 'id' | 'dateCreated' | 'dateModified'>) => Promise<void>;
+  addJob: (job: Omit<Job, 'id' | 'dateCreated' | 'dateModified'>) => Promise<string>;
   updateJob: (job: Job) => Promise<void>;
   deleteJob: (id: string) => Promise<void>;
   addInterview: (jobId: string, interview: Omit<Interview, 'id'>) => Promise<void>;
@@ -282,9 +281,18 @@ export const JobsProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Add a new job
-  const addJob = async (jobData: Omit<Job, 'id' | 'dateCreated' | 'dateModified'>) => {
+  const addJob = async (jobData: Omit<Job, 'id' | 'dateCreated' | 'dateModified'>): Promise<string> => {
     try {
+      // Validate required fields
+      if (!jobData.title?.trim()) {
+        throw new Error('Job title is required');
+      }
+      if (!jobData.company?.trim()) {
+        throw new Error('Company name is required');
+      }
+
       dispatch({ type: 'LOADING_START' });
+      
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 800));
       
@@ -294,13 +302,29 @@ export const JobsProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: `job-${Date.now()}`,
         dateCreated: now,
         dateModified: now,
+        // Set dateApplied if status is 'applied'
+        dateApplied: jobData.status === 'applied' ? now : jobData.dateApplied,
+        // Ensure all required fields are present
+        title: jobData.title.trim(),
+        company: jobData.company.trim(),
+        location: jobData.location?.trim() ?? '',
+        url: jobData.url?.trim() ?? '',
+        description: jobData.description?.trim() ?? '',
+        salary: jobData.salary?.trim() ?? '',
+        contact: jobData.contact?.trim() ?? '',
+        notes: jobData.notes?.trim() ?? '',
+        status: jobData.status || 'saved'
       };
       
       dispatch({ type: 'ADD_JOB', payload: newJob });
       toast.success('Job added successfully');
+      
+      return newJob.id;
     } catch (error) {
-      toast.error('Failed to add job');
-      console.error(error);
+      const message = error instanceof Error ? error.message : 'Failed to add job';
+      toast.error(message);
+      console.error('Error adding job:', error);
+      throw error;
     } finally {
       dispatch({ type: 'LOADING_END' });
     }

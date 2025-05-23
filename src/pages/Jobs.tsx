@@ -1,20 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { 
+  LayoutGrid, 
+  List, 
+  Plus, 
+  Search, 
+  BookmarkCheck,
+  SendHorizonal,
+  Users2,
+  Award,
+  CheckCircle2,
+  XCircle,
+  Pencil,
+  Trash2,
+  Building2
+} from 'lucide-react';
 import PageLayout from '../components/layouts/PageLayout';
 import { useJobs, JobStatus } from '../context/JobsContext';
 import JobCard from '../components/JobCard';
-import { Link } from 'react-router-dom';
 
 type ViewMode = 'Grid' | 'list';
+type SortOption = 'newest' | 'alphabetical' | 'status';
+
+const statusConfig = {
+  saved: { icon: BookmarkCheck, color: 'bg-blue-50 text-blue-600 border-blue-200' },
+  applied: { icon: SendHorizonal, color: 'bg-purple-50 text-purple-600 border-purple-200' },
+  interview: { icon: Users2, color: 'bg-amber-50 text-amber-600 border-amber-200' },
+  offer: { icon: Award, color: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
+  accepted: { icon: CheckCircle2, color: 'bg-green-50 text-green-600 border-green-200' },
+  rejected: { icon: XCircle, color: 'bg-red-50 text-red-600 border-red-200' }
+};
 
 const Jobs = () => {
   const { jobs, isLoading } = useJobs();
   const [viewMode, setViewMode] = useState<ViewMode>('Grid');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
 
-  // Define all job statuses in the order we want to display them
   const jobStatuses: JobStatus[] = ['saved', 'applied', 'interview', 'offer', 'accepted', 'rejected'];
 
-  // Get jobs by status for a column
-  const getJobsByStatus = (status: JobStatus) => jobs.filter(job => job.status === status);
+  const filteredAndSortedJobs = useMemo(() => {
+    let filtered = jobs.filter(job => 
+      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.company.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    switch (sortBy) {
+      case 'alphabetical':
+        return filtered.sort((a, b) => a.title.localeCompare(b.title));
+      case 'status':
+        return filtered.sort((a, b) => a.status.localeCompare(b.status));
+      default:
+        return filtered.sort((a, b) => 
+          new Date(b.dateApplied || '').getTime() - new Date(a.dateApplied || '').getTime()
+        );
+    }
+  }, [jobs, searchQuery, sortBy]);
+
+  const getJobsByStatus = (status: JobStatus) => 
+    filteredAndSortedJobs.filter(job => job.status === status);
 
   const getColumnTitle = (status: JobStatus) => {
     const titles = {
@@ -30,55 +74,92 @@ const Jobs = () => {
 
   return (
     <PageLayout>
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Enhanced Header Section */}
-        <div className="bg-white rounded-xl shadow-sm mb-8 p-6">
+      <div className="max-w-7xl mx-auto p-4 md:p-6">
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-sm mb-8 p-6 backdrop-blur-lg bg-opacity-90">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Job Applications</h1>
-              <p className="mt-2 text-gray-600">Track and manage your job search progress</p>
+              <p className="mt-2 text-gray-600">Tracking {jobs.length} applications</p>
             </div>
 
-            <div className="flex flex-wrap gap-3 items-center">
-              <div className="flex rounded-lg shadow-sm overflow-hidden">
+            {/* Controls */}
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="relative flex-1 sm:flex-none">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search jobs..."
+                  className="pl-10 pr-4 py-2 w-full sm:w-64 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+
+              <select
+                className="px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+              >
+                <option value="newest">Newest First</option>
+                <option value="alphabetical">A-Z</option>
+                <option value="status">By Status</option>
+              </select>
+
+              <div className="bg-gray-100 rounded-lg p-1 flex items-center">
                 <button
                   onClick={() => setViewMode('Grid')}
-                  className={`px-4 py-2.5 text-sm font-medium transition-colors ${
-                    viewMode === 'Grid'
-                      ? 'bg-primary text-white'
-                      : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                  className={`p-2 rounded-md transition-all ${
+                    viewMode === 'Grid' 
+                      ? 'bg-white shadow-sm text-primary' 
+                      : 'text-gray-600 hover:text-primary'
                   }`}
                 >
-                  Grid
+                  <LayoutGrid size={20} />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`px-4 py-2.5 text-sm font-medium transition-colors ${
-                    viewMode === 'list'
-                      ? 'bg-primary text-white'
-                      : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                  className={`p-2 rounded-md transition-all ${
+                    viewMode === 'list' 
+                      ? 'bg-white shadow-sm text-primary' 
+                      : 'text-gray-600 hover:text-primary'
                   }`}
                 >
-                  List
+                  <List size={20} />
                 </button>
               </div>
+
               <Link
                 to="/jobs/new"
-                className="px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+                className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all hover:scale-105"
               >
-                Add Job
+                <Plus size={20} />
+                <span>Add Job</span>
               </Link>
             </div>
           </div>
 
           {/* Status Summary */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
-            {jobStatuses.map(status => (
-              <div key={status} className="bg-gray-50 rounded-lg p-4">
-                <div className="text-sm text-gray-600">{getColumnTitle(status)}</div>
-                <div className="text-2xl font-bold mt-1">{getJobsByStatus(status).length}</div>
-              </div>
-            ))}
+            {jobStatuses.map(status => {
+              const StatusIcon = statusConfig[status].icon;
+              return (
+                <div
+                  key={status}
+                  className={`rounded-xl border p-4 transition-all hover:scale-[1.02] ${statusConfig[status].color}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <StatusIcon size={16} />
+                    <span className="text-sm font-medium">
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </span>
+                  </div>
+                  <div className="text-2xl font-bold mt-2">
+                    {getJobsByStatus(status).length}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

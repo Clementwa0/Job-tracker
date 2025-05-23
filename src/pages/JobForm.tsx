@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CheckCircle2, Loader2 } from 'lucide-react';
 import PageLayout from '../components/layouts/PageLayout';
 import { useJobs, JobStatus } from '../context/JobsContext';
 
@@ -8,6 +8,7 @@ const JobForm = () => {
   const navigate = useNavigate();
   const { addJob } = useJobs();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   
   const [formData, setFormData] = useState({
     title: '',
@@ -30,14 +31,65 @@ const JobForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus('loading');
     
     try {
-      await addJob(formData);
-      navigate('/jobs');
+      // Wait for the job to be added and get its ID
+      const jobId = await addJob({
+        ...formData
+      });
+      
+      setSubmitStatus('success');
+      
+      // Show success state briefly before redirecting
+      setTimeout(() => {
+        // Redirect to the specific job details page
+        navigate(`/jobs/${jobId}`);
+      }, 1000);
+      
     } catch (error) {
       console.error('Error adding job:', error);
+      setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Show submission feedback
+  const renderSubmitButton = () => {
+    switch (submitStatus) {
+      case 'loading':
+        return (
+          <button
+            type="submit"
+            disabled
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary flex items-center gap-2"
+          >
+            <Loader2 size={16} className="animate-spin" />
+            Adding Job...
+          </button>
+        );
+      case 'success':
+        return (
+          <button
+            type="submit"
+            disabled
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 flex items-center gap-2"
+          >
+            <CheckCircle2 size={16} />
+            Job Added!
+          </button>
+        );
+      default:
+        return (
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+          >
+            Save Job
+          </button>
+        );
     }
   };
 
@@ -216,17 +268,12 @@ const JobForm = () => {
               <button
                 type="button"
                 onClick={() => navigate('/jobs')}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+                disabled={isSubmitting}
               >
                 Cancel
               </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              >
-                {isSubmitting ? 'Saving...' : 'Save Job'}
-              </button>
+              {renderSubmitButton()}
             </div>
           </form>
         </div>
