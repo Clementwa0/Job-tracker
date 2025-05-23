@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
+import { Github, Chrome, Laptop, Apple } from 'lucide-react';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -101,19 +102,23 @@ export default function Register() {
           {/* SSO Buttons */}
           <div className="grid grid-cols-2 gap-3">
             {[
-              { name: 'Google', icon: 'google.svg' },
-              { name: 'GitHub', icon: 'github.svg' },
-              { name: 'Microsoft', icon: 'microsoft.svg' },
-              { name: 'Apple', icon: 'apple.svg' }
-            ].map((provider) => (
-              <button
-                key={provider.name}
-                className="flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 rounded-xl
-                hover:bg-gray-50 transition-all duration-200 text-gray-700 text-sm font-medium"
-              >
-                <span>{provider.name}</span>
-              </button>
-            ))}
+              { name: 'Google', icon: Chrome, color: '#4285F4' },
+              { name: 'GitHub', icon: Github, color: '#24292F' },
+              { name: 'Microsoft', icon: Laptop, color: '#00A4EF' },
+              { name: 'Apple', icon: Apple, color: '#000000' }
+            ].map((provider) => {
+              const Icon = provider.icon;
+              return (
+                <button
+                  key={provider.name}
+                  className="flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 rounded-xl
+                    hover:bg-gray-50 transition-all duration-200 text-gray-700 text-sm font-medium"
+                >
+                  <Icon className="w-5 h-5" style={{ color: provider.color }} />
+                  <span>{provider.name}</span>
+                </button>
+              );
+            })}
           </div>
 
           <div className="relative">
