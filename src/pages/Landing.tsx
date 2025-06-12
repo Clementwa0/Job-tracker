@@ -1,56 +1,101 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Briefcase, LayoutDashboard, BarChart, Bell } from 'lucide-react'
+import { Briefcase, LayoutDashboard, BarChart, Bell, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 
+const Navigation = () => {
+  const [scrolled, setScrolled] = useState(false);
 
-const Navigation = () => (
-  <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-sm z-50 shadow-sm">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex justify-between h-16 items-center">
-        <div className="flex-shrink-0">
-          <span className="text-2xl font-bold text-blue-600">JobTrail</span>
-        </div>
-        <div className="hidden md:block">
-          <div className="ml-10 flex items-center space-x-8">
-            <a href="#features" className="text-gray-700 hover:text-blue-600 transition">Features</a>
-            <a href="#testimonials" className="text-gray-700 hover:text-blue-600 transition">Testimonials</a>
-            <Link to="/login" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-              Get Started
-            </Link>
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+      scrolled ? 'bg-white/80 backdrop-blur-md shadow-lg' : 'bg-transparent'
+    }`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-20 items-center">
+          <div className="flex-shrink-0">
+            <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+              JobTrail
+            </span>
+          </div>
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-center space-x-8">
+              <a href="#features" className="text-gray-700 hover:text-blue-600 transition-all hover:scale-105">
+                Features
+              </a>
+              <a href="#testimonials" className="text-gray-700 hover:text-blue-600 transition-all hover:scale-105">
+                Testimonials
+              </a>
+              <Link 
+                to="/login"
+                className="group flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-2.5 rounded-full hover:shadow-lg hover:scale-105 transition-all"
+              >
+                Get Started
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </nav>
-);
+    </nav>
+  );
+};
 
 const Hero = () => (
-  <div className="pt-24 pb-16 bg-gradient-to-br from-blue-50 to-white">
+  <div className="pt-32 pb-16 bg-gradient-to-br from-blue-50 via-white to-blue-50">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col md:flex-row items-center justify-between">
-        <div className="md:w-1/2 space-y-6">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-            Track Your Job Search Journey
+      <motion.div 
+        className="flex flex-col md:flex-row items-center justify-between"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="md:w-1/2 space-y-8">
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
+            Track Your Job Search{' '}
+            <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+              Journey
+            </span>
           </h1>
-          <p className="text-xl text-gray-600">
-            Organize applications, track progress, and land your dream job faster.
+          <p className="text-xl text-gray-600 leading-relaxed">
+            Organize applications, track progress, and land your dream job faster with our intelligent tracking system.
           </p>
-          <Link to="/login" className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg text-lg hover:bg-blue-700 transition">
-            Start Tracking
-          </Link>
+          <div className="flex gap-4 items-center">
+            <Link 
+              to="/login"
+              className="group flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white px-8 py-4 rounded-full text-lg hover:shadow-lg hover:scale-105 transition-all"
+            >
+              Start Tracking
+              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <a href="#features" className="text-blue-600 hover:text-blue-700 font-medium">
+              Learn More →
+            </a>
+          </div>
         </div>
-        <div className="md:w-1/2 mt-8 md:mt-0">
+        <motion.div 
+          className="md:w-1/2 mt-12 md:mt-0"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
           <img 
             src="/hero-image.svg" 
             alt="Job tracking dashboard" 
-            className="w-full h-auto"
+            className="w-full h-auto drop-shadow-2xl"
           />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   </div>
 );
-
 
 const features = [
   {
@@ -77,33 +122,52 @@ const features = [
 
 const Features = () => {
   return (
-    <section id="features" className="py-16 bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-6xl mx-auto px-4 text-center">
-        <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-4">Key Features</h2>
-        <p className="text-gray-600 dark:text-gray-300 mb-12">
-          Everything you need to manage your job search — stress-free.
-        </p>
+    <section id="features" className="py-24 bg-gradient-to-b from-white to-gray-50">
+      <div className="max-w-6xl mx-auto px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            Powerful Features for Your{' '}
+            <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+              Job Search
+            </span>
+          </h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Everything you need to manage your job search — stress-free and organized.
+          </p>
+        </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
-            <div
+            <motion.div
               key={index}
-              className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow hover:shadow-lg transition"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105 border border-gray-100"
             >
-              <div className="mb-4">{feature.icon}</div>
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
+              <div className="mb-6 bg-blue-50 w-14 h-14 rounded-xl flex items-center justify-center">
+                {feature.icon}
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">
+              <p className="text-gray-600">
                 {feature.description}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
 
 const TestimonialCard = ({ text, name, role, avatar }: { text: string; name: string; role: string; avatar: string }) => (

@@ -38,18 +38,10 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
     { name: 'Profile', href: '/profile', icon: User },
   ];
 
-  const isMobileView = () => window.innerWidth < 768;
-
-  const closeSidebarIfMobile = () => {
-    if (isMobileView()) {
-      setSidebarOpen(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background flex">
       {/* Mobile sidebar toggle */}
-      <div className="md:hidden fixed top-4 left-4 z-30">
+      <div className="md:hidden fixed z-30 top-4 left-4">
         <button
           className="p-2 rounded-md bg-primary text-white"
           onClick={toggleSidebar}
@@ -58,11 +50,11 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
         </button>
       </div>
 
-      {/* Sidebar Overlay */}
+      {/* Sidebar Overlay - only for mobile */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
-          onClick={() => setSidebarOpen(false)}
+          onClick={toggleSidebar}
         />
       )}
 
@@ -93,7 +85,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
               <Link
                 key={item.name}
                 to={item.href}
-                onClick={closeSidebarIfMobile}
                 className={`group flex items-center px-4 py-3 text-sm font-medium rounded-md transition-colors relative
                   ${isCollapsed ? 'justify-center' : ''}
                   ${isActive 
@@ -143,9 +134,9 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
       </div>
 
       {/* Main Content */}
-      <div className={`flex-1 transition-all duration-300 ease-in-out
+      <div className={`flex-1  mt-6 p-2 relative transition-all duration-300 ease-in-out
         ${isCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
-        <main className="p-4 md:p-8">
+        <main className="p-5 md:p-8">
           {children}
         </main>
       </div>

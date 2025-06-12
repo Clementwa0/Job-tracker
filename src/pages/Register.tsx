@@ -33,7 +33,7 @@ export default function Register() {
       });
       toast.success('Registration successful!');
     } catch (error) {
-      toast.error('Registration failed. Please try again.');
+      toast.error('Registration failed. User Already Exists!');
     }
   };
 
@@ -44,7 +44,7 @@ export default function Register() {
         <div className="space-y-12">
           {/* Logo */}
           <div className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-sky-700 bg-clip-text text-transparent">
-            JobNest
+            JobTrail
           </div>
           
           {/* Hero Content */}
@@ -99,8 +99,8 @@ export default function Register() {
             <p className="text-gray-600">Let’s streamline your job hunt</p>
           </div>
 
-          {/* SSO Buttons */}
-          <div className="grid grid-cols-2 gap-3">
+         
+          {/* <div className="grid grid-cols-2 gap-3">
             {[
               { name: 'Google', icon: Chrome, color: '#4285F4' },
               { name: 'GitHub', icon: Github, color: '#24292F' },
@@ -119,7 +119,7 @@ export default function Register() {
                 </button>
               );
             })}
-          </div>
+          </div> */}
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
