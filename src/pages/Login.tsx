@@ -212,7 +212,7 @@ export default function Login() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* <div className="grid grid-cols-2 gap-3">
                 {[
                   ['Google', '#4285F4'],
                   ['GitHub', '#24292F'],
@@ -235,8 +235,9 @@ export default function Login() {
                   </button>
                 ))}
               </div>
-            </div>
+            */}
 
+                </div> 
             <p className="text-center text-sm text-gray-600">
               Don’t have an account?{' '}
               <a href="/register" className="font-semibold text-green-600 hover:text-green-500">

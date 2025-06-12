@@ -34,12 +34,12 @@ const App = () => (
               <Route path="/landing" element={<Landing/>} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              
+             
               {/* Protected Routes */}
               <Route path="/dashboard" element={
-                <ProtectedRoute>
+                
                   <Dashboard />
-                </ProtectedRoute>
+                
               } />
               
               <Route path="/jobs" element={
