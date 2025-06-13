@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { features, steps } from  "@/constants";
+import { features, recentApplications, steps } from  "@/constants";
 
 
 const Homepage = () => {
@@ -13,7 +13,6 @@ const Homepage = () => {
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold font-old text-blue-600">JobTrail</h1>
           </div>
-
           <div className="hidden md:flex items-center gap-6">
             <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">
               Features
@@ -58,7 +57,7 @@ const Homepage = () => {
                   </Button>
                 </Link>
                 <Link to="/login">
-                  <Button variant="outline" className="w-full sm:w-auto">
+                  <Button variant="secondary" className="w-full sm:w-auto">
                     Login
                   </Button>
                 </Link>
@@ -93,11 +92,7 @@ const Homepage = () => {
                   <div className="space-y-2 mt-4">
                     <div className="text-sm font-medium">Recent Applications</div>
                     <div className="space-y-2">
-                      {[
-                        { company: "Acme Corp", position: "Frontend Developer", status: "interview", date: "2 days ago" },
-                        { company: "Globex Inc", position: "Product Manager", status: "applied", date: "4 days ago" },
-                        { company: "Stark Industries", position: "UX Designer", status: "offer", date: "1 week ago" },
-                      ].map((job, index) => (
+                      {recentApplications.map((job, index) => (
                         <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                           <div>
                             <div className="font-medium">{job.position}</div>

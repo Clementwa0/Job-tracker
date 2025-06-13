@@ -132,7 +132,7 @@ const Login = () => {
                   disabled:opacity-50 disabled:cursor-not-allowed
                   shadow-lg shadow-green-600/20 hover:shadow-green-600/30"
               >
-                <Link to="/layout" >Login</Link> 
+                <Link to="/dashboard" >Login</Link> 
               </button>
             </form>
 
