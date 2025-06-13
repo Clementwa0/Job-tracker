@@ -4,9 +4,9 @@ const Register = () => {
   return (
      <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Panel - Brand Content */}
-      <div className="lg:w-[45%] bg-gradient-to-b from-blue-50 to-sky-50 p-8 lg:p-12 flex flex-col justify-between">
+      <div className="hidden md:flex lg:w-[45%] bg-gradient-to-b from-blue-50 to-sky-50 p-8 lg:p-12 flex flex-col justify-between">
         <div className="space-y-12">
-          {/* Logo */}
+          
           <div className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-sky-700 bg-clip-text text-transparent">
             JobTrail
           </div>

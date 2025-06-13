@@ -1,7 +1,7 @@
 export {default as Login } from './Login'
 export {default as Register } from './Register'
 export {default as Homepage } from './HomePage/Homepage'
-export {default as Dashboard } from './pages/Dashboard'
+export {default as Dashboard } from './pages/Dashboard/Dashboard'
 export {default as Calendar } from './pages/Calendar'
 export {default as Jobs } from './pages/Jobs'
 export {default as Layout } from './layout/Layout'
