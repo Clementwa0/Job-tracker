@@ -1,4 +1,4 @@
-import { register } from "../constants"
+import { register } from "../constants";
 
 const Register = () => {
   return (

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { login } from "../constants"
 
 const Login = () => {
@@ -131,7 +132,7 @@ const Login = () => {
                   disabled:opacity-50 disabled:cursor-not-allowed
                   shadow-lg shadow-green-600/20 hover:shadow-green-600/30"
               >
-                  Login
+                <Link to="/layout" >Login</Link> 
               </button>
             </form>
 
