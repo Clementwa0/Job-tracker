@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight} from "lucide-react";
-import { Button } from "../ui/button";
-import { features, steps } from "../../constants";
+import { Button } from "@/components/ui/button";
+import { features, steps } from  "@/constants";
 
 
 const Homepage = () => {
@@ -22,12 +22,7 @@ const Homepage = () => {
               How it works
             </a>
             <Link to="/Login" className="text-gray-600 hover:text-blue-600 transition-colors">
-              Login
-            </Link>
-            <Link to="/Register">
-              <Button variant="default">
-                Get Started
-              </Button>
+              Get Started
             </Link>
           </div>
 

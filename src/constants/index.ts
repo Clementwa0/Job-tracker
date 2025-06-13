@@ -1,4 +1,5 @@
 import { FileCheck, Calendar, LineChart } from 'lucide-react'
+import path from 'path'
 
 // Feature type definition removed because interfaces are not supported in JavaScript files.
 
@@ -86,3 +87,19 @@ export const register = [
                 desc: "All your job data in one hub"
               }
             ]
+export const user = {
+  name: 'John Doe',
+  email: 'john.doe@example.com'
+} 
+
+export const links = [
+ {
+  path: '/dashboard',
+  name: 'Dashboard',
+  icon: Calendar
+ },
+ { path: '/calendar', name: 'Calendar', icon: Calendar },
+ { path: '/jobs', name: 'Jobs', icon: FileCheck },
+ { path: '/profile', name: 'Profile', icon: LineChart },
+ { path: '/add-job', name: 'Add Job', icon: FileCheck }
+]
