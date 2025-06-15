@@ -1,7 +1,21 @@
-import { Link } from "react-router-dom"
 import { login } from "../constants"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Link } from "react-router-dom"
 
-const Login = () => {
+export function Login({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Feature Section - Hidden on mobile */}
@@ -53,112 +67,64 @@ const Login = () => {
       <div className="flex-1 flex items-center justify-center p-4 bg-gradient-to-tr from-green-50 via-white to-teal-50">
         <div className="w-full max-w-[440px] backdrop-blur-xl bg-white/60 p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/20">
           <div className="space-y-6">
-            {/* Mobile Logo */}
-            <div className="lg:hidden flex flex-col items-center space-y-3 mb-6">
-              <svg className="w-12 h-12 text-green-700" viewBox="0 0 40 40" fill="none">
-                <path d="M20 40c11.046 0 20-8.954 20-20S31.046 0 20 0 0 8.954 0 20s8.954 20 20 20z" fill="currentColor"/>
-                <path d="M15 11l10 9-10 9V11z" fill="white"/>
-              </svg>
-              <h2 className="text-xl font-semibold text-gray-900">JobTrail</h2>
-            </div>
-
             <div className="space-y-2">
               <h2 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-green-700 to-teal-600 bg-clip-text text-transparent">
                 Welcome back
               </h2>
-              <p className="text-gray-600 text-sm">
-                Sign in to manage your job applications and advance your career
-              </p>
             </div>
-
-            {/* Login Form */}
-            <form  className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <div className="relative">
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      className="w-full px-4 py-3.5 rounded-xl text-sm bg-gray-50/50 border border-gray-200 
-                      focus:bg-white focus:ring-2 focus:ring-green-600 focus:border-transparent
-                      transition-all duration-200 placeholder-gray-400"
-                    />
-                      <span className="absolute -bottom-5 left-0 text-xs text-red-500 font-medium">
-                      </span>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="relative">
-                    <input
-                      type="password"
-                      placeholder="Password"
-                      className="w-full px-4 py-3.5 rounded-xl text-sm bg-gray-50/50 border border-gray-200 
-                      focus:bg-white focus:ring-2 focus:ring-green-600 focus:border-transparent
-                      transition-all duration-200 placeholder-gray-400"
-                    />
-                      <span className="absolute -bottom-5 left-0 text-xs text-red-500 font-medium">
-                      </span>
-                  </div>
-                </div>
+    <div className={cn("flex flex-col gap-6", className)} {...props}>
+      <Card>
+        <CardHeader>
+          <CardTitle>Login to your account</CardTitle>
+          <CardDescription>
+            Enter your email below to login to your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form>
+            <div className="flex flex-col gap-6">
+              <div className="grid gap-3">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                />
               </div>
-
-              <div className="flex items-center justify-between">
+              <div className="grid gap-3">
                 <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="remember"
-                    className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                  />
-                  <label htmlFor="remember" className="ml-2 block text-sm text-gray-600">
-                    Remember me
-                  </label>
+                  <Label htmlFor="password">Password</Label>
+                  <a
+                    href="#"
+                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                  >
+                    Forgot your password?
+                  </a>
                 </div>
-                <a
-                  href="/forgot-password"
-                  className="text-sm font-medium text-green-600 hover:text-green-500"
-                >
-                  Forgot password?
-                </a>
+                <Input id="password" type="password" required />
               </div>
-
-              <button
-                type="submit"
-                className="w-full relative py-3.5 px-4 rounded-xl text-sm font-medium text-white
-                  bg-gradient-to-r from-green-700 to-teal-600 
-                  hover:from-green-800 hover:to-teal-700
-                  focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2
-                  transition-all duration-200 ease-in-out
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                  shadow-lg shadow-green-600/20 hover:shadow-green-600/30"
-              >
-                <Link to="/dashboard" >Login</Link> 
-              </button>
-            </form>
-
-            {/* SSO Options */}
-            {/* <div className="space-y-4">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white/60 backdrop-blur-xl px-2 text-gray-500">
-                    Or sign in with
-                  </span>
-                </div>
+              <div className="flex flex-col gap-3">
+                <Button type="submit" className="w-full">
+                 <Link to="/dashboard">Login</Link>
+                </Button>
+                <Button variant="outline" className="w-full">
+                  Login with Google
+                </Button>
               </div>
-              {/* sign in with google */}
-              
-             
-
-                </div> 
+            </div>
             <p className="text-center text-sm text-gray-600">
               Don’t have an account?{' '}
-              <a href="/register" className="font-semibold text-green-600 hover:text-green-500">
+              <Link to="/register" className="font-semibold text-green-600 hover:text-green-500">
                 Create one
-              </a>
+              </Link>
             </p>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+
+    </div> 
           </div>
         </div>
       </div>
