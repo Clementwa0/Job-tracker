@@ -20,9 +20,11 @@ const Homepage = () => {
             <a href="#how-it-works" className="text-gray-600 hover:text-blue-600 transition-colors">
               How it works
             </a>
-            <Link to="/Login" className="text-gray-600 hover:text-blue-600 transition-colors">
-              Get Started
-            </Link>
+            <Button variant="destructive" className="hidden md:inline-flex hover:bg-blue-600 hover:text-white transition-colors">
+              <Link to="/register" className="text-gray-100 transition-colors ">
+                Sign Up
+              </Link>
+            </Button>
           </div>
 
           <div className="md:hidden flex items-center gap-2">
@@ -193,10 +195,10 @@ const Homepage = () => {
 
 
       {/* CTA */}
-      <section className="py-20 bg-primary">
+      <section className="py-20  bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to organize your job search?</h2>
-          <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text- mb-8 max-w-2xl mx-auto">
             Join thousands of job seekers who have streamlined their job search process with JobTrail.
           </p>
           <Link to="/register">

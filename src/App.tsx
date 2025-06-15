@@ -1,11 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Homepage from './components/HomePage/Homepage'
 import { Calendar, Profile, Dashboard, Jobs, Layout, Login, Register, AddJob } from './components'
-import { ThemeProvider } from '@/components/theme-provider'
+
 
 const App = () => {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <Router>
         <Routes>
           <Route path="/" element={<Homepage />} />
@@ -22,7 +21,7 @@ const App = () => {
         </Route>
       </Routes>
     </Router>
-   </ThemeProvider>
+   
   )
 }
 
