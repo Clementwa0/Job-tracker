@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { links } from "../../constants";
+import { links, user } from "../../constants";
 import { cn } from  "../../lib/utils";
 import { LogOut } from "lucide-react";
 
@@ -86,6 +86,9 @@ const Sidebar = () => {
       </nav>
 
       <div className="px-3 py-4 border-t ">
+        <h2 className="text-sm  text-gray-700 mb-2">
+          {user?.name}
+        </h2> 
         <button
           className={cn(
             " w-full",
@@ -93,7 +96,7 @@ const Sidebar = () => {
           )}
         >
           <LogOut className="w-5 h-5" />
-          {!collapsed && <span>Logout</span>}
+          {!collapsed &&  <span>Logout</span>}
         </button>
       </div>
     </div>
