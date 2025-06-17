@@ -21,13 +21,12 @@ import { mockRecentActivity, mockStats, mockUpcomingInterviews } from '@/constan
 const Dashboard: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
-      {/* Header with Quick Add Button */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
         <Link to="/add-job">
           <Button className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
-            Add New Application
+            Add New Job
           </Button>
         </Link>
       </div>
@@ -186,14 +185,14 @@ const Dashboard: React.FC = () => {
               <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg">
                 <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
                 <div>
-                  <p className="font-medium text-amber-800">Follow up with Google</p>
+                  <p className="font-medium text-amber-800">Follow up</p>
                   <p className="text-sm text-amber-700">Send thank you email after interview</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
                 <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
-                  <p className="font-medium text-blue-800">Prepare for Amazon Interview</p>
+                  <p className="font-medium text-blue-800">Prepare for Interview</p>
                   <p className="text-sm text-blue-700">Review system design concepts</p>
                 </div>
               </div>

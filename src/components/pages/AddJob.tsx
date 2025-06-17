@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { Calendar, MapPin, Building2, Briefcase, User, Mail, Phone, Link, DollarSign, FileText, Clock, Save, Plus } from 'lucide-react';
+import { Calendar, MapPin, Briefcase, User, Mail, Phone, Link, FileText, Clock, Save, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import StatusBadge from './StatusBadge';
 import FileUpload from './FileUpload';
 import { toast } from 'sonner';
 
@@ -327,9 +326,8 @@ const AddJob = () => {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-700">Salary Range</label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <Input
-                          placeholder="e.g. $80,000 - $100,000"
+                          placeholder="e.g. Kes 80,000 - Kes 100,000"
                           value={formData.salaryRange}
                           onChange={(e) => handleInputChange('salaryRange', e.target.value)}
                           className="pl-10"
