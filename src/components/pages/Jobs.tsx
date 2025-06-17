@@ -7,14 +7,14 @@ import JobsTable, { type Job } from './Jobs/JobsTable';
 import JobsFilter from './Jobs/JobsFilter';
 import JobCard from '@/components/ui/JobCard';
 import { useJobs } from '@/hooks/JobContext';
-import { useToast } from '@/hooks/use-toast';
+// import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Jobs: React.FC = () => {
   const { jobs, deleteJob } = useJobs();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  // const { toast } = useToast();
   const isMobile = useIsMobile();
   
   const [searchTerm, setSearchTerm] = useState('');

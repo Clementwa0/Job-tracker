@@ -2,16 +2,18 @@ import { Link } from "react-router-dom";
 import { ArrowRight} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { features, recentApplications, steps } from  "@/constants";
+import Logo from "../../assets/logo.png"; // Adjust the path as necessary
 
 
 const Homepage = () => {
   return (
     <div className="bg-white">
-      {/* Navigation bar */}
       <header className="fixed top-0 w-full bg-white/95 backdrop-blur z-50 border-b">
         <div className="container mx-auto px-2 py-2 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold font-old text-blue-600">JobTrail</h1>
+           <Link to="/">
+            <img src={Logo} alt="JobTrail Logo" className="h-30 absolute z-10 top-[-2rem]" />
+            </Link>
           </div>
           <div className="hidden md:flex items-center gap-6">
             <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">
@@ -195,14 +197,14 @@ const Homepage = () => {
 
 
       {/* CTA */}
-      <section className="py-20  bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      <section className="py-20   text-black">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to organize your job search?</h2>
           <p className="text-xl text- mb-8 max-w-2xl mx-auto">
             Join thousands of job seekers who have streamlined their job search process with JobTrail.
           </p>
           <Link to="/register">
-            <Button size="lg" variant="ghost">
+            <Button size="lg" variant="default" className="hover:bg-blue-700 transition-colors">
               Get Started Free
             </Button>
           </Link>
