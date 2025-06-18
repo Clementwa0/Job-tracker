@@ -74,7 +74,7 @@ export default function JobTimeline({ jobId, onAddFollowUp }: JobTimelineProps) 
       <div className="mt-4">
         <AddFollowUpModal
           job={job}
-          onAdd={({ jobId, date, note }) => onAddFollowUp(Number(jobId), date)}
+          onAdd={({ jobId, date}) => onAddFollowUp(Number(jobId), date)}
         />
       </div>
     </div>
