@@ -13,12 +13,41 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { mockRecentActivity, mockStats, mockUpcomingInterviews } from '@/constants';
-
-
+import { useJobs } from '@/hooks/JobContext';
 
 
 const Dashboard: React.FC = () => {
+
+  const {jobs} = useJobs();
+
+  // Compute stats from jobs
+  const stats = React.useMemo(() => {
+    const total = jobs.length;
+    const inProgress = jobs.filter(j => j.status === 'applied').length;
+    const interviewing = jobs.filter(j => j.status === 'interviewed').length;
+    const Offer = jobs.filter(j => j.status === 'offered').length;
+    const rejections = jobs.filter(j => j.status === 'rejected').length;
+    return { total, inProgress, interviewing, Offer, rejections };
+  }, [jobs]);
+
+  // Recent activity: sort by date descending, take top 5
+  const recentActivity = React.useMemo(() => {
+    return [...jobs]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 5)
+      .map(job => ({
+        id: job.id,
+        type: job.status === 'offered' ? 'offer'
+          : job.status === 'rejected' ? 'rejection'
+          : job.status === 'interviewed' ? 'interview' 
+          : 'application',
+        company: job.company,
+        position: job.title,
+        date: new Date(job.date),
+        details: undefined // You can add more details if available
+      }));
+  }, [jobs]);
+
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
       <div className="flex justify-between items-center">
@@ -40,7 +69,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-blue-600 font-medium">Total Applications</p>
-              <p className="text-2xl font-bold text-blue-700">{mockStats.total}</p>
+              <p className="text-2xl font-bold text-blue-700">{stats.total}</p>
             </div>
           </div>
         </Card>
@@ -52,7 +81,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-amber-600 font-medium">In Progress</p>
-              <p className="text-2xl font-bold text-amber-700">{mockStats.inProgress}</p>
+              <p className="text-2xl font-bold text-amber-700">{stats.inProgress}</p>
             </div>
           </div>
         </Card>
@@ -64,7 +93,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-purple-600 font-medium">Interviews</p>
-              <p className="text-2xl font-bold text-purple-700">{mockStats.interviews}</p>
+              <p className="text-2xl font-bold text-purple-700">{stats.interviewing}</p>
             </div>
           </div>
         </Card>
@@ -76,7 +105,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-green-600 font-medium">Offers</p>
-              <p className="text-2xl font-bold text-green-700">{mockStats.offers}</p>
+              <p className="text-2xl font-bold text-green-700">{stats.Offer}</p>
             </div>
           </div>
         </Card>
@@ -88,7 +117,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-red-600 font-medium">Rejections</p>
-              <p className="text-2xl font-bold text-red-700">{mockStats.rejections}</p>
+              <p className="text-2xl font-bold text-red-700">{stats.rejections}</p>
             </div>
           </div>
         </Card>
@@ -101,7 +130,10 @@ const Dashboard: React.FC = () => {
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
             <div className="space-y-4">
-              {mockRecentActivity.map((activity) => (
+              {recentActivity.length === 0 && (
+                <div className="text-gray-500">No recent activity.</div>
+              )}
+              {recentActivity.map((activity) => (
                 <div key={activity.id} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="p-2 rounded-full bg-gray-100">
                     {activity.type === 'application' && <Briefcase className="h-5 w-5 text-blue-600" />}
@@ -147,12 +179,12 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Right Sidebar */}
-        <div className="space-y-6">
+        {/* <div className="space-y-6"> */}
           {/* Upcoming Interviews */}
-          <Card className="p-6">
+          {/* <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Upcoming Interviews</h2>
             <div className="space-y-4">
-              {mockUpcomingInterviews.map((interview) => (
+              {stats.map((interview) => (
                 <div key={interview.id} className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex justify-between items-start mb-2">
                     <div>
@@ -176,10 +208,10 @@ const Dashboard: React.FC = () => {
                 </div>
               ))}
             </div>
-          </Card>
+          </Card> */}
 
           {/* Reminders / To-Do */}
-          <Card className="p-6">
+          {/* <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Reminders</h2>
             <div className="space-y-4">
               <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg">
@@ -197,8 +229,8 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             </div>
-          </Card>
-        </div>
+          </Card> */}
+        {/* </div> */}
       </div>
     </div>
   );

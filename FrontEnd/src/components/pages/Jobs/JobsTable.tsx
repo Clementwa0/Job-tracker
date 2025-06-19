@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { ArrowDown, ArrowUp, Edit2, Trash2 } from 'lucide-react';
-import StatusBadge from '../../ui/StatusBadge';
+import { Badge } from "@/components/ui/badge"
 
 // Types
 export interface Job {
+  type: string;
   id: string;
   title: string;
   company: string;
@@ -118,10 +119,10 @@ const JobsTable: React.FC<JobsTableProps> = ({ jobs, onEdit, onDelete }) => {
                 <td className="px-4 py-3 text-sm">{job.company}</td>
                 <td className="px-4 py-3 text-sm">{job.date}</td>
                 <td className="px-4 py-3 text-sm">
-                  <StatusBadge type="status" value={job.status} />
+                  <Badge variant="destructive">{job.status}</Badge>
                 </td>
                 <td className="px-4 py-3 text-sm">
-                  <StatusBadge type="priority" value={job.priority} />
+                  <Badge>{job.priority}</Badge>
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
