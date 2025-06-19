@@ -13,4 +13,6 @@ router.post('/login', loginValidation, login);
 // Get current user route (protected)
 router.get('/me', auth, getCurrentUser);
 
+
+
 module.exports = router; 
