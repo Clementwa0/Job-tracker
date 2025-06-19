@@ -6,7 +6,7 @@ import { login } from "../constants";
 import { loginSchema, type LoginFormData } from "../lib/validation";
 import { useAuth } from "../hooks/AuthContext";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button} from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -127,7 +127,7 @@ export function Login({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="contact@gmail.com"
                   {...register("email")}
                   className={errors.email ? "border-red-500" : ""}
                 />

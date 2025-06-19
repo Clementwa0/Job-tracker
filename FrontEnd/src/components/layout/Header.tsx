@@ -25,12 +25,8 @@ const Header = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        {/* <button 
-          className="h-9 w-9 rounded-md border border-input flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-        >
-          {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </button>
-         */}
+      
+        
         <button 
           className="h-9 w-9 rounded-md border border-input flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-accent-foreground relative"
           aria-label="Notifications"
