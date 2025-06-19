@@ -21,10 +21,31 @@ export interface RegisterRequest {
   password: string;
 }
 
+
+
 export interface LoginRequest {
   email: string;
   password: string;
 }
+
+ export interface JobApplicationRequest {
+  jobTitle: string;
+  companyName: string;
+  location: string;
+  jobType: string;
+  applicationDate: string;
+  source: string;
+  applicationStatus: string;
+  contactPerson: string;
+  contactEmail: string;
+  contactPhone: string;
+  resumeFile: File | null;
+  coverLetterFile: File | null;
+  jobPostingUrl: string;
+  salaryRange: string;
+  notes: string;
+  nextStepsDate: string;
+} 
 
 export interface ApiError {
   success: false;
