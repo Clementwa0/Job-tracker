@@ -1,7 +1,6 @@
 import { FileCheck, Calendar, LineChart, LayoutDashboard, Plus, UserPen, BriefcaseBusiness } from 'lucide-react'
 
 import type { 
-  JobApplication, 
   ApplicationStats, 
   RecentActivity, 
   Interview 
