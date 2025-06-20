@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Homepage from "./components/HomePage/Homepage";
+import Homepage from "@/components/HomePage/Homepage";
 import {
   Calendar,
   Profile,
@@ -10,8 +10,8 @@ import {
   Register,
   AddJob,
 } from "@/components";
-import { JobProvider } from "./hooks/JobContext";
-import { AuthProvider } from "./hooks/AuthContext";
+import { JobProvider } from "@/hooks/JobContext";
+import { AuthProvider } from "@/hooks/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const App = () => {

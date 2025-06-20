@@ -8,10 +8,17 @@
       "path": "./tsconfig.node.json"
     }
   ],
+  
   "compilerOptions": {
-    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "baseUrl": "./src",
     "paths": {
       "@/*": ["./src/*"]
-    }
-  }
+    },
+  },
 }
