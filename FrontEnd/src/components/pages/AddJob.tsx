@@ -66,7 +66,6 @@ const AddJob = () => {
     nextStepsDate: "",
   });
 
-  const [applications, setApplications] = useState<JobApplication[]>([]);
 
   const handleInputChange = (field: keyof JobApplication, value: string) => {
     setFormData((prev) => ({

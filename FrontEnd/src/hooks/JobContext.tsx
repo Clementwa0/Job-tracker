@@ -11,6 +11,7 @@ function mapBackendJobToFrontend(job: any): Job {
     date: job.applicationDate ? new Date(job.applicationDate).toISOString().split('T')[0] : '',
     status: (job.applicationStatus || 'applied').toLowerCase(),
     priority: (job.priority || 'medium').toLowerCase(),
+    type: job.type || '',
   };
 }
 
@@ -51,6 +52,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       applicationDate: job.date,
       applicationStatus: job.status,
       priority: job.priority,
+      type: job.type,
     };
     try {
       const response = await fetch('http://localhost:3000/api/jobs', {
@@ -79,6 +81,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (updatedJob.date) backendJob.applicationDate = updatedJob.date;
     if (updatedJob.status) backendJob.applicationStatus = updatedJob.status;
     if (updatedJob.priority) backendJob.priority = updatedJob.priority;
+    if (updatedJob.type) backendJob.type = updatedJob.type;
     try {
       const response = await fetch(`http://localhost:3000/api/jobs/${id}`, {
         method: 'PUT',

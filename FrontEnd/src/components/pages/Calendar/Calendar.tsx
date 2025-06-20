@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { useJobs } from '@/hooks/JobContext';
 import { Calendar as UICalendar } from '@/components/ui/calendar';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
 // Define the event type
 interface CalendarEvent {
