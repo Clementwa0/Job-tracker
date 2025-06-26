@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { register as registerConstants } from "../constants";
 import { registerSchema, type RegisterFormData } from "../lib/validation";
 import { useAuth } from "../hooks/AuthContext";
@@ -217,12 +217,12 @@ const Register = () => {
 
                 <p className="text-center text-sm text-gray-600">
                   Already tracking jobs?{" "}
-                  <a
-                    href="/login"
+                  <Link
+                    to="/login"
                     className="font-medium text-blue-600 hover:text-blue-500"
                   >
                     Log in
-                  </a>
+                  </Link>
                 </p>
               </form>
             </CardContent>
