@@ -1,7 +1,6 @@
 import { Outlet } from "react-router-dom"
 import Header from "./Header"
 import Sidebar from "./Sidebar"
-import ThemeToggle from "@/constants/ThemeToggle"
 
 const Layout = () => {
   return (
