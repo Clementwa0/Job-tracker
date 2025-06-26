@@ -9,7 +9,7 @@ import {
   Login,
   Register,
   AddJob,
-} from "@/components";
+} from "@/components/index";
 import { JobProvider } from "@/hooks/JobContext";
 import { AuthProvider } from "@/hooks/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
