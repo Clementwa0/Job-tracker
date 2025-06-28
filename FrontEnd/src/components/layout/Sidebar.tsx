@@ -1,66 +1,100 @@
-import React from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { links, user } from "../../constants";
+import { links } from "@/constants";
 import { cn } from "../../lib/utils";
-import { LogOut, SidebarClose, SidebarOpen } from "lucide-react";
+import { LucideMenu, MenuIcon, SidebarClose, SidebarOpen } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "../ui/button";
 
 const Sidebar = () => {
   const location = useLocation();
-  const [collapsed, setCollapsed] = React.useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
+
+  const toggleMenu = () => setMenuOpen((prev) => !prev);
 
   return (
-    <div
-      className={cn(
-        "bg-gray-100 hidden h-screen transition-all duration-300 border-sky-500 border-r shadow-lg flex flex-col",
-        collapsed ? "w-14" : "w-35"
+    <>
+      {/* Toggle Button (Mobile Only) */}
+      {isMobile && (
+        <div className="fixed top-4 left-4 z-50 bg-white  md:hidden">
+          <Button onClick={toggleMenu} className="h-10 w-10 text-gray-900 shadow-md dark:text-white">
+            {menuOpen ? (
+                <SidebarClose/>
+            ) : (
+                <LucideMenu/>
+            )}
+          </Button>
+        </div>
       )}
-    >
-      <div className="p-4 border-b flex text-blue-700 items-center justify-between">
-        {!collapsed && (
-          <div className="flex items-center">
-            <span className="text-lg font-semibold font-sans">JT</span>
-          </div>
-        )}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="p-1 rounded-md hover:bg-accent text-muted-foreground"
-        >
-          {collapsed ? (
-            <SidebarOpen/>
-          ) : (
-           <SidebarClose/>
+
+      {/* Mobile Sidebar Drawer */}
+      {isMobile && menuOpen && (
+        <div className="fixed inset-0 z-40 bg-white opacity-90 shadow-lg mt-15 w-50 h-70 p-4">
+          <nav>
+            <ul className="space-y-2 text-md text-brown-900 flex flex-col">
+              {links.map((link) => (
+                <li key={link.path}>
+                  <Link
+                    to={link.path}
+                    className={cn(
+                      "flex items-center gap-2 px-2 py-2 hover:bg-blue-700 hover:text-white rounded-md transition-colors",
+                      location.pathname === link.path && "active"
+                    )}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <link.icon className="w-5 h-5" />
+                    <span>{link.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      )}
+
+      <div className="hidden md:block">
+        <div
+          className={cn(
+            "h-screen transition-all duration-300 border-sky-500 border-r shadow-lg flex flex-col bg-wheat",
+            collapsed ? "w-14" : "w-35"
           )}
-        </button>
-      </div>
+        >
+          <div className="p-4 border-b flex text-black items-center justify-between">
+            {!collapsed && (
+              <span className="text-lg font-semibold font-sans">JT</span>
+            )}
+            <Button
+              onClick={() => setCollapsed(!collapsed)}
+              className="p-1 rounded-md text-gray hover:bg-blue-700 hover:text-white dark:text-white"
+            >
+              {collapsed ? <SidebarOpen /> : <SidebarClose />}
+            </Button>
+          </div>
 
-      <nav className="flex-1 py-4 px-2">
-        <ul className="space-y-2 text-blue-900 flex flex-col">
-          {links.map((link) => (
-            <li key={link.path}>
-              <Link
-                to={link.path}
-                className={cn(
-                  "flex items-center gap-2 px-2 py-2 hover:bg-blue-400 hover:text-white rounded-md transition-colors",
-                  location.pathname === link.path && "active",
-                  collapsed && "justify-center px-2"
-                )}
-              >
-                {<link.icon className="w-5 h-5" />}
-                {!collapsed && <span>{link.name}</span>}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <div className="px-3 py-4 border-t ">
-        <h2 className="text-sm  text-gray-700 mb-2">{user?.name}</h2>
-        <button className={cn(" w-full", collapsed && "justify-center px-2")}>
-          <LogOut className="w-5 h-5" />
-          {!collapsed && <span>Logout</span>}
-        </button>
+          <nav className="flex-1 py-4 px-2">
+            <ul className="space-y-2 text-md text-brown-700 flex flex-col">
+              {links.map((link) => (
+                <li key={link.path}>
+                  <Link
+                    to={link.path}
+                    className={cn(
+                      "flex items-center gap-2 px-2 py-2 hover:bg-blue-700 hover:text-white rounded-md transition-colors",
+                      location.pathname === link.path && "active",
+                      collapsed && "justify-center px-2"
+                    )}
+                  >
+                    <link.icon className="w-5 h-5" />
+                    {!collapsed && <span>{link.name}</span>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
