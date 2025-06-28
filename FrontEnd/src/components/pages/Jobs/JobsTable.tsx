@@ -128,6 +128,7 @@ const JobsTable: React.FC<JobsTableProps> = ({ jobs, onEdit, onDelete }) => {
                   <div className="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => onEdit(job.id)}
+            
                       className="p-1 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground"
                       aria-label="Edit job"
                     >
