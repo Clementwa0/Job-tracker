@@ -13,18 +13,20 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useJobs } from '@/hooks/JobContext';
+import { Charts } from '@/components';
 
 const Dashboard: React.FC = () => {
   const { jobs } = useJobs();
 
-  const stats = React.useMemo(() => {
-    const total = jobs.length;
-    const inProgress = jobs.filter(j => j.status === 'applied').length;
-    const interviewing = jobs.filter(j => j.status === 'interviewed').length;
-    const offers = jobs.filter(j => j.status === 'offered').length;
-    const rejections = jobs.filter(j => j.status === 'rejected').length;
-    return { total, inProgress, interviewing, offers, rejections };
-  }, [jobs]);
+const stats = React.useMemo(() => {
+  const total = jobs.length;
+  const inProgress = jobs.filter(j => j.status?.toLowerCase() === 'applied').length;
+  const interviewed = jobs.filter(j => j.status?.toLowerCase() === 'interviewing').length;
+  const offered = jobs.filter(j => j.status?.toLowerCase() === 'offer').length;
+  const rejections = jobs.filter(j => j.status?.toLowerCase() === 'rejected').length;
+  return { total, inProgress, interviewed, offered, rejections };
+}, [jobs]);
+
 
   const recentActivity = React.useMemo(() => {
     return [...jobs]
@@ -43,7 +45,8 @@ const Dashboard: React.FC = () => {
   }, [jobs]);
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="container mx-auto px-4 py-4 space-y-6">
+      
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
         <Link to="/add-job">
@@ -55,18 +58,18 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="p-6 bg-blue-50">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <Card className="p-6 bg-blue-50 ">
           <Stat icon={<Briefcase className="h-6 w-6 text-blue-600" />} label="Total Applications" value={stats.total} color="blue" />
         </Card>
         <Card className="p-6 bg-amber-50">
           <Stat icon={<Clock className="h-6 w-6 text-amber-600" />} label="In Progress" value={stats.inProgress} color="amber" />
         </Card>
         <Card className="p-6 bg-purple-50">
-          <Stat icon={<Calendar className="h-6 w-6 text-purple-600" />} label="Interviews" value={stats.interviewing} color="purple" />
+          <Stat icon={<Calendar className="h-6 w-6 text-purple-600" />} label="Interviews" value={stats.interviewed} color="purple" />
         </Card>
         <Card className="p-6 bg-green-50">
-          <Stat icon={<CheckCircle2 className="h-6 w-6 text-green-600" />} label="Offers" value={stats.offers} color="green" />
+          <Stat icon={<CheckCircle2 className="h-6 w-6 text-green-600" />} label="Offers" value={stats.offered} color="green" />
         </Card>
         <Card className="p-6 bg-red-50">
           <Stat icon={<XCircle className="h-6 w-6 text-red-600" />} label="Rejections" value={stats.rejections} color="red" />
@@ -74,9 +77,9 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 gap-8">
         {/* Left - Activity & Chart */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6">
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
             <div className="space-y-4">
@@ -87,8 +90,8 @@ const Dashboard: React.FC = () => {
                   <div key={activity.id} className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
                     <div className="p-2 rounded-full bg-gray-100">
                       {activity.type === 'application' && <Briefcase className="h-5 w-5 text-blue-600" />}
-                      {activity.type === 'interview' && <Calendar className="h-5 w-5 text-purple-600" />}
-                      {activity.type === 'offer' && <CheckCircle2 className="h-5 w-5 text-green-600" />}
+                      {activity.type === 'interviewed' && <Calendar className="h-5 w-5 text-purple-600" />}
+                      {activity.type === 'offered' && <CheckCircle2 className="h-5 w-5 text-green-600" />}
                       {activity.type === 'rejection' && <XCircle className="h-5 w-5 text-red-600" />}
                     </div>
                     <div className="flex-1">
@@ -123,22 +126,48 @@ const Dashboard: React.FC = () => {
             </div>
           </Card>
         </div>
+        {/* right */}
+         <div className="space-y-6">
+         <Charts/>
+        </div>
       </div>
     </div>
   );
 };
 
-// Reusable Stat Component
-const Stat = ({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) => (
-  <div className="flex items-center gap-4">
-    <div className={`p-3 bg-${color}-100 rounded-lg`}>
-      {icon}
+const Stat = ({
+  icon,
+  label,
+  value,
+  color,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  color: "blue" | "amber" | "purple" | "green" | "red";
+}) => {
+  const colorClasses: Record<string, string> = {
+    blue: "text-blue-600 bg-blue-100 text-blue-700",
+    amber: "text-amber-600 bg-amber-100 text-amber-700",
+    purple: "text-purple-600 bg-purple-100 text-purple-700",
+    green: "text-green-600 bg-green-100 text-green-700",
+    red: "text-red-600 bg-red-100 text-red-700",
+  };
+
+  const [textColor, bgColor, valueColor] = colorClasses[color].split(" ");
+
+  return (
+    <div className=" flex items-start  lg:items-center gap-4">
+      <div className={`p-3 rounded-lg ${bgColor}`}>
+        {icon}
+      </div>
+      <div>
+        <p className={`text-sm font-medium ${textColor}`}>{label}</p>
+        <p className={`text-2xl font-bold ${valueColor}`}>{value}</p>
+      </div>
     </div>
-    <div>
-      <p className={`text-sm text-${color}-600 font-medium`}>{label}</p>
-      <p className={`text-2xl font-bold text-${color}-700`}>{value}</p>
-    </div>
-  </div>
-);
+  );
+};
+
 
 export default Dashboard;
