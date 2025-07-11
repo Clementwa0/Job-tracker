@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import {
   Card,
   CardContent,
@@ -13,8 +12,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, Save, Sun, Moon } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch"; // Updated Switch import to use shadcn/ui
 
 const Profile: React.FC = () => {
   const { user, isLoading, updateProfile, updatePassword } = useAuth();
@@ -25,9 +25,8 @@ const Profile: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [isDarkMode, setIsDarkMode] = useState(
-    document.documentElement.classList.contains("dark")
-  );
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [interviewReminders, setInterviewReminders] = useState(true);
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,19 +75,8 @@ const Profile: React.FC = () => {
     });
   };
 
-  const toggleTheme = () => {
-    if (isDarkMode) {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    }
-    setIsDarkMode(!isDarkMode);
-  };
-
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in dark:gray-900">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-muted-foreground mt-1">
@@ -97,7 +85,7 @@ const Profile: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
+        <Card className="dark:bg-gray-900">
           <CardHeader>
             <CardTitle>Profile Information</CardTitle>
             <CardDescription>Update your personal details</CardDescription>
@@ -125,25 +113,25 @@ const Profile: React.FC = () => {
                 />
               </div>
             </CardContent>
+            <CardFooter>
+              <Button
+                variant="secondary"
+                type="submit"
+                disabled={isLoading}
+                className="flex items-center gap-2"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                Save Changes
+              </Button>
+            </CardFooter>
           </form>
-          <CardFooter>
-            <Button
-              variant="secondary"
-              type="submit"
-              disabled={isLoading}
-              className="flex items-center gap-2"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
-              Save Changes
-            </Button>
-          </CardFooter>
         </Card>
 
-        <Card>
+        <Card className="dark:bg-gray-900">
           <CardHeader>
             <CardTitle>Password</CardTitle>
             <CardDescription>Change your account password</CardDescription>
@@ -183,25 +171,25 @@ const Profile: React.FC = () => {
                 />
               </div>
             </CardContent>
+            <CardFooter>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="flex items-center gap-2"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                Update Password
+              </Button>
+            </CardFooter>
           </form>
-          <CardFooter>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="flex items-center gap-2"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
-              Update Password
-            </Button>
-          </CardFooter>
         </Card>
       </div>
 
-      <Card>
+      <Card className="dark:bg-gray-900">
         <CardHeader>
           <CardTitle>Preferences</CardTitle>
           <CardDescription>
@@ -212,28 +200,6 @@ const Profile: React.FC = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="theme" className="text-base">
-                  Theme
-                </Label>
-                <div className="text-sm text-muted-foreground">
-                  Switch between light and dark mode
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Sun className="h-4 w-4 text-muted-foreground" />
-                <Switch
-                  id="theme"
-                  checked={isDarkMode}
-                  onCheckedChange={toggleTheme}
-                />
-                <Moon className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
                 <Label htmlFor="notifications" className="text-base">
                   Email Notifications
                 </Label>
@@ -241,7 +207,11 @@ const Profile: React.FC = () => {
                   Receive email updates about your job applications
                 </div>
               </div>
-              <Switch id="notifications" defaultChecked />
+              <Switch
+                id="notifications"
+                checked={emailNotifications}
+                onCheckedChange={setEmailNotifications}
+              />
             </div>
 
             <Separator />
@@ -249,21 +219,25 @@ const Profile: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label htmlFor="reminders" className="text-base">
-                  Reminders
+                  Interview Reminders
                 </Label>
                 <div className="text-sm text-muted-foreground">
                   Get reminded about upcoming interview dates
                 </div>
               </div>
-              <Switch id="reminders" defaultChecked />
+              <Switch
+                id="reminders"
+                checked={interviewReminders}
+                onCheckedChange={setInterviewReminders}
+              />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-destructive/20">
+      <Card className="border-destructive/60 dark:bg-gray-900">
         <CardHeader>
-          <CardTitle className="text-destructive">Danger Zone</CardTitle>
+          <CardTitle className="text-red-700">Danger Zone</CardTitle>
           <CardDescription>
             Irreversible and destructive actions
           </CardDescription>
