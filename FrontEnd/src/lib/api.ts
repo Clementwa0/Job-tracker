@@ -44,6 +44,7 @@ export interface LoginRequest {
   salaryRange: string;
   notes: string;
   nextStepsDate: string;
+  interviews: string;
 } 
 
 export interface ApiError {
