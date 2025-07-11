@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import JobsTable, { type Job } from "./JobsTable";
 import JobsFilter from "./JobsFilter";
@@ -8,6 +8,7 @@ import JobCard from "@/components/ui/JobCard";
 import { useJobs } from "@/hooks/JobContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
+import JobModal from "./JobModel";
 
 const Jobs: React.FC = () => {
   const { jobs, deleteJob } = useJobs();
@@ -21,7 +22,7 @@ const Jobs: React.FC = () => {
   const [viewMode, setViewMode] = useState<"table" | "grid">(
     isMobile ? "grid" : "table"
   );
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null); // ✅ declared here
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null); 
 
   useEffect(() => {
     let result = [...jobs];
@@ -39,9 +40,6 @@ const Jobs: React.FC = () => {
       result = result.filter((job) => job.status === statusFilter);
     }
 
-    if (priorityFilter) {
-      result = result.filter((job) => job.priority === priorityFilter);
-    }
 
     setFilteredJobs(result);
   }, [jobs, searchTerm, statusFilter, priorityFilter]);
@@ -114,7 +112,7 @@ const Jobs: React.FC = () => {
 
         <TabsContent value="grid" className="mt-6">
           {filteredJobs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredJobs.map((job) => (
                 <JobCard
                   key={job.id}
@@ -124,11 +122,9 @@ const Jobs: React.FC = () => {
                   applicationDate={job.applicationDate}
                   applicationDeadline={job.applicationDeadline}
                   status={job.status}
-                  priority={job.priority}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
-                  onClick={() => setSelectedJob(job)}
-                />
+                  onClick={() => setSelectedJob(job)} location={""} type={""} salaryRange={""}                />
               ))}
             </div>
           ) : (
@@ -141,45 +137,8 @@ const Jobs: React.FC = () => {
         </TabsContent>
       </Tabs>
 
-      {/* ✅ Modal Popout */}
-      {selectedJob && (
-        <div
-          className="fixed inset-0 flex justify-center items-center z-50"
-          onClick={() => setSelectedJob(null)}
-        >
-          <div
-            className="bg-white dark:bg-gray-100 rounded-lg shadow-lg max-w-md w-full p-6 relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Button
-              onClick={() => setSelectedJob(null)}
-              className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
-              variant="ghost"
-              size="icon"
-              aria-label="Close"
-            >
-              <X size={24} />
-            </Button>
+     <JobModal job={selectedJob} onClose={() => setSelectedJob(null)} />
 
-            <h2 className="text-2xl font-bold mb-2">{selectedJob.title}</h2>
-            <p className="mb-1 text-muted-foreground">
-              <strong>Company:</strong> {selectedJob.company}
-            </p>
-            <p className="mb-1 text-muted-foreground">
-              <strong>Status:</strong> {selectedJob.status}
-            </p>
-            <p className="mb-1 text-muted-foreground">
-              <strong>Priority:</strong> {selectedJob.priority}
-            </p>
-            <p className="mb-1 text-muted-foreground">
-              <strong>Application Date:</strong> {selectedJob.applicationDate}
-            </p>
-            <p className="mb-4 text-muted-foreground">
-              <strong>Deadline:</strong> {selectedJob.applicationDeadline}
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,46 +1,57 @@
-import React from 'react';
-import { Button } from './button';
+import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
-export interface JobCardProps {
+interface JobCardProps {
   id: string;
   title: string;
   company: string;
-  date: string;
+  location: string;
+  type: string;
+  salaryRange: string;
+  applicationDate: string;
+  applicationDeadline: string;
   status: string;
-  priority: string;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onClick?: () => void;
 }
 
 const JobCard: React.FC<JobCardProps> = ({
   id,
   title,
   company,
-  date,
+  location,
+  type,
+  salaryRange,
+  applicationDate,
+  applicationDeadline,
   status,
-  priority,
   onEdit,
   onDelete,
-}) => (
-  <div className="bg-card rounded-lg border border-border p-4 flex flex-col gap-2">
-    <div className="flex justify-between items-center">
-      <h2 className="text-lg font-semibold">{title}</h2>
-      <span className="text-xs text-muted-foreground">{date}</span>
+  onClick,
+}) => {
+  return (
+    <div
+      className="p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:shadow-md transition"
+      onClick={onClick}
+    >
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <p className="text-sm text-muted-foreground">{company}</p>
+      <p className="text-sm">{location}</p>
+      <p className="text-sm">{type}</p>
+      <p className="text-sm">{salaryRange}</p>
+      <p className="text-sm">Applied: {applicationDate}</p>
+      <p className="text-sm">Deadline: {applicationDeadline}</p>
+      <div className="flex justify-between items-center mt-3">
+        <Badge>{status}</Badge>
+      </div>
+      <div className="flex justify-end gap-2 mt-2">
+        <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); onEdit?.(id); }}>Edit</Button>
+        <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); onDelete?.(id); }}>Delete</Button>
+      </div>
     </div>
-    <div className="text-sm text-muted-foreground">{company}</div>
-    <div className="flex gap-2 mt-2">
-      <span className="px-2 py-1 rounded bg-muted text-xs">{status}</span>
-      <span className="px-2 py-1 rounded bg-muted text-xs">{priority}</span>
-    </div>
-    <div className="flex gap-2 mt-4">
-      <Button size="sm" onClick={() => onEdit(id)}>
-        Edit
-      </Button>
-      <Button size="sm" variant="destructive" onClick={() => onDelete(id)}>
-        Delete
-      </Button>
-    </div>
-  </div>
-);
+  );
+};
 
 export default JobCard;

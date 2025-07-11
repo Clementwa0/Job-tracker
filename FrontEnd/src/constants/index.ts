@@ -1,12 +1,6 @@
 import { FileCheck, Calendar, LineChart, LayoutDashboard, Plus, UserPen, BriefcaseBusiness } from 'lucide-react'
 
-import type { 
-  ApplicationStats, 
-  RecentActivity, 
-  Interview 
-} from '@/types/job';
 
-// Feature type definition removed because interfaces are not supported in JavaScript files.
 
 export const features = [
   {
@@ -112,97 +106,28 @@ export const recentApplications = [
   { company: "Stark Industries", position: "UX Designer", status: "offer", date: "1 week ago" },
 ]
 
-export const mockStats: ApplicationStats = {
-  total: 25,
-  inProgress: 8,
-  interviews: 5,
-  offers: 2,
-  rejections: 10
-};
 
-export const mockRecentActivity: RecentActivity[] = [
-  {
-    id: '1',
-    type: 'application',
-    company: 'Google',
-    position: 'Software Engineer',
-    date: new Date('2024-03-15'),
-    details: 'Applied to Software Engineer position'
-  },
-  {
-    id: '2',
-    type: 'interview',
-    company: 'Amazon',
-    position: 'Frontend Developer',
-    date: new Date('2024-03-20'),
-    details: 'Interview scheduled for Technical Round'
-  },
-  {
-    id: '3',
-    type: 'offer',
-    company: 'Microsoft',
-    position: 'Full Stack Developer',
-    date: new Date('2024-03-18'),
-    details: 'Received offer with competitive package'
-  }
-];
-
-export const mockUpcomingInterviews: Interview[] = [
-  {
-    id: '1',
-    company: 'Amazon',
-    position: 'Frontend Developer',
-    date: new Date('2024-03-20'),
-    stage: 'technical',
-    location: 'Virtual',
-    interviewers: ['John Doe', 'Jane Smith']
-  },
-  {
-    id: '2',
-    company: 'Meta',
-    position: 'Software Engineer',
-    date: new Date('2024-03-22'),
-    stage: 'phone_screen',
-    location: 'Virtual'
-  }
-];
-
-
-export const jobs = [
-  {
-    id: 1,
-    title: "Frontend Developer",
-    company: "Acme Corp",
-    status: "Interview",
-    submissionDate: "2025-06-01",
-    interviewDate: "2025-06-20",
-    followUpDate: "2025-06-22",
-    offerDate: null,
-    rejectionDate: null,
-    notes: "Interview with Jane Doe",
-  },
-  {
-    id: 2,
-    title: "Backend Engineer",
-    company: "Beta Inc",
-    status: "Follow-up",
-    submissionDate: "2025-06-05",
-    interviewDate: null,
-    followUpDate: "2025-06-18",
-    offerDate: null,
-    rejectionDate: null,
-    notes: "Sent follow-up email",
-  },
-  {
-    id: 3,
-    title: "Full Stack Dev",
-    company: "Gamma LLC",
-    status: "Submitted",
-    submissionDate: "2025-06-10",
-    interviewDate: null,
-    followUpDate: null,
-    offerDate: null,
-    rejectionDate: null,
-    notes: "",
-  },
-];
+ export const jobTypes = [
+    "Full-time",
+    "Part-time",
+    "Internship",
+    "Contract",
+    "Remote",
+  ];
+  export const sources = [
+    "LinkedIn",
+    "Indeed",
+    "Company Website",
+    "Referral",
+    "Glassdoor",
+    "AngelList",
+    "Other",
+  ];
+  export const statuses = [
+    {id:1, name: "Applied", bg:"bg-blue-500"},
+    {id:2, name: "Interviewing", bg:"bg-gray-200"},
+    {id:3, name:"Offer", bg:"bg-green-500"},
+    {id:4, name: "Rejected", bg:"bg-red-500"},
+    {id:5, name:"Waiting Response", bg:"bg-red-500"},
+    {id:6, name:"Ghosted", bg:"Ghosted"}
+  ];

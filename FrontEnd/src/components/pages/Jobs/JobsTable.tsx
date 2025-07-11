@@ -1,146 +1,111 @@
-import React, { useState } from 'react';
-import { ArrowDown, ArrowUp, Edit2, Trash2 } from 'lucide-react';
-import { Badge } from "@/components/ui/badge"
+import React, { useState } from "react";
+import { ArrowDown, ArrowUp, Edit2, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
-// Types
 export interface Job {
-  type: string;
   id: string;
   title: string;
   company: string;
-  date: string;
-  status: 'applied' | 'interviewed' | 'offered' | 'rejected' | 'completed';
-  priority: 'low' | 'medium' | 'high';
+  location: string;
+  type: string;
+  salaryRange: string;
+  applicationDate: string;
+  applicationDeadline: string;
+  status: string;
 }
 
 interface JobsTableProps {
   jobs: Job[];
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onSelect?: (job: Job) => void;
 }
 
-type SortField = 'title' | 'company' | 'date' | 'status' | 'priority';
+type SortField = keyof Pick<Job, "title" | "company" | "applicationDate" | "status">;
 
-const JobsTable: React.FC<JobsTableProps> = ({ jobs, onEdit, onDelete }) => {
-  const [sortField, setSortField] = useState<SortField>('date');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  
+const JobsTable: React.FC<JobsTableProps> = ({ jobs, onEdit, onDelete, onSelect }) => {
+  const [sortField, setSortField] = useState<SortField>("applicationDate");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
   const handleSort = (field: SortField) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortDirection('asc');
+      setSortDirection("asc");
     }
   };
-  
+
   const sortedJobs = [...jobs].sort((a, b) => {
-    if (sortField === 'date') {
-      return sortDirection === 'asc' 
-        ? new Date(a.date).getTime() - new Date(b.date).getTime()
-        : new Date(b.date).getTime() - new Date(a.date).getTime();
-    }
-    
-    // For other fields, do string comparison
-    const aValue = a[sortField as keyof Job];
-    const bValue = b[sortField as keyof Job];
-    
-    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
+    const aValue = a[sortField];
+    const bValue = b[sortField];
+    return sortDirection === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
   });
-  
+
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) return null;
-    return sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
+    return sortDirection === "asc" ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
   };
-  
+
   return (
     <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-muted/50">
             <tr className="border-b border-border">
-              <th 
-                className="text-left px-4 py-3 text-sm font-medium text-muted-foreground cursor-pointer"
-                onClick={() => handleSort('title')}
-              >
-                <div className="flex items-center">
-                  Title
-                  <SortIcon field="title" />
-                </div>
-              </th>
-              <th 
-                className="text-left px-4 py-3 text-sm font-medium text-muted-foreground cursor-pointer"
-                onClick={() => handleSort('company')}
-              >
-                <div className="flex items-center">
-                  Company
-                  <SortIcon field="company" />
-                </div>
-              </th>
-              <th 
-                className="text-left px-4 py-3 text-sm font-medium text-muted-foreground cursor-pointer"
-                onClick={() => handleSort('date')}
-              >
-                <div className="flex items-center">
-                  Date
-                  <SortIcon field="date" />
-                </div>
-              </th>
-              <th 
-                className="text-left px-4 py-3 text-sm font-medium text-muted-foreground cursor-pointer"
-                onClick={() => handleSort('status')}
-              >
-                <div className="flex items-center">
-                  Status
-                  <SortIcon field="status" />
-                </div>
-              </th>
-              <th 
-                className="text-left px-4 py-3 text-sm font-medium text-muted-foreground cursor-pointer"
-                onClick={() => handleSort('priority')}
-              >
-                <div className="flex items-center">
-                  Priority
-                  <SortIcon field="priority" />
-                </div>
-              </th>
-              <th className="text-right px-4 py-3 text-sm font-medium text-muted-foreground">Actions</th>
+              {[
+                { label: "Title", field: "title" },
+                { label: "Company", field: "company" },
+                { label: "Location" },
+                { label: "Type" },
+                { label: "Applied On", field: "applicationDate" },
+                { label: "Deadline" },
+                { label: "Salary" },
+                { label: "Status", field: "status" },
+              ].map(({ label, field }) => (
+                <th
+                  key={label}
+                  className="px-4 py-3 text-sm font-medium cursor-pointer"
+                  onClick={field ? () => handleSort(field as SortField) : undefined}
+                >
+                  <div className="flex items-center gap-1">
+                    {label} {field && <SortIcon field={field as SortField} />}
+                  </div>
+                </th>
+              ))}
+              <th className="px-4 py-3 text-sm font-medium text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {sortedJobs.map((job) => (
-              <tr 
-                key={job.id} 
-                className="group hover:bg-muted/30 transition-colors"
+              <tr
+                key={job.id}
+                className="group hover:bg-muted/30 transition-colors cursor-pointer"
+                onClick={() => onSelect?.(job)}
               >
                 <td className="px-4 py-3 text-sm">{job.title}</td>
                 <td className="px-4 py-3 text-sm">{job.company}</td>
-                <td className="px-4 py-3 text-sm">{job.date}</td>
-                <td className="px-4 py-3 text-sm">
-                  <Badge variant="destructive">{job.status}</Badge>
-                </td>
-                <td className="px-4 py-3 text-sm">
-                  <Badge>{job.priority}</Badge>
-                </td>
+                <td className="px-4 py-3 text-sm">{job.location}</td>
+                <td className="px-4 py-3 text-sm">{job.type}</td>
+                <td className="px-4 py-3 text-sm">{job.applicationDate}</td>
+                <td className="px-4 py-3 text-sm">{job.applicationDeadline}</td>
+                <td className="px-4 py-3 text-sm">{job.salaryRange}</td>
+                <td className="px-4 py-3 text-sm"><Badge variant="destructive">{job.status}</Badge></td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => onEdit(job.id)}
-            
+                    <Button
+                      onClick={(e) => { e.stopPropagation(); onEdit(job.id); }}
                       className="p-1 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground"
-                      aria-label="Edit job"
                     >
                       <Edit2 className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => onDelete(job.id)}
+                    </Button>
+                    <Button
+                      onClick={(e) => { e.stopPropagation(); onDelete(job.id); }}
                       className="p-1 rounded-md hover:bg-destructive/10 text-destructive"
-                      aria-label="Delete job"
                     >
                       <Trash2 className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </div>
                 </td>
               </tr>

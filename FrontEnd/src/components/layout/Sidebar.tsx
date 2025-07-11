@@ -2,16 +2,16 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { links } from "@/constants";
 import { cn } from "../../lib/utils";
-import { LucideMenu, MenuIcon, SidebarClose, SidebarOpen } from "lucide-react";
+import { LucideMenu, SidebarClose, SidebarOpen } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "../ui/button";
+
 
 const Sidebar = () => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const isMobile = useIsMobile();
-
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
   return (
