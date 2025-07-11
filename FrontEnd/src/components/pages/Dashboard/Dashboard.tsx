@@ -13,7 +13,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useJobs } from '@/hooks/JobContext';
-import { Charts } from '@/components';
 
 const Dashboard: React.FC = () => {
   const { jobs } = useJobs();
@@ -30,7 +29,7 @@ const stats = React.useMemo(() => {
 
   const recentActivity = React.useMemo(() => {
     return [...jobs]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .sort((a, b) => new Date(b.applicationDate).getTime() - new Date(a.applicationDate).getTime())
       .slice(0, 5)
       .map(job => ({
         id: job.id,
@@ -40,7 +39,7 @@ const stats = React.useMemo(() => {
           : 'application',
         company: job.company,
         position: job.title,
-        date: new Date(job.date)
+        date: new Date(job.applicationDate)
       }));
   }, [jobs]);
 
@@ -50,7 +49,7 @@ const stats = React.useMemo(() => {
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
         <Link to="/add-job">
-          <Button className="flex items-center gap-2">
+          <Button className="flex items-center gap-2 hover:bg-gray-200">
             <Plus className="h-4 w-4" />
             Add New Job
           </Button>
@@ -114,7 +113,7 @@ const stats = React.useMemo(() => {
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Application Status</h2>
-              <Button variant="ghost" size="sm" className="text-blue-600">
+              <Button variant="outline" size="sm" className="text-blue-600">
                 View Details <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
@@ -128,7 +127,6 @@ const stats = React.useMemo(() => {
         </div>
         {/* right */}
          <div className="space-y-6">
-         <Charts/>
         </div>
       </div>
     </div>
