@@ -60,14 +60,27 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const addJob = async (job: Omit<Job, 'id'>) => {
-    const backendJob = {
-      jobTitle: job.title,
-      companyName: job.company,
-      applicationDate: job.applicationDate,
-      applicationDeadline: job.applicationDeadline,
-      applicationStatus: job.status,
-      jobType: job.jobType,
-    };
+  const backendJob = {
+    jobTitle: job.title,
+    companyName: job.company,
+    location: job.location,
+    applicationDate: job.applicationDate,
+    applicationDeadline: job.applicationDeadline,
+    applicationStatus: job.status,
+    jobType: job.jobType,
+    salaryRange: job.salaryRange,
+    resumeFile: job.resumeFile,
+    coverLetterFile: job.coverLetterFile,
+    source: job.source,
+    contactPerson: job.contactPerson,
+    contactEmail: job.contactEmail,
+    contactPhone: job.contactPhone,
+    jobPostingUrl: job.jobPostingUrl,
+    notes: job.notes,
+    nextStepsDate: job.nextStepsDate,
+    interviews: job.interviews,
+  };
+
 
     try {
       const res = await API.post('/jobs', backendJob);
