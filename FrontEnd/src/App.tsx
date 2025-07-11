@@ -36,6 +36,7 @@ const App = () => {
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/jobs" element={<Jobs />} />
               <Route path="add-job" element={<AddJob />} />
+              <Route path="/edit-job/:id" element={<AddJob />} />
               <Route path="/Profile" element={<Profile />} />
             </Route>
           </Routes>

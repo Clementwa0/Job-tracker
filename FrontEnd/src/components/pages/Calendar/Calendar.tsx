@@ -1,157 +1,460 @@
-import React, { useMemo, useState } from 'react';
-import { useJobs } from '@/hooks/JobContext';
-import { Calendar as UICalendar } from '@/components/ui/calendar';
-import { Card } from '@/components/ui/card';
 
-// Define the event type
-interface CalendarEvent {
-  id: string;
-  type: 'application' | 'interview' | 'follow-up' | 'offer' | 'rejection';
-  date: string; // YYYY-MM-DD
-  jobTitle: string;
-  company: string;
-  notes?: string;
-}
-
-// Helper to get all events from a job
-function getJobEvents(job: any): CalendarEvent[] {
-  const events: CalendarEvent[] = [];
-  if (job.date) {
-    events.push({
-      id: job.id + '-application',
-      type: 'application',
-      date: job.date,
-      jobTitle: job.title,
-      company: job.company,
-      notes: job.notes,
-    });
-  }
-  if (job.interviewDate) {
-    events.push({
-      id: job.id + '-interview',
-      type: 'interview',
-      date: job.interviewDate,
-      jobTitle: job.title,
-      company: job.company,
-      notes: job.notes,
-    });
-  }
-  if (job.followUpDate) {
-    events.push({
-      id: job.id + '-followup',
-      type: 'follow-up',
-      date: job.followUpDate,
-      jobTitle: job.title,
-      company: job.company,
-      notes: job.notes,
-    });
-  }
-  if (job.offerDate) {
-    events.push({
-      id: job.id + '-offer',
-      type: 'offer',
-      date: job.offerDate,
-      jobTitle: job.title,
-      company: job.company,
-      notes: job.notes,
-    });
-  }
-  if (job.rejectionDate) {
-    events.push({
-      id: job.id + '-rejection',
-      type: 'rejection',
-      date: job.rejectionDate,
-      jobTitle: job.title,
-      company: job.company,
-      notes: job.notes,
-    });
-  }
-  return events;
-}
-
-const eventTypeColor: Record<string, string> = {
-  application: 'bg-blue-100 text-blue-800',
-  'interview': 'bg-green-100 text-green-800',
-  'follow-up': 'bg-orange-100 text-orange-800',
-  'offer': 'bg-emerald-100 text-emerald-800',
-  'rejection': 'bg-red-100 text-red-800',
-};
-
-const Calendar: React.FC = () => {
-  const { jobs } = useJobs();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-
-  // Gather all events from jobs
-  const events = useMemo(() => {
-    return jobs.flatMap(getJobEvents);
-  }, [jobs]);
-
-  // Map of date string to events
-  const eventsByDate = useMemo(() => {
-    const map: Record<string, CalendarEvent[]> = {};
-    for (const event of events) {
-      if (!event.date) continue;
-      map[event.date] = map[event.date] || [];
-      map[event.date].push(event);
-    }
-    return map;
-  }, [events]);
-
-  // Highlight days with events
-  const modifiers = useMemo(() => {
-    return {
-      event: Object.keys(eventsByDate).map(date => new Date(date)),
-    };
-  }, [eventsByDate]);
-
-  // Events for the selected day
-  const selectedDayEvents = selectedDate
-    ? eventsByDate[selectedDate.toISOString().split('T')[0]] || []
-    : [];
-
+const Calendar = () => {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <div className="container mx-auto p-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Interview & Job Calendar</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">See all your job-related events in one place.</p>
-        <div className="flex flex-col md:flex-row gap-8">
-          <div className="md:w-1/2">
-            <UICalendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              modifiers={modifiers}
-              modifiersClassNames={{ event: 'bg-blue-200 dark:bg-blue-800 border-2 border-blue-500' }}
-            />
+  <section className="relative bg-stone-50">
+  <div className="bg-sky-400 w-full sm:w-40 h-40 rounded-full absolute top-1 opacity-20 max-sm:right-0 sm:left-56 z-0" />
+  <div className="w-full py-24 relative z-10 backdrop-blur-3xl">
+    <div className="w-full max-w-7xl mx-auto px-2 lg:px-8">
+      <div className="grid grid-cols-12 gap-8 max-w-4xl mx-auto xl:max-w-full">
+        <div className="col-span-12 xl:col-span-5">
+          <h2 className="font-manrope text-3xl leading-tight text-gray-900 mb-1.5">
+            Upcoming Events
+          </h2>
+          <p className="text-lg font-normal text-gray-600 mb-8">
+            Don’t miss schedule
+          </p>
+          <div className="flex gap-5 flex-col">
+            <div className="p-6 rounded-xl bg-white">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-purple-600" />
+                  <p className="text-base font-medium text-gray-900">
+                    Jan 10,2020 - 10:00 - 11:00
+                  </p>
+                </div>
+                <div className="dropdown relative inline-flex">
+                  <button
+                    type="button"
+                    data-target="dropdown-default"
+                    className="dropdown-toggle inline-flex justify-center py-2.5 px-1 items-center gap-2 text-sm text-black rounded-full cursor-pointer font-semibold text-center shadow-xs transition-all duration-500 hover:text-purple-600  "
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width={12}
+                      height={4}
+                      viewBox="0 0 12 4"
+                      fill="none"
+                    >
+                      <path
+                        d="M1.85624 2.00085H1.81458M6.0343 2.00085H5.99263M10.2124 2.00085H10.1707"
+                        stroke="currentcolor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
+                  <div
+                    id="dropdown-default"
+                    className="dropdown-menu rounded-xl shadow-lg bg-white absolute top-full -left-10 w-max mt-2 hidden"
+                    aria-labelledby="dropdown-default"
+                  >
+                    <ul className="py-2">
+                      <li>
+                        <a
+                          className="block px-6 py-2 text-xs hover:bg-gray-100 text-gray-600 font-medium"
+                          href="javascript:;"
+                        >
+                          Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          className="block px-6 py-2 text-xs hover:bg-gray-100 text-gray-600 font-medium"
+                          href="javascript:;"
+                        >
+                          Remove
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <h6 className="text-xl leading-8 font-semibold text-black mb-1">
+                Meeting with a friends
+              </h6>
+              <p className="text-base font-normal text-gray-600">
+                Meet-Up for Travel Destination Discussion
+              </p>
+            </div>
+            <div className="p-6 rounded-xl bg-white">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-sky-400" />
+                  <p className="text-base font-medium text-gray-900">
+                    Jan 10,2020 - 05:40 - 13:00
+                  </p>
+                </div>
+                <div className="dropdown relative inline-flex">
+                  <button
+                    type="button"
+                    data-target="dropdown-a"
+                    className="dropdown-toggle inline-flex justify-center py-2.5 px-1 items-center gap-2 text-sm text-black rounded-full cursor-pointer font-semibold text-center shadow-xs transition-all duration-500 hover:text-sky-400  "
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width={12}
+                      height={4}
+                      viewBox="0 0 12 4"
+                      fill="none"
+                    >
+                      <path
+                        d="M1.85624 2.00085H1.81458M6.0343 2.00085H5.99263M10.2124 2.00085H10.1707"
+                        stroke="currentcolor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
+                  <div
+                    id="dropdown-a"
+                    className="dropdown-menu rounded-xl shadow-lg bg-white absolute -left-10 top-full w-max mt-2 hidden"
+                    aria-labelledby="dropdown-a"
+                  >
+                    <ul className="py-2">
+                      <li>
+                        <a
+                          className="block px-6 py-2 text-xs hover:bg-gray-100 text-gray-600 font-medium"
+                          href="javascript:;"
+                        >
+                          Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          className="block px-6 py-2 text-xs hover:bg-gray-100 text-gray-600 font-medium"
+                          href="javascript:;"
+                        >
+                          Remove
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <h6 className="text-xl leading-8 font-semibold text-black mb-1">
+                Visiting online courcse
+              </h6>
+              <p className="text-base font-normal text-gray-600">
+                Checks updates for design course
+              </p>
+            </div>
+            <div className="p-6 rounded-xl bg-white">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
+                  <p className="text-base font-medium text-gray-900">
+                    Jan 14, 2020 10:00 - 11:00
+                  </p>
+                </div>
+                <div className="dropdown relative inline-flex">
+                  <button
+                    type="button"
+                    data-target="dropdown-b"
+                    className="dropdown-toggle inline-flex justify-center py-2.5 px-1 items-center gap-2 text-sm text-black rounded-full cursor-pointer font-semibold text-center shadow-xs transition-all duration-500 hover:text-emerald-600  "
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width={12}
+                      height={4}
+                      viewBox="0 0 12 4"
+                      fill="none"
+                    >
+                      <path
+                        d="M1.85624 2.00085H1.81458M6.0343 2.00085H5.99263M10.2124 2.00085H10.1707"
+                        stroke="currentcolor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
+                  <div
+                    id="dropdown-b"
+                    className="dropdown-menu rounded-xl shadow-lg bg-white absolute -left-10 top-full w-max mt-2 hidden"
+                    aria-labelledby="dropdown-b"
+                  >
+                    <ul className="py-2">
+                      <li>
+                        <a
+                          className="block px-6 py-2 text-xs hover:bg-gray-100 text-gray-600 font-medium"
+                          href="javascript:;"
+                        >
+                          Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          className="block px-6 py-2 text-xs hover:bg-gray-100 text-gray-600 font-medium"
+                          href="javascript:;"
+                        >
+                          Remove
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <h6 className="text-xl leading-8 font-semibold text-black mb-1">
+                Development meet
+              </h6>
+              <p className="text-base font-normal text-gray-600">
+                Discussion with developer for upcoming project
+              </p>
+            </div>
           </div>
-          <div className="md:w-1/2">
-            <Card className="p-6 min-h-[300px]">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-                {selectedDate
-                  ? `Events on ${selectedDate.toLocaleDateString()}`
-                  : 'Select a date to see events'}
-              </h2>
-              {selectedDayEvents.length === 0 ? (
-                <div className="text-gray-500">No events for this day.</div>
-              ) : (
-                <ul className="space-y-4">
-                  {selectedDayEvents.map(event => (
-                    <li key={event.id} className="flex items-start gap-3">
-                      <span className={`inline-block rounded px-2 py-1 text-xs font-semibold ${eventTypeColor[event.type]}`}>{event.type.replace('-', ' ')}</span>
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">{event.jobTitle} <span className="text-gray-500">@ {event.company}</span></div>
-                        {event.notes && <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{event.notes}</div>}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card>
+        </div>
+        <div className="col-span-12 xl:col-span-7 px-2.5 py-5 sm:p-8 bg-gradient-to-b from-white/25 to-white xl:bg-white rounded-2xl max-xl:row-start-1">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-5">
+            <div className="flex items-center gap-4">
+              <h5 className="text-xl leading-8 font-semibold text-gray-900">
+                January 2024
+              </h5>
+              <div className="flex items-center">
+                <button className="text-indigo-600 p-1 rounded transition-all duration-300 hover:text-white hover:bg-indigo-600">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={16}
+                    height={16}
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M10.0002 11.9999L6 7.99971L10.0025 3.99719"
+                      stroke="currentcolor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                <button className="text-indigo-600 p-1 rounded transition-all duration-300 hover:text-white hover:bg-indigo-600">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={16}
+                    height={16}
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M6.00236 3.99707L10.0025 7.99723L6 11.9998"
+                      stroke="currentcolor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center rounded-md p-1 bg-indigo-50 gap-px">
+              <button className="py-2.5 px-5 rounded-lg bg-indigo-50 text-indigo-600 text-sm font-medium transition-all duration-300 hover:bg-indigo-600 hover:text-white">
+                Day
+              </button>
+              <button className="py-2.5 px-5 rounded-lg bg-indigo-600 text-white text-sm font-medium transition-all duration-300 hover:bg-indigo-600 hover:text-white">
+                Week
+              </button>
+              <button className="py-2.5 px-5 rounded-lg bg-indigo-50 text-indigo-600 text-sm font-medium transition-all duration-300 hover:bg-indigo-600 hover:text-white">
+                Month
+              </button>
+            </div>
+          </div>
+          <div className="border border-indigo-200 rounded-xl">
+            <div className="grid grid-cols-7 rounded-t-3xl border-b border-indigo-200">
+              <div className="py-3.5 border-r rounded-tl-xl border-indigo-200 bg-indigo-50 flex items-center justify-center text-sm font-medium text-indigo-600">
+                Sun
+              </div>
+              <div className="py-3.5 border-r border-indigo-200 bg-indigo-50 flex items-center justify-center text-sm font-medium text-indigo-600">
+                Mon
+              </div>
+              <div className="py-3.5 border-r border-indigo-200 bg-indigo-50 flex items-center justify-center text-sm font-medium text-indigo-600">
+                Tue
+              </div>
+              <div className="py-3.5 border-r border-indigo-200 bg-indigo-50 flex items-center justify-center text-sm font-medium text-indigo-600">
+                Wed
+              </div>
+              <div className="py-3.5 border-r border-indigo-200 bg-indigo-50 flex items-center justify-center text-sm font-medium text-indigo-600">
+                Thu
+              </div>
+              <div className="py-3.5 border-r border-indigo-200 bg-indigo-50 flex items-center justify-center text-sm font-medium text-indigo-600">
+                Fri
+              </div>
+              <div className="py-3.5 rounded-tr-xl bg-indigo-50 flex items-center justify-center text-sm font-medium text-indigo-600">
+                Sat
+              </div>
+            </div>
+            <div className="grid grid-cols-7 rounded-b-xl">
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-gray-50 border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50">
+                <span className="text-xs font-semibold text-gray-400">27</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-gray-50 border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-400">28</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-gray-50 border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-400">29</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-gray-50 border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-400">30</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-gray-50 border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-400">31</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">1</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">2</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 relative bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">3</span>
+                <div className="absolute top-9 bottom-1 left-3.5 p-1.5 xl:px-2.5 h-max rounded bg-purple-50 ">
+                  <p className="hidden xl:block text-xs font-medium text-purple-600 mb-px">
+                    Meeting
+                  </p>
+                  <span className="hidden xl:block text-xs font-normal text-purple-600 whitespace-nowrap">
+                    10:00 - 11:00
+                  </span>
+                  <p className="xl:hidden w-2 h-2 rounded-full bg-purple-600" />
+                </div>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">4</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">5</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">6</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white relative border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">7</span>
+                <div className="absolute top-9 bottom-1 left-3.5 p-1.5 xl:px-2.5 h-max rounded bg-emerald-50 ">
+                  <p className="hidden xl:block text-xs font-medium text-emerald-600 mb-px whitespace-nowrap">
+                    Developer Meetup
+                  </p>
+                  <span className="hidden xl:block text-xs font-normal text-emerald-600 whitespace-nowrap">
+                    10:00 - 11:00
+                  </span>
+                  <p className="xl:hidden w-2 h-2 rounded-full bg-emerald-600" />
+                </div>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">8</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-indigo-600 sm:text-white sm:w-6 sm:h-6 rounded-full sm:flex items-center justify-center sm:bg-indigo-600">
+                  9
+                </span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">10</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">11</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">12</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">13</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">14</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">15</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">16</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">17</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">18</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 relative bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">19</span>
+                <div className="absolute top-9 bottom-1 left-3.5 p-1.5 xl:px-2.5 h-max rounded bg-sky-50 ">
+                  <p className="hidden xl:block text-xs font-medium text-sky-600 mb-px whitespace-nowrap">
+                    Developer Meetup
+                  </p>
+                  <span className="hidden xl:block text-xs font-normal text-sky-600 whitespace-nowrap">
+                    10:00 - 11:00
+                  </span>
+                  <p className="xl:hidden w-2 h-2 rounded-full bg-sky-600" />
+                </div>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">20</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">21</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">22</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">23</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">24</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">25</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">26</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">27</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">28</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">29</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-b border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">30</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-white border-r border-indigo-200 rounded-bl-xl transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-900">31</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-gray-50 border-r border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-400">1</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-gray-50 border-r border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-400">2</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-gray-50 border-r border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-400">3</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 relative bg-gray-50 border-r border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-400">4</span>
+                <div className="absolute top-9 bottom-1 left-3.5 p-1.5 xl:px-2.5 h-max rounded bg-purple-50 ">
+                  <p className="hidden xl:block text-xs font-medium text-purple-600 mb-px whitespace-nowrap">
+                    Friends Meet
+                  </p>
+                  <span className="hidden xl:block text-xs font-normal text-purple-600 whitespace-nowrap">
+                    09:00 - 13:42
+                  </span>
+                  <p className="xl:hidden w-2 h-2 rounded-full bg-purple-600" />
+                </div>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-gray-50 border-r border-indigo-200 transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-400">5</span>
+              </div>
+              <div className="flex xl:aspect-square max-xl:min-h-[60px] p-3.5 bg-gray-50 border-indigo-200 rounded-br-xl transition-all duration-300 hover:bg-indigo-50 cursor-pointer">
+                <span className="text-xs font-semibold text-gray-400">6</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  </div>
+</section>
 
-export default Calendar;
+  )
+}
+
+export default Calendar

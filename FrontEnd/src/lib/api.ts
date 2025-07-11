@@ -1,4 +1,3 @@
-const API_BASE_URL = 'http://localhost:3000/api';
 
 export interface AuthResponse {
   success: boolean;
@@ -55,6 +54,7 @@ export interface ApiError {
     message: string;
   }>;
 }
+
 
 class ApiService {
   private baseURL: string;
@@ -122,6 +122,22 @@ class ApiService {
     return this.request<AuthResponse>('/auth/me');
   }
 
+  // Update user profile
+async updateUserProfile(userData: Partial<{ name: string; email: string }>): Promise<AuthResponse> {
+  return this.request<AuthResponse>('/auth/profile', {
+    method: 'PUT',
+    body: JSON.stringify(userData),
+  });
+}
+
+// Change user password
+async changePassword(data: { currentPassword: string; newPassword: string }): Promise<{ success: boolean; message: string }> {
+  return this.request<{ success: boolean; message: string }>('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
   // Token management
   setToken(token: string): void {
     localStorage.setItem('token', token);
@@ -140,4 +156,4 @@ class ApiService {
   }
 }
 
-export const apiService = new ApiService(API_BASE_URL); 
+export const apiService = new ApiService(import.meta.env.VITE_API_BASE_URL); 

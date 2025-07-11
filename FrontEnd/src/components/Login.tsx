@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { login } from "../constants";
 import { loginSchema, type LoginFormData } from "../lib/validation";
-import { useAuth } from "../hooks/AuthContext";
+import { useAuth } from "@/hooks/AuthContext";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
@@ -23,6 +24,7 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
   const [error, setError] = useState<string | null>(null);
   const { login: authLogin } = useAuth();
   const navigate = useNavigate();
+  useAuth();
 
   const {
     register,
@@ -39,7 +41,11 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
     try {
       await authLogin(data.email, data.password);
       navigate("/dashboard");
+      toast.success("Welcome Back!")
     } catch (error) {
+      toast.error("Invalid Email or Password", {
+      description: "Check Your Email or Password",
+      });
       setError(error instanceof Error ? error.message : "Login failed");
     } finally {
       setIsLoading(false);
