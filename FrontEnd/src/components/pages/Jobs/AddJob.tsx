@@ -98,25 +98,27 @@ const AddJob = () => {
   setIsSubmitting(true);
 
   try {
-    await addJob({
-      title: formData.jobTitle,
-      company: formData.companyName,
-      location: formData.location,
-      jobType: formData.jobType,
-      applicationDate: formData.applicationDate,
-      applicationDeadline: formData.applicationDeadline,
-      status: formData.applicationStatus.toLowerCase(),
-      salaryRange: formData.salaryRange,
-      resumeFile: null,
-      coverLetterFile: null,
-      source: "",
-      contactPerson: "",
-      contactEmail: "",
-      contactPhone: "",
-      jobPostingUrl: "",
-      notes: "",
-      nextStepsDate: ""
-    });
+await addJob({
+  title: formData.jobTitle,
+  company: formData.companyName,
+  location: formData.location,
+  jobType: formData.jobType,
+  applicationDate: formData.applicationDate,
+  applicationDeadline: formData.applicationDeadline,
+  status: formData.applicationStatus.toLowerCase(),
+  salaryRange: formData.salaryRange,
+  resumeFile: null,
+  coverLetterFile: null,
+  source: formData.source,
+  contactPerson: formData.contactPerson,
+  contactEmail: formData.contactEmail,
+  contactPhone: formData.contactPhone,
+  jobPostingUrl: formData.jobPostingUrl,
+  notes: formData.notes,
+  nextStepsDate: formData.nextStepsDate,
+  interviews: []
+});
+
 
     toast.success("Job Saved Successfully!", {
       description: `${formData.jobTitle} at ${formData.companyName} has been saved.`,
