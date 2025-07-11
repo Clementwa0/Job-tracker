@@ -1,4 +1,3 @@
-// Top stays the same...
 import { useState } from "react";
 import {
   MapPin,
@@ -23,7 +22,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import FileUpload from "./FileUpload";
 import { toast } from "sonner";
-import API from "@/lib/axios";
 import { Label } from "@/components/ui/label";
 import { jobTypes, sources, statuses } from "@/constants";
 import { FormField } from "@/components/ui/formfield";
