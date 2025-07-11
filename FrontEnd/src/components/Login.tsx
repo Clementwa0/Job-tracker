@@ -3,6 +3,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { login } from "../constants";
+import Logo from "@/assets/logo.png"
 import { loginSchema, type LoginFormData } from "../lib/validation";
 import { useAuth } from "@/hooks/AuthContext";
 import { cn } from "@/lib/utils";
@@ -14,10 +15,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 export function Login({ className, ...props }: React.ComponentProps<"div">) {
   const [isLoading, setIsLoading] = useState(false);
@@ -53,9 +54,10 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row dark:bg-gray-900">
       {/* Left Feature Section - Hidden on mobile */}
-      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-green-600 to-teal-700 p-12 text-white relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-green-600 to-teal-700 p-12 
+      text-white relative overflow-hidden dark:bg-gray-900">
         <div className="relative z-10 my-auto">
           {/* Logo */}
           <div className="mb-12">
@@ -64,7 +66,7 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
                 d="M20 40c11.046 0 20-8.954 20-20S31.046 0 20 0 0 8.954 0 20s8.954 20 20 20z"
                 fill="white"
               />
-              <path d="M15 11l10 9-10 9V11z" fill="currentColor" />
+              <img src={Logo} alt="logo"/>
             </svg>
           </div>
 
@@ -120,8 +122,8 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
       </div>
 
       {/* Right Login Section */}
-      <div className="flex-1 flex items-center justify-center ">
-        <div className="w-full max-w-[440px]  glassmorphism  p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+      <div className="flex-1 flex items-center justify-center dark:bg-gray-900 ">
+        <div className="w-full max-w-[440px]  glassmorphism  p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/10">
           <div className="space-y-6">
             <div className="space-y-2">
               <h2 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-green-700 to-teal-600 bg-clip-text text-transparent">
@@ -129,7 +131,7 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
               </h2>
             </div>
             <div className={cn("flex flex-col gap-6", className)} {...props}>
-              <Card className="border-none shadow-none">
+              <Card className="border-none shadow-none dark:bg-gray-900">
                 <CardHeader>
                   <CardTitle>Login to your account</CardTitle>
                   <CardDescription>
@@ -184,7 +186,7 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
                         )}
                       </div>
 
-                      <div className="flex flex-col gap-3">
+                     <div className="flex flex-col gap-3">
                         <Button
                           type="submit"
                           className="w-full bg-green-900 text-white cursor-pointer"
@@ -192,14 +194,14 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
                         >
                           {isLoading ? "Logging in..." : "Login"}
                         </Button>
-                        <Button
+                        {/* <Button
                           variant="outline"
                           className="w-full"
                           type="button"
                         >
                           Login with Google
-                        </Button>
-                      </div>
+                        </Button> */}
+                      </div> 
                     </div>
                     <p className="text-center text-sm text-gray-600 mt-4">
                       Don't have an account?{" "}

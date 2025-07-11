@@ -1,6 +1,6 @@
+// Top stays the same...
 import { useState } from "react";
 import {
-  Calendar,
   MapPin,
   Briefcase,
   User,
@@ -8,8 +8,8 @@ import {
   Phone,
   Link as LinkIcon,
   FileText,
-  Clock,
   Save,
+  Contact2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +27,7 @@ import API from "@/lib/axios";
 import { Label } from "@/components/ui/label";
 import { jobTypes, sources, statuses } from "@/constants";
 import { FormField } from "@/components/ui/formfield";
+import { useJobs } from "@/hooks/JobContext";
 
 interface JobApplication {
   jobTitle: string;
@@ -49,6 +50,8 @@ interface JobApplication {
 }
 
 const AddJob = () => {
+  const { addJob } = useJobs();
+  
   const today = new Date().toISOString().split("T")[0];
 
   const [formData, setFormData] = useState<JobApplication>({
@@ -85,61 +88,79 @@ const AddJob = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.jobTitle || !formData.companyName) {
-      toast.error("Missing Required Fields", {
-        description: "Please fill in Job Title and Company Name.",
-      });
-      return;
-    }
+  e.preventDefault();
 
-    setIsSubmitting(true);
-    const dataToSend = {
-      ...formData,
-      resumeFile: "",
-      coverLetterFile: "",
-    };
+  if (!formData.jobTitle || !formData.companyName) {
+    toast.error("Missing Required Fields", {
+      description: "Please fill in Job Title and Company Name.",
+    });
+    return;
+  }
 
-    try {
-      await API.post("/jobs", dataToSend);
-      toast.success("Job Saved Successfully!", {
-        description: `${formData.jobTitle} at ${formData.companyName} has been saved.`,
-      });
-      setFormData({
-        jobTitle: "",
-        companyName: "",
-        location: "",
-        jobType: "",
-        applicationDate: today,
-        applicationDeadline: today,
-        source: "",
-        applicationStatus: "Applied",
-        contactPerson: "",
-        contactEmail: "",
-        contactPhone: "",
-        resumeFile: null,
-        coverLetterFile: null,
-        jobPostingUrl: "",
-        salaryRange: "",
-        notes: "",
-        nextStepsDate: "",
-      });
-    } catch (error: any) {
-      const message =
-        error.response?.data?.message || error.message || "Unknown error";
-      toast.error("Failed to add job", { description: message });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  setIsSubmitting(true);
+
+  try {
+    await addJob({
+      title: formData.jobTitle,
+      company: formData.companyName,
+      location: formData.location,
+      jobType: formData.jobType,
+      applicationDate: formData.applicationDate,
+      applicationDeadline: formData.applicationDeadline,
+      status: formData.applicationStatus.toLowerCase(),
+      salaryRange: formData.salaryRange,
+      resumeFile: null,
+      coverLetterFile: null,
+      source: "",
+      contactPerson: "",
+      contactEmail: "",
+      contactPhone: "",
+      jobPostingUrl: "",
+      notes: "",
+      nextStepsDate: ""
+    });
+
+    toast.success("Job Saved Successfully!", {
+      description: `${formData.jobTitle} at ${formData.companyName} has been saved.`,
+    });
+
+    setFormData({
+      jobTitle: "",
+      companyName: "",
+      location: "",
+      jobType: "",
+      applicationDate: today,
+      applicationDeadline: today,
+      source: "",
+      applicationStatus: "Applied",
+      contactPerson: "",
+      contactEmail: "",
+      contactPhone: "",
+      resumeFile: null,
+      coverLetterFile: null,
+      jobPostingUrl: "",
+      salaryRange: "",
+      notes: "",
+      nextStepsDate: "",
+    });
+  } catch (error: any) {
+    toast.error("Failed to add job", {
+      description:
+        error.response?.data?.message || error.message || "Unknown error",
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
-    <div className="mx-auto">
-      <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-4">
-        <Card className="shadow-lg bg-[--card] text-[--card-foreground]">
+    <div className="mx-auto bg-white dark:bg-gray-900 min-h-screen px-2 py-6 transition-colors duration-300">
+      <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
+        <Card className="shadow-lg bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors">
           <CardContent className="space-y-4">
-            <h3 className="text-lg font-semibold text-[--foreground] flex items-center gap-2">
-              <Briefcase className="h-4 w-4" /> Job Details
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Briefcase className="h-4 w-4" />
+              Job Details
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
@@ -166,7 +187,7 @@ const AddJob = () => {
                 icon={MapPin}
               />
               <div className="space-y-2">
-                <Label>Job Type</Label>
+                <Label className="text-sm font-medium">Job Type</Label>
                 <Select
                   value={formData.jobType}
                   onValueChange={(value) => handleInputChange("jobType", value)}
@@ -174,7 +195,7 @@ const AddJob = () => {
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="dark:bg-gray-900">
                     {jobTypes.map((t) => (
                       <SelectItem key={t} value={t}>
                         {t}
@@ -190,7 +211,6 @@ const AddJob = () => {
                 onChange={(e) =>
                   handleInputChange("applicationDate", e.target.value)
                 }
-                icon={Calendar}
               />
               <FormField
                 label="Application Deadline"
@@ -199,12 +219,14 @@ const AddJob = () => {
                 onChange={(e) =>
                   handleInputChange("applicationDeadline", e.target.value)
                 }
-                icon={Calendar}
               />
             </div>
+
             <Separator />
-            <h3 className="text-lg font-semibold text-[--foreground] flex items-center gap-2">
-              <FileText className="h-4 w-4" /> Application Details
+
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Application Details
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -216,7 +238,7 @@ const AddJob = () => {
                   <SelectTrigger>
                     <SelectValue placeholder="Where did you find it?" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="dark:bg-gray-900">
                     {sources.map((s) => (
                       <SelectItem key={s} value={s}>
                         {s}
@@ -236,16 +258,17 @@ const AddJob = () => {
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    {statuses.map(({id,name,bg}) => (
-                      <SelectItem key={id} value="statuscard" color={bg}>
-                        {name}
+                  <SelectContent className="dark:bg-gray-900">
+                    {statuses.map((n) => (
+                      <SelectItem key={n} value={n}>
+                        {n}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
+
             <FormField
               label="Job Posting URL"
               value={formData.jobPostingUrl}
@@ -255,9 +278,12 @@ const AddJob = () => {
               placeholder="https://..."
               icon={LinkIcon}
             />
+
             <Separator />
-            <h3 className="text-lg font-semibold text-[--foreground] flex items-center gap-2">
-              <User className="h-4 w-4" /> Contact Info
+
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Contact Info
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
@@ -266,6 +292,7 @@ const AddJob = () => {
                 onChange={(e) =>
                   handleInputChange("contactPerson", e.target.value)
                 }
+                icon={Contact2}
               />
               <FormField
                 label="Email"
@@ -289,10 +316,11 @@ const AddJob = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg bg-[--card] text-[--card-foreground]">
+        <Card className="shadow-lg bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors">
           <CardContent className="space-y-4">
-            <h3 className="text-lg font-semibold text-[--foreground] flex items-center gap-2">
-              <FileText className="h-4 w-4" /> Documents & Notes
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Documents & Notes
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FileUpload
@@ -321,7 +349,6 @@ const AddJob = () => {
               onChange={(e) =>
                 handleInputChange("nextStepsDate", e.target.value)
               }
-              icon={Clock}
             />
             <FormField
               label="Notes / Journal"

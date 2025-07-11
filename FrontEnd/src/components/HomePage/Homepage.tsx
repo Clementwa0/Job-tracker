@@ -9,7 +9,7 @@ const Homepage = () => {
       <header className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-lg border-b border-slate-200 shadow-sm">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <Link to="/">
-            <img src="/assets/logo.png" alt="JobTrail Logo" className="h-10" />
+            <img src="/src/assets/logo.png" alt="JobTrail Logo" className="h-10" />
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             <a href="#features" className="text-slate-600 hover:text-indigo-600">Features</a>
@@ -34,7 +34,7 @@ const Homepage = () => {
         <div className="container mx-auto px-4 flex flex-col lg:flex-row gap-16 items-center">
           <div className="lg:w-1/2 space-y-6">
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-slate-900">
-              Take charge of your career – track every opportunity with ease
+              Take charge of your career - track every opportunity with ease
             </h1>
             <p className="text-lg text-slate-600">
               Stop using spreadsheets. JobTrail helps you track applications, interviews, and offers—all in one place.
@@ -46,7 +46,7 @@ const Homepage = () => {
                 </Button>
               </Link>
               <Link to="/login">
-                <Button size="lg" variant="outline">
+                <Button size="lg" variant="outline" className="text-gray-900">
                   Login
                 </Button>
               </Link>

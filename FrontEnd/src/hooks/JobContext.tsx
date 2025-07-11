@@ -9,12 +9,21 @@ return {
   title: job.jobTitle || '',
   company: job.companyName || '',
   location: job.location || '',
-  type: job.type || '',
+  jobType: job.jobType || '',
   salaryRange: job.salaryRange || '',
   applicationDate: job.applicationDate ? new Date(job.applicationDate).toISOString().split('T')[0] : '',
   applicationDeadline: job.applicationDeadline ? new Date(job.applicationDeadline).toISOString().split('T')[0] : '',
   status: (job.applicationStatus || 'applied').toLowerCase(),
- 
+  resumeFile: job.resumeFile,
+  coverLetterFile: job.coverLetterFile,
+  interviews: [],
+  contactEmail: '',
+  contactPhone: '',
+  jobPostingUrl: '',
+  notes: '',
+  nextStepsDate: '',
+  contactPerson: '',
+  source: ''
 };
 }
 
@@ -55,9 +64,9 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       jobTitle: job.title,
       companyName: job.company,
       applicationDate: job.applicationDate,
-      applicationDeadline:job.applicationDeadline,
+      applicationDeadline: job.applicationDeadline,
       applicationStatus: job.status,
-      type: job.type,
+      jobType: job.jobType,
     };
 
     try {
@@ -81,7 +90,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (updatedJob.applicationDate) backendJob.applicationDate = updatedJob.applicationDate;
     if (updatedJob.applicationDeadline) backendJob.applicationDeadline = updatedJob.applicationDeadline;
     if (updatedJob.status) backendJob.applicationStatus = updatedJob.status;
-    if (updatedJob.type) backendJob.type = updatedJob.type;
+    if (updatedJob.jobType) backendJob.jobType = updatedJob.jobType;
 
     try {
       const res = await API.put(`/jobs/${id}`, backendJob);

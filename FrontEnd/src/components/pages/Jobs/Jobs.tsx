@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import JobsTable, { type Job } from "./JobsTable";
-import JobsFilter from "./JobsFilter";
-import JobCard from "@/components/ui/JobCard";
+import JobsFilter from "@/components/pages/Jobs/JobsFilter";
+import JobCard from "@/components/pages/Jobs/JobCard";
 import { useJobs } from "@/hooks/JobContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -17,82 +17,61 @@ const Jobs: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [priorityFilter, setPriorityFilter] = useState("");
-  const [filteredJobs, setFilteredJobs] = useState<Job[]>(jobs);
-  const [viewMode, setViewMode] = useState<"table" | "grid">(
-    isMobile ? "grid" : "table"
-  );
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null); 
+  const [viewMode, setViewMode] = useState<"table" | "grid">(isMobile ? "grid" : "table");
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
-  useEffect(() => {
-    let result = [...jobs];
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((job) => {
+      const matchSearch =
+        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.company.toLowerCase().includes(searchTerm.toLowerCase());
 
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      result = result.filter(
-        (job) =>
-          job.title.toLowerCase().includes(searchLower) ||
-          job.company.toLowerCase().includes(searchLower)
-      );
-    }
+      const matchStatus = statusFilter ? job.status === statusFilter : true;
 
-    if (statusFilter) {
-      result = result.filter((job) => job.status === statusFilter);
-    }
+      return matchSearch && matchStatus;
+    });
+  }, [jobs, searchTerm, statusFilter]);
 
-
-    setFilteredJobs(result);
-  }, [jobs, searchTerm, statusFilter, priorityFilter]);
-
-  const handleEdit = (id: string) => {
-    navigate(`/edit-job/${id}`);
-  };
-
-  const handleDelete = (id: string) => {
-    deleteJob(id);
-  };
+  const handleEdit = (id: string) => navigate(`/edit-job/${id}`);
+  const handleDelete = (id: string) => deleteJob(id);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in bg-white dark:bg-gray-900 min-h-screen px-4 py-6 transition-colors">
+      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Jobs</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Jobs</h1>
+          <p className="text-muted-foreground mt-1 dark:text-gray-400">
             Manage your job applications and track their status
           </p>
         </div>
-        <Button
-          onClick={() => navigate("/add-job")}
-          className="flex items-center gap-2"
-        >
+        <Button onClick={() => navigate("/add-job")} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Add Job
         </Button>
       </div>
 
+      {/* Filters */}
       <JobsFilter
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
-        priorityFilter={priorityFilter}
-        onPriorityFilterChange={setPriorityFilter}
       />
 
-      <Tabs
-        defaultValue={viewMode}
-        onValueChange={(v) => setViewMode(v as "table" | "grid")}
-      >
+      {/* View Switch */}
+      <Tabs defaultValue={viewMode} onValueChange={(v) => setViewMode(v as "table" | "grid")}>
         <div className="flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground dark:text-gray-400">
             Showing {filteredJobs.length} of {jobs.length} jobs
           </div>
-          <TabsList>
+          <TabsList className="bg-muted dark:bg-gray-800 border dark:border-gray-700">
             <TabsTrigger value="table">Table</TabsTrigger>
             <TabsTrigger value="grid">Grid</TabsTrigger>
           </TabsList>
         </div>
 
+        {/* Table View */}
         <TabsContent value="table" className="mt-6">
           {filteredJobs.length > 0 ? (
             <JobsTable
@@ -102,17 +81,16 @@ const Jobs: React.FC = () => {
               onSelect={(job) => setSelectedJob(job)}
             />
           ) : (
-            <div className="text-center py-10 bg-card rounded-lg border border-border">
-              <p className="text-muted-foreground">
-                No jobs found matching your filters.
-              </p>
+            <div className="text-center py-10 bg-card dark:bg-gray-800 rounded-lg border border-border dark:border-gray-700">
+              <p className="text-muted-foreground dark:text-gray-400">No jobs found matching your filters.</p>
             </div>
           )}
         </TabsContent>
 
-        <TabsContent value="grid" className="mt-6">
+        {/* Grid View */}
+        <TabsContent value="grid" className="mt-6 dark:bg-gray-900">
           {filteredJobs.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 dark:bg-gray-900">
               {filteredJobs.map((job) => (
                 <JobCard
                   key={job.id}
@@ -124,21 +102,25 @@ const Jobs: React.FC = () => {
                   status={job.status}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
-                  onClick={() => setSelectedJob(job)} location={""} type={""} salaryRange={""}                />
+                  onClick={() => setSelectedJob(job)}
+                  location={job.location}
+                  jobType={job.jobType}
+                  salaryRange={job.salaryRange}
+                  resumeFile={job.resumeFile}
+                  coverLetterFile={job.coverLetterFile}
+                />
               ))}
             </div>
           ) : (
-            <div className="text-center py-10 bg-card rounded-lg border border-border">
-              <p className="text-muted-foreground">
-                No jobs found matching your filters.
-              </p>
+            <div className="text-center py-10 bg-card dark:bg-gray-800 rounded-lg border border-border dark:border-gray-700">
+              <p className="text-muted-foreground dark:text-gray-400">No jobs found matching your filters.</p>
             </div>
           )}
         </TabsContent>
       </Tabs>
 
-     <JobModal job={selectedJob} onClose={() => setSelectedJob(null)} />
-
+      {/* Job Detail Modal */}
+      <JobModal job={selectedJob} onClose={() => setSelectedJob(null)} />
     </div>
   );
 };

@@ -14,13 +14,17 @@ export const FormField = ({
   label: string;
   type?: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   placeholder?: string;
   icon?: React.ElementType;
   textarea?: boolean;
 }) => (
   <div className="space-y-2">
-    <Label className="text-sm font-medium text-gray-700">{label}</Label>
+    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+      {label}
+    </Label>
     <div className="relative">
       {Icon && <Icon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />}
       {textarea ? (
@@ -28,7 +32,7 @@ export const FormField = ({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className="pl-10 min-h-24"
+          className="pl-10 min-h-24 text-gray-900"
         />
       ) : (
         <Input
