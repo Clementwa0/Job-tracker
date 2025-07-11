@@ -1,8 +1,29 @@
-import { useJobs } from '@/hooks/JobContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart } from 'recharts';
-import { CalendarDays, Briefcase, Clock, TrendingUp, MapPin, Building } from 'lucide-react';
+import { useJobs } from "@/hooks/JobContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Area,
+  AreaChart,
+} from "recharts";
+import {
+  CalendarDays,
+  Briefcase,
+  Clock,
+  TrendingUp,
+  MapPin,
+  Building,
+} from "lucide-react";
+import StatCard from "./StatCard";
 
 const Analytics = () => {
   const { jobs } = useJobs();
@@ -14,14 +35,20 @@ const Analytics = () => {
     return acc;
   }, {} as Record<string, number>);
 
-  const interviewRate = totalJobs > 0 ? ((statusCounts['interview'] || 0) / totalJobs * 100).toFixed(1) : '0';
-  const offerRate = totalJobs > 0 ? ((statusCounts['offer'] || 0) / totalJobs * 100).toFixed(1) : '0';
+  const interviewRate =
+    totalJobs > 0
+      ? (((statusCounts["interview"] || 0) / totalJobs) * 100).toFixed(1)
+      : "0";
+  const offerRate =
+    totalJobs > 0
+      ? (((statusCounts["offer"] || 0) / totalJobs) * 100).toFixed(1)
+      : "0";
 
   // Prepare data for charts
   const statusData = Object.entries(statusCounts).map(([status, count]) => ({
     status: status.charAt(0).toUpperCase() + status.slice(1),
     count,
-    percentage: totalJobs > 0 ? ((count / totalJobs) * 100).toFixed(1) : '0'
+    percentage: totalJobs > 0 ? ((count / totalJobs) * 100).toFixed(1) : "0",
   }));
 
   const companyData = jobs.reduce((acc, job) => {
@@ -40,8 +67,8 @@ const Analytics = () => {
   }, {} as Record<string, number>);
 
   const jobTypeChartData = Object.entries(jobTypeData).map(([type, count]) => ({
-    type: type || 'Not specified',
-    count
+    type: type || "Not specified",
+    count,
   }));
 
   const locationData = jobs.reduce((acc, job) => {
@@ -52,13 +79,18 @@ const Analytics = () => {
   const topLocations = Object.entries(locationData)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 8)
-    .map(([location, count]) => ({ location: location || 'Not specified', count }));
+    .map(([location, count]) => ({
+      location: location || "Not specified",
+      count,
+    }));
 
   // Timeline data - applications per month
   const timelineData = jobs.reduce((acc, job) => {
     if (job.applicationDate) {
       const date = new Date(job.applicationDate);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthKey = `${date.getFullYear()}-${String(
+        date.getMonth() + 1
+      ).padStart(2, "0")}`;
       acc[monthKey] = (acc[monthKey] || 0) + 1;
     }
     return acc;
@@ -67,17 +99,31 @@ const Analytics = () => {
   const timelineChartData = Object.entries(timelineData)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([month, count]) => ({
-      month: new Date(month + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-      applications: count
+      month: new Date(month + "-01").toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      }),
+      applications: count,
     }));
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#8DD1E1'];
+  const COLORS = [
+    "#0088FE",
+    "#00C49F",
+    "#FFBB28",
+    "#FF8042",
+    "#8884D8",
+    "#82CA9D",
+    "#FFC658",
+    "#8DD1E1",
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Job Application Analytics</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Job Application Analytics
+          </h1>
           <div className="text-sm text-gray-500">
             Total Applications: {totalJobs}
           </div>
@@ -85,51 +131,30 @@ const Analytics = () => {
 
         {/* Key Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-gray-900">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
-              <Briefcase className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalJobs}</div>
-              <p className="text-xs text-muted-foreground">Job applications submitted</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-gray-900">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Interview Rate</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{interviewRate}%</div>
-              <p className="text-xs text-muted-foreground">Applications to interviews</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-gray-900">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Offer Rate</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{offerRate}%</div>
-              <p className="text-xs text-muted-foreground">Applications to offers</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow  dark:bg-gray-900">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Applications</CardTitle>
-              <CalendarDays className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {statusCounts['applied'] || 0}
-              </div>
-              <p className="text-xs text-muted-foreground">Pending responses</p>
-            </CardContent>
-          </Card>
+          <StatCard
+            title="Total Applications"
+            icon={<Briefcase />}
+            value={totalJobs}
+            description="Job applications submitted"
+          />
+          <StatCard
+            title="Interview Rate"
+            icon={<TrendingUp />}
+            value={`${interviewRate}%`}
+            description="Applications to interviews"
+          />
+          <StatCard
+            title="Offer Rate"
+            icon={<Clock />}
+            value={`${offerRate}%`}
+            description="Applications to offers"
+          />
+          <StatCard
+            title="Active Applications"
+            icon={<CalendarDays />}
+            value={statusCounts["applied"] || 0}
+            description="Pending responses"
+          />
         </div>
 
         {/* Charts Section */}
@@ -156,13 +181,18 @@ const Analytics = () => {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ status, percentage }) => `${status} (${percentage}%)`}
+                        label={({ status, percentage }) =>
+                          `${status} (${percentage}%)`
+                        }
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="count"
                       >
                         {statusData.map((_entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
                         ))}
                       </Pie>
                       <Tooltip />
@@ -247,11 +277,11 @@ const Analytics = () => {
                     <XAxis dataKey="month" />
                     <YAxis />
                     <Tooltip />
-                    <Area 
-                      type="monotone" 
-                      dataKey="applications" 
-                      stroke="#8884d8" 
-                      fill="#8884d8" 
+                    <Area
+                      type="monotone"
+                      dataKey="applications"
+                      stroke="#8884d8"
+                      fill="#8884d8"
                       fillOpacity={0.3}
                     />
                   </AreaChart>

@@ -9,13 +9,16 @@ import {
   Login,
   Register,
   AddJob,
+  Analytics,
 } from "@/components/index";
 import { JobProvider } from "@/hooks/JobContext";
 import { AuthProvider } from "@/hooks/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ThemeProvider } from "./constants/theme-provider";
 
 const App = () => {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <Router>
         <JobProvider>
@@ -35,6 +38,7 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/jobs" element={<Jobs />} />
+              <Route path="analytics" element={<Analytics />} />
               <Route path="add-job" element={<AddJob />} />
               <Route path="/edit-job/:id" element={<AddJob />} />
               <Route path="/Profile" element={<Profile />} />
@@ -43,6 +47,7 @@ const App = () => {
         </JobProvider>
       </Router>
     </AuthProvider>
+    </ThemeProvider>
   );
 };
 

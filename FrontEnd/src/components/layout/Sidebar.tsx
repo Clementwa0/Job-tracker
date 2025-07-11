@@ -18,7 +18,7 @@ const Sidebar = () => {
     <>
       {/* Toggle Button (Mobile Only) */}
       {isMobile && (
-        <div className="fixed top-4 left-4 z-50 bg-white  md:hidden">
+        <div className="fixed top-4 left-4 z-50 bg-white  md:hidden dark:bg-gray-900 p-2">
           <Button onClick={toggleMenu} className="h-10 w-10 text-gray-900 shadow-md dark:text-white">
             {menuOpen ? (
                 <SidebarClose/>
@@ -31,7 +31,7 @@ const Sidebar = () => {
 
       {/* Mobile Sidebar Drawer */}
       {isMobile && menuOpen && (
-        <div className="fixed inset-0 z-40 bg-white opacity-90 shadow-lg mt-15 w-50 h-70 p-4">
+        <div className="fixed inset-0 z-40 bg-white opacity-90 shadow-lg mt-15 w-50 h-screen p-3 dark:bg-gray-900">
           <nav>
             <ul className="space-y-2 text-md text-brown-900 flex flex-col">
               {links.map((link) => (
@@ -54,16 +54,16 @@ const Sidebar = () => {
         </div>
       )}
 
-      <div className="hidden md:block">
+      <div className="hidden md:block dark:bg-gray-900">
         <div
           className={cn(
             "h-screen transition-all duration-300 border-sky-500 border-r shadow-lg flex flex-col bg-wheat",
             collapsed ? "w-14" : "w-35"
           )}
         >
-          <div className="p-4 border-b flex text-black items-center justify-between">
+          <div className="p-3 border-b flex text-black items-center justify-between">
             {!collapsed && (
-              <span className="text-lg font-semibold font-sans">JT</span>
+              <span className="text-lg font-semibold dark:text-white">JT</span>
             )}
             <Button
               onClick={() => setCollapsed(!collapsed)}
@@ -73,7 +73,7 @@ const Sidebar = () => {
             </Button>
           </div>
 
-          <nav className="flex-1 py-4 px-2">
+          <nav className="flex-1 py-4 px-2 dark:bg-gray-900">
             <ul className="space-y-2 text-md text-brown-700 flex flex-col">
               {links.map((link) => (
                 <li key={link.path}>

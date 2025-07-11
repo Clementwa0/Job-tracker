@@ -1,4 +1,4 @@
-import { useState, type Key, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useJobs } from "@/hooks/JobContext";
 import { Calendar as CalendarIcon } from 'lucide-react';
 import {

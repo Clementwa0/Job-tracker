@@ -1,6 +1,5 @@
+import { apiService, type AuthResponse } from "@/lib/api";
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { apiService } from "@/lib/api";
-import type { AuthResponse } from "@/lib/api";
 import type { ReactNode } from "react";
 
 interface User {

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { Job } from "@/components/pages/Jobs/job"
+import type { Job } from "@/components/pages/Jobs/job";
 
 interface JobModalProps {
   job: Job | null;
@@ -21,38 +21,53 @@ const JobModal: React.FC<JobModalProps> = ({ job, onClose }) => {
 
   return (
     <Dialog open={!!job} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg sm:max-w-xl">
+      <DialogContent className="max-w-lg sm:max-w-xl bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 border border-border dark:border-gray-700">
         <DialogHeader>
-          <DialogTitle>{job.title}</DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            {job.company} {job.location}
+          <DialogTitle className="text-xl font-semibold">{job.title}</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground dark:text-gray-400">
+            {job.company} - {job.location}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-3 text-sm mt-2">
-                <div>
-                <strong>Location:</strong> {job.location}
-                </div>
+        <div className="grid gap-3 text-sm mt-4">
           <div>
-            <strong>Type:</strong> {job.type}
+            <span className="font-medium text-gray-600 dark:text-gray-400">Location:</span>{" "}
+            {job.location}
           </div>
           <div>
-            <strong>Salary Range:</strong> {job.salaryRange}
+            <span className="font-medium text-gray-600 dark:text-gray-400">Type:</span>{" "}
+            {job.jobType}
           </div>
           <div>
-            <strong>Applied On:</strong> {job.applicationDate}
+            <span className="font-medium text-gray-600 dark:text-gray-400">Salary Range:</span>{" "}
+            {job.salaryRange}
           </div>
           <div>
-            <strong>Deadline:</strong> {job.applicationDeadline}
+            <span className="font-medium text-gray-600 dark:text-gray-400">Applied On:</span>{" "}
+            {job.applicationDate}
           </div>
-          <div className="flex gap-2 mt-2">
+          <div>
+            <span className="font-medium text-gray-600 dark:text-gray-400">Deadline:</span>{" "}
+            {job.applicationDeadline}
+          </div>
+          <div>
+            <span className="font-medium text-gray-600 dark:text-gray-400">Resume:</span>{" "}
+              {job.resumeFile}
+          </div>
+          <div>
+            <span className="font-medium text-gray-600 dark:text-gray-400">Cover Letter:</span>{" "}
+              {job.coverLetterFile}
+          </div>
+          <div className="flex gap-2 mt-3">
             <Badge variant="destructive">{job.status}</Badge>
           </div>
         </div>
 
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end pt-6">
           <DialogClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline" className="dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600">
+              Close
+            </Button>
           </DialogClose>
         </div>
       </DialogContent>
