@@ -1,4 +1,4 @@
-import { Bell, Search, User, LogOut, Moon, Sun } from 'lucide-react'
+import {Search, User, LogOut, Moon, Sun } from 'lucide-react'
 import { useAuth } from '@/hooks/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner';
@@ -47,16 +47,6 @@ const Header = () => {
 
       <div className="flex items-center gap-4">
       
-        
-        {/* <button 
-          className="h-9 w-9 rounded-md border border-input flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-accent-foreground relative"
-          aria-label="Notifications"
-        >
-          {/* <Bell className="h-4 w-4" />
-          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center">
-            
-          </span> 
-        </button> */}
         <div className="flex items-center gap-2">
                 <Sun className="h-4 w-4 text-muted-foreground" />
                 <Switch
