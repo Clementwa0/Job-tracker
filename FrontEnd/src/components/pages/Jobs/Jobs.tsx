@@ -90,7 +90,7 @@ const Jobs: React.FC = () => {
         {/* Grid View */}
         <TabsContent value="grid" className="mt-6 dark:bg-gray-900">
           {filteredJobs.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 dark:bg-gray-900">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 dark:bg-gray-900">
               {filteredJobs.map((job) => (
                 <JobCard
                   key={job.id}
