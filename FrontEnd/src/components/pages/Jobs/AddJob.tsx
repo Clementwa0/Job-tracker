@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label";
 import { jobTypes, sources, statuses } from "@/constants";
 import { FormField } from "@/components/ui/formfield";
 import { useJobs } from "@/hooks/JobContext";
+import {API} from "@/lib/axios"
 
 interface JobApplication {
   jobTitle: string;
@@ -87,25 +88,19 @@ const AddJob = () => {
   };
 
   const analyzeDescription = async () => {
-    if (!pastedDescription.trim()) return;
-    setIsAnalyzing(true);
-    try {
-      const res = await fetch("http://localhost:3000/api/analyze-job", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description: pastedDescription }),
-      });
-      const data = await res.json();
-      if (!res.ok)
-        throw new Error(data.message || "Error analyzing description");
-      setFormData((prev) => ({ ...prev, ...data }));
-      toast.success("Fields auto-filled from job description!");
-    } catch (err: any) {
-      toast.error("Failed to analyze", { description: err.message });
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
+  if (!pastedDescription.trim()) return;
+  setIsAnalyzing(true);
+  try {
+    const res = await API.post("/analyze-job", { description: pastedDescription });
+    setFormData((prev) => ({ ...prev, ...res.data }));
+    toast.success("Fields auto-filled from job description!");
+  } catch (err: any) {
+    toast.error("Failed to analyze", { description: err.response?.data?.message || err.message });
+  } finally {
+    setIsAnalyzing(false);
+  }
+};
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
