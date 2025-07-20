@@ -49,7 +49,6 @@ interface JobApplication {
 
 const AddJob = () => {
   const { addJob } = useJobs();
-  
   const today = new Date().toISOString().split("T")[0];
 
   const [formData, setFormData] = useState<JobApplication>({
@@ -72,7 +71,9 @@ const AddJob = () => {
     nextStepsDate: "",
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pastedDescription, setPastedDescription] = useState<string>("");
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const handleInputChange = (field: keyof JobApplication, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -85,77 +86,114 @@ const AddJob = () => {
     setFormData((prev) => ({ ...prev, [field]: file }));
   };
 
+  const analyzeDescription = async () => {
+    if (!pastedDescription.trim()) return;
+    setIsAnalyzing(true);
+    try {
+      const res = await fetch("http://localhost:3000/api/analyze-job", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: pastedDescription }),
+      });
+      const data = await res.json();
+      if (!res.ok)
+        throw new Error(data.message || "Error analyzing description");
+      setFormData((prev) => ({ ...prev, ...data }));
+      toast.success("Fields auto-filled from job description!");
+    } catch (err: any) {
+      toast.error("Failed to analyze", { description: err.message });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  if (!formData.jobTitle || !formData.companyName) {
-    toast.error("Missing Required Fields", {
-      description: "Please fill in Job Title and Company Name.",
-    });
-    return;
-  }
-
-  setIsSubmitting(true);
-
-  try {
-await addJob({
-  title: formData.jobTitle,
-  company: formData.companyName,
-  location: formData.location,
-  jobType: formData.jobType,
-  applicationDate: formData.applicationDate,
-  applicationDeadline: formData.applicationDeadline,
-  status: formData.applicationStatus.toLowerCase(),
-  salaryRange: formData.salaryRange,
-  resumeFile: null,
-  coverLetterFile: null,
-  source: formData.source,
-  contactPerson: formData.contactPerson,
-  contactEmail: formData.contactEmail,
-  contactPhone: formData.contactPhone,
-  jobPostingUrl: formData.jobPostingUrl,
-  notes: formData.notes,
-  nextStepsDate: formData.nextStepsDate,
-  interviews: []
-});
-
-
-    toast.success("Job Saved Successfully!", {
-      description: `${formData.jobTitle} at ${formData.companyName} has been saved.`,
-    });
-
-    setFormData({
-      jobTitle: "",
-      companyName: "",
-      location: "",
-      jobType: "",
-      applicationDate: today,
-      applicationDeadline: today,
-      source: "",
-      applicationStatus: "Applied",
-      contactPerson: "",
-      contactEmail: "",
-      contactPhone: "",
-      resumeFile: null,
-      coverLetterFile: null,
-      jobPostingUrl: "",
-      salaryRange: "",
-      notes: "",
-      nextStepsDate: "",
-    });
-  } catch (error: any) {
-    toast.error("Failed to add job", {
-      description:
-        error.response?.data?.message || error.message || "Unknown error",
-    });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    e.preventDefault();
+    if (!formData.jobTitle || !formData.companyName) {
+      toast.error("Missing Required Fields", {
+        description: "Please fill in Job Title and Company Name.",
+      });
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await addJob({
+        title: formData.jobTitle,
+        company: formData.companyName,
+        location: formData.location,
+        jobType: formData.jobType,
+        applicationDate: formData.applicationDate,
+        applicationDeadline: formData.applicationDeadline,
+        status: formData.applicationStatus.toLowerCase(),
+        salaryRange: formData.salaryRange,
+        resumeFile: null,
+        coverLetterFile: null,
+        source: formData.source,
+        contactPerson: formData.contactPerson,
+        contactEmail: formData.contactEmail,
+        contactPhone: formData.contactPhone,
+        jobPostingUrl: formData.jobPostingUrl,
+        notes: formData.notes,
+        nextStepsDate: formData.nextStepsDate,
+        interviews: [],
+      });
+      toast.success("Job Saved Successfully!", {
+        description: `${formData.jobTitle} at ${formData.companyName} has been saved.`,
+      });
+      setFormData({
+        jobTitle: "",
+        companyName: "",
+        location: "",
+        jobType: "",
+        applicationDate: today,
+        applicationDeadline: today,
+        source: "",
+        applicationStatus: "Applied",
+        contactPerson: "",
+        contactEmail: "",
+        contactPhone: "",
+        resumeFile: null,
+        coverLetterFile: null,
+        jobPostingUrl: "",
+        salaryRange: "",
+        notes: "",
+        nextStepsDate: "",
+      });
+      setPastedDescription("");
+    } catch (error: any) {
+      toast.error("Failed to add job", {
+        description: error.message || "Unknown error",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <div className="mx-auto bg-white dark:bg-gray-900 min-h-screen px-2 py-6 transition-colors duration-300">
-      <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
+    <div className="mx-auto bg-white dark:bg-gray-900 px-2 py-6 transition-colors duration-300 min-h-screen flex flex-col gap-8">
+      <Card className="shadow-lg bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100">
+        <CardContent className="space-y-4">
+          <h3 className="text-lg font-semibold">Analyze Job Description</h3>
+          <div>
+            <FormField
+              label="Paste Job Description"
+              value={pastedDescription}
+              onChange={(
+                e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+              ) => setPastedDescription(e.target.value)}
+              textarea
+              placeholder="Paste any job description here..."
+            />
+          </div>
+          <Button
+            onClick={analyzeDescription}
+            disabled={isAnalyzing || !pastedDescription}
+          >
+            {isAnalyzing ? "Analyzing..." : "Auto-Fill From Description"}
+          </Button>
+        </CardContent>
+      </Card>
+      <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6 pb-10">
         <Card className="shadow-lg bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors">
           <CardContent className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -315,7 +353,6 @@ await addJob({
             </div>
           </CardContent>
         </Card>
-
         <Card className="shadow-lg bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors">
           <CardContent className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -368,7 +405,7 @@ await addJob({
               </Button>
             </div>
           </CardContent>
-        </Card>
+        </Card>{" "}
       </form>
     </div>
   );

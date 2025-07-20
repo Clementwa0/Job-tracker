@@ -1,9 +1,11 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
 const connectDB = require('./config/database');
 const jobRoute = require('./routes/jobRoute');
-
+const auth = require('./routes/auth')
+const reviewRouter = require('./routes/aiRoute')
+const analyzeJobRoute = require("./routes/analyze-job");
 const app = express();
 const port = process.env.PORT;
 
@@ -12,14 +14,15 @@ connectDB();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '20mb' })); 
+app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api', jobRoute);
+app.use('/api/auth', auth);
+app.use('/api/jobs', jobRoute);
+app.use("/api/cv", reviewRouter);
+app.use("/api/analyze-job", analyzeJobRoute);
 
-// Basic route
 app.get('/', (req, res) => {
   res.json({
     message: 'Job Tracker API is running',
@@ -32,6 +35,7 @@ app.get('/', (req, res) => {
     }
   });
 });
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

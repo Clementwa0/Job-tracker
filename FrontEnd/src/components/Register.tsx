@@ -25,7 +25,7 @@ const Register = () => {
     mode: "onChange",
   });
 
-  const onSubmit: SubmitHandler<RegisterFormData> = async (data) => {
+  const onSubmit: SubmitHandler<RegisterFormData> = async (data: { name: string; email: string; password: string; }) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -41,7 +41,7 @@ const Register = () => {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen">
       {/* Left Panel - Brand Content */}
-      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-b from-blue-100 to-sky-500 p-10 flex-col justify-between">
+      <div className="hidden lg:flex lg:w-[45%] p-10 flex-col justify-between">
         <div className="space-y-12">
           <h1 className="text-4xl font-extrabold text-sky-800">JobTrail</h1>
           <div className="space-y-6">
@@ -71,7 +71,7 @@ const Register = () => {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="lg:w-[55%] flex items-center justify-center px-6 py-12 bg-white dark:bg-gray-900">
+      <div className="lg:w-[50%] flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-[440px] rounded-2xl bg-white/30 dark:bg-gray-800/30 backdrop-blur-md shadow-xl border border-white/10 transition-all duration-300">
           <Card className="border-none bg-transparent shadow-none">
             <div className="text-center mb-6 px-6">
@@ -79,7 +79,7 @@ const Register = () => {
                 Create Your Job Trail Account
               </h2>
               <p className="text-gray-600 dark:text-gray-300">
-                Let’s streamline your job hunt
+                Let's streamline your job hunt
               </p>
             </div>
 

@@ -1,24 +1,49 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Vite cache
+.vite/
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# dotenv environment variables
+.env
+.env.*.local
+
+# TypeScript cache
+*.tsbuildinfo
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+.vscode/
+.idea/
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
+
+# eslint / stylelint cache
+.eslintcache
+.stylelintcache
+
+# Package lock files (optional: keep one, ignore others depending on your package manager)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# macOS system files
+.AppleDouble
+.LSOverride
+
+# Optional: coverage reports (e.g. from vitest or jest)
+coverage/
+
+# Optional: output from `npm pack`
+*.tgz

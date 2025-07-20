@@ -5,27 +5,27 @@ import { Button } from "@/components/ui/button";
 import { joblabel } from "@/constants";
 
 export interface Job {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  jobType: string;
-  applicationDate: string;
-  applicationDeadline: string;
-  status: string;
-  salaryRange: string;
-  resumeFile: File | null;
-  coverLetterFile: File | null;
-  source: string;
-  contactPerson: string;
-  contactEmail: string;
-  contactPhone: string;
-  jobPostingUrl: string;
-  notes: string;
-  nextStepsDate: string;
-  interviews: Interview[];
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  jobType: string;
+  salaryRange: string;
+  applicationDate: string;
+  applicationDeadline: string;
+  status: string;
+  interviews: never[];
+  contactEmail: string;
+  contactPhone: string;
+  jobPostingUrl: string;
+  notes: string;
+  nextStepsDate: string;
+  contactPerson: string;
+  source: string;
+  coverLetterFile: null;
+  resumeFile: null;
+  
 }
-
 
 interface JobsTableProps {
   jobs: Job[];

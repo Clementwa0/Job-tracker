@@ -37,7 +37,7 @@ const JobCard: React.FC<JobCardProps> = ({
 }) => {
   return (
     <div
-      className="p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:shadow-md transition dark:bg-gray-900"
+      className="p-4 border border-border rounded-lg shadow-sm bg-card cursor-pointer hover:shadow-md transition dark:bg-gray-800"
       onClick={onClick}
     >
       <h3 className="text-lg font-semibold">{title}</h3>

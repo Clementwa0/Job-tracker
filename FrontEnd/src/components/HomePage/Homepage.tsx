@@ -8,9 +8,9 @@ const Homepage = () => {
     <div className="bg-white text-slate-800">
       <header className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-lg border-b border-slate-200 shadow-sm">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <Link to="/">
-            <img src="/src/assets/logo.png" alt="JobTrail Logo" className="h-10" />
-          </Link>
+          <a href="#home">
+            <img src="/src/assets/logo.png" alt="JobTrail Logo" className="h-13" />
+          </a>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             <a href="#features" className="text-slate-600 hover:text-indigo-600">Features</a>
             <a href="#how-it-works" className="text-slate-600 hover:text-indigo-600">How it works</a>
@@ -30,7 +30,7 @@ const Homepage = () => {
       </header>
 
       {/* Hero */}
-      <section className="pt-32 pb-24 bg-gradient-to-b from-indigo-50 via-white to-white">
+      <section id="home" className="pt-32 pb-24 bg-gradient-to-b from-indigo-50 via-white to-white">
         <div className="container mx-auto px-4 flex flex-col lg:flex-row gap-16 items-center">
           <div className="lg:w-1/2 space-y-6">
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-slate-900">

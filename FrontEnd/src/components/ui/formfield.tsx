@@ -32,7 +32,7 @@ export const FormField = ({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className="pl-10 min-h-24 text-gray-900"
+          className="pl-10 max-h-35 text-gray-900 dark:text-gray-100"
         />
       ) : (
         <Input

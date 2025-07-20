@@ -1,4 +1,3 @@
-
 export interface AuthResponse {
   success: boolean;
   message: string;
@@ -19,8 +18,6 @@ export interface RegisterRequest {
   email: string;
   password: string;
 }
-
-
 
 export interface LoginRequest {
   email: string;
@@ -44,7 +41,6 @@ export interface LoginRequest {
   salaryRange: string;
   notes: string;
   nextStepsDate: string;
-  interviews: string;
 } 
 
 export interface ApiError {
@@ -157,4 +153,4 @@ async changePassword(data: { currentPassword: string; newPassword: string }): Pr
   }
 }
 
-export const apiService = new ApiService(import.meta.env.VITE_API_BASE_URL); 
+export const apiService = new ApiService('http://localhost:3000/api' ); 

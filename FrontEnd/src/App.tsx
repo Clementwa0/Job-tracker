@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Homepage from "@/components/HomePage/Homepage";
 import {
   Calendar,
-  Profile,
   Dashboard,
   Jobs,
   Layout,
@@ -10,6 +9,8 @@ import {
   Register,
   AddJob,
   Analytics,
+  EditJob,
+  CvCreator,
 } from "@/components/index";
 import { JobProvider } from "@/hooks/JobContext";
 import { AuthProvider } from "@/hooks/AuthContext";
@@ -26,8 +27,6 @@ const App = () => {
             <Route path="/" element={<Homepage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-
-            {/* Protected Routes */}
             <Route
               element={
                 <ProtectedRoute>
@@ -40,8 +39,8 @@ const App = () => {
               <Route path="/jobs" element={<Jobs />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="add-job" element={<AddJob />} />
-              <Route path="/edit-job/:id" element={<AddJob />} />
-              <Route path="/Profile" element={<Profile />} />
+              <Route path="/edit-job/:id" element={<EditJob />} />
+              <Route path="/cvCreator" element={<CvCreator/>}/>
             </Route>
           </Routes>
         </JobProvider>
