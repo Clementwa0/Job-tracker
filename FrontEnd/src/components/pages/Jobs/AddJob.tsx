@@ -26,7 +26,7 @@ import { Label } from "@/components/ui/label";
 import { jobTypes, sources, statuses } from "@/constants";
 import { FormField } from "@/components/ui/formfield";
 import { useJobs } from "@/hooks/JobContext";
-import {API} from "@/lib/axios"
+import API from "@/lib/axios"
 
 interface JobApplication {
   jobTitle: string;
