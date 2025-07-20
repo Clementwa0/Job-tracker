@@ -153,4 +153,4 @@ async changePassword(data: { currentPassword: string; newPassword: string }): Pr
   }
 }
 
-export const apiService = new ApiService(" import.meta.env.VITE_DB_URL"); 
+export const apiService = new ApiService(import.meta.env.VITE_DB_URL); 
