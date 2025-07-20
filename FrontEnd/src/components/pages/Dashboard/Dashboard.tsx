@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useJobs } from "@/hooks/JobContext";
 import { tips } from "@/constants";
+import { Stat } from "./statsCard";
 
 const Dashboard: React.FC = () => {
   const { jobs } = useJobs();
@@ -100,7 +101,7 @@ const Dashboard: React.FC = () => {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <Card className="p-6 bg-blue-50 dark:bg-blue-900">
+        <Card className="p-6 bg-blue-50 dark:bg-gray-900">
           <Stat
             icon={
               <Briefcase className="h-6 w-6 text-blue-600 dark:text-blue-300" />
@@ -110,7 +111,7 @@ const Dashboard: React.FC = () => {
             color="blue"
           />
         </Card>
-        <Card className="p-6 bg-amber-50 dark:bg-amber-900">
+        <Card className="p-6 bg-amber-50 dark:bg-gray-900">
           <Stat
             icon={
               <Clock className="h-6 w-6 text-amber-600 dark:text-amber-300" />
@@ -120,7 +121,7 @@ const Dashboard: React.FC = () => {
             color="amber"
           />
         </Card>
-        <Card className="p-6 bg-purple-50 dark:bg-purple-900">
+        <Card className="p-6 bg-purple-50 dark:bg-gray-900">
           <Stat
             icon={
               <Calendar className="h-6 w-6 text-purple-600 dark:text-purple-300" />
@@ -130,7 +131,7 @@ const Dashboard: React.FC = () => {
             color="purple"
           />
         </Card>
-        <Card className="p-6 bg-green-50 dark:bg-green-900">
+        <Card className="p-6 bg-green-50 dark:bg-gray-900">
           <Stat
             icon={
               <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-300" />
@@ -140,7 +141,7 @@ const Dashboard: React.FC = () => {
             color="green"
           />
         </Card>
-        <Card className="p-6 bg-red-50 dark:bg-red-900">
+        <Card className="p-6 bg-red-50 dark:bg-gray-900">
           <Stat
             icon={
               <XCircle className="h-6 w-6 text-red-600 dark:text-red-300" />
@@ -288,44 +289,6 @@ const Dashboard: React.FC = () => {
   );
 };
 
-const Stat = ({
-  icon,
-  label,
-  value,
-  color,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-  color: "blue" | "amber" | "purple" | "green" | "red";
-}) => {
-  const colorClasses: Record<string, string> = {
-    blue: "text-blue-600 bg-blue-100 text-blue-700 dark:text-blue-300 dark:bg-blue-950",
-    amber:
-      "text-amber-600 bg-amber-100 text-amber-700 dark:text-amber-300 dark:bg-amber-950",
-    purple:
-      "text-purple-600 bg-purple-100 text-purple-700 dark:text-purple-300 dark:bg-purple-950",
-    green:
-      "text-green-600 bg-green-100 text-green-700 dark:text-green-300 dark:bg-green-950",
-    red: "text-red-600 bg-red-100 text-red-700 dark:text-red-300 dark:bg-red-950",
-  };
 
-  const [textColor, bgColor, valueColor, darkText, darkBg] =
-    colorClasses[color].split(" ");
-
-  return (
-    <div className="flex items-start lg:items-center gap-4">
-      <div className={`p-3 rounded-lg ${bgColor} ${darkBg}`}>{icon}</div>
-      <div>
-        <p className={`text-sm font-medium ${textColor} ${darkText}`}>
-          {label}
-        </p>
-        <p className={`text-2xl font-bold ${valueColor} ${darkText}`}>
-          {value}
-        </p>
-      </div>
-    </div>
-  );
-};
 
 export default Dashboard;
