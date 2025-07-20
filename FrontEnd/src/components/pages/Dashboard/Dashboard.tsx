@@ -100,7 +100,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <Card className="p-6 bg-blue-50 dark:bg-gray-900">
           <Stat
             icon={
