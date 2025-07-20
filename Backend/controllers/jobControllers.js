@@ -22,6 +22,7 @@ const {
     location,
     jobType,
     applicationDate,
+    applicationDeadline,
     source,
     applicationStatus,
     contactPerson,
@@ -41,6 +42,7 @@ const {
       location,
       jobType,
       applicationDate,
+      applicationDeadline,
       source,
       applicationStatus,
       contactPerson,
@@ -51,7 +53,9 @@ const {
       jobPostingUrl,
       salaryRange,
       notes,
-      nextStepsDate
+      nextStepsDate,
+
+        userId: req.userId
     });
     
 
@@ -85,8 +89,9 @@ const {
 
 // Get all jobs
 const getJobs = async (req, res) => {
+  
   try {
-    const jobs = await Job.find();
+    const jobs = await Job.find({ userId: req.userId });
     res.status(200).json({
       success: true,
       data: jobs
@@ -103,7 +108,7 @@ const getJobs = async (req, res) => {
 // Get a single job by ID
 const getJobById = async (req, res) => {
   try {
-    const job = await Job.findById(req.params.id);
+const job = await Job.findOne({ _id: req.params.id, userId: req.userId });
     if (!job) {
       return res.status(404).json({
         success: false,
@@ -126,7 +131,9 @@ const getJobById = async (req, res) => {
 // Update a job by ID
 const updateJob = async (req, res) => {
   try {
-    const job = await Job.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const job = await Job.findByIdAndUpdate({_id:req.params.id , userId: req.userId},
+      req.body, { new: true }
+    );
     if (!job) {
       return res.status(404).json({
         success: false,
@@ -150,7 +157,7 @@ const updateJob = async (req, res) => {
 // Delete a job by ID
 const deleteJob = async (req, res) => {
   try {
-    const job = await Job.findByIdAndDelete(req.params.id);
+    const job = await Job.findByIdAndDelete({_id:req.params.id, userId: req.userId});
     if (!job) {
       return res.status(404).json({
         success: false,

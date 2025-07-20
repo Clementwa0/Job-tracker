@@ -4,8 +4,8 @@ import {
   LineChart,
   LayoutDashboard,
   Plus,
-  UserPen,
   BriefcaseBusiness,
+  FileText,
 } from "lucide-react";
 
 export const features = [
@@ -38,7 +38,6 @@ export const steps = [
     title: "Create an account",
     description:
       "Sign up for a free account to get started. No credit card required.",
-    // true means content on left, number on right; false means opposite
     isContentLeft: true,
   },
   {
@@ -99,10 +98,8 @@ export const register = [
     desc: "All your job data in one hub",
   },
 ];
-export const user = {
-  name: "John Doe",
-  email: "john.doe@example.com",
-};
+
+
 
 export const links = [
   { path: "/dashboard", name: "Dashboard", icon: LayoutDashboard },
@@ -110,30 +107,10 @@ export const links = [
   { path: "/add-job", name: "Add Job", icon: Plus },
   { path: "/analytics", name: "Analytics", icon: LineChart },
   { path: "/calendar", name: "Calendar", icon: Calendar },
-  { path: "/profile", name: "Profile", icon: UserPen },
+  {path: "/cvCreator", name: "AI CV Review", icon: FileText}
 
 ];
 
-export const recentApplications = [
-  {
-    company: "Acme Corp",
-    position: "Frontend Developer",
-    status: "interview",
-    date: "2 days ago",
-  },
-  {
-    company: "Globex Inc",
-    position: "Product Manager",
-    status: "applied",
-    date: "4 days ago",
-  },
-  {
-    company: "Stark Industries",
-    position: "UX Designer",
-    status: "offer",
-    date: "1 week ago",
-  },
-];
 
 export const jobTypes = [
   "Full-time",
@@ -167,6 +144,27 @@ export const statusOptions = [
   { label: "Offered", value: "offered" },
   { label: "Rejected", value: "rejected" },
   { label: "Completed", value: "completed" },
+];
+
+export const recentApplications = [
+  {
+    company: "Google",
+    position: "Frontend Developer",
+    status: "interview",
+    date: "2 days ago",
+  },
+  {
+    company: "Microsoft",
+    position: "Product Manager",
+    status: "applied",
+    date: "4 days ago",
+  },
+  {
+    company: "UshauriTech",
+    position: "UX Designer",
+    status: "offer",
+    date: "1 week ago",
+  },
 ];
 
 export const joblabel = [
@@ -203,3 +201,12 @@ export const tips = [
     description: "Showcase your projects in a portfolio. It increases trust and helps you stand out.",
   },
 ];
+
+export const motivationalQuotes = [
+  "Every application brings you closer to your dream job! 🚀",
+  "Your next opportunity is just around the corner! 💪",
+  "Persistence is the key to success! Keep going! ✨",
+  "Every 'no' brings you closer to your 'yes'! 🎯",
+  "Your skills are in demand. Keep pushing forward! 🔥",
+];
+

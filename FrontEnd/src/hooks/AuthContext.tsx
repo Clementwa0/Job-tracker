@@ -8,6 +8,18 @@ interface User {
   email: string;
   createdAt: string;
   updatedAt: string;
+  avatarUrl?: string;
+  jobTitle?: string;
+  location?: string;
+  phone?: string;
+  notifications?: {
+    jobUpdates: boolean;
+    interviewReminders: boolean;
+    weeklySummary: boolean;
+  };
+  security?: {
+    twoFactorEnabled: boolean;
+  };
 }
 
 interface AuthContextType {
