@@ -18,8 +18,8 @@ const Sidebar = () => {
     <>
       {/* Toggle Button (Mobile Only) */}
       {isMobile && (
-        <div className="fixed top-4 left-4 z-50 bg-white  md:hidden dark:bg-gray-900 p-2">
-          <Button onClick={toggleMenu} className="h-10 w-10 text-gray-900 shadow-md dark:text-white">
+        <div className="fixed top-4 left-4 z-50  md:hidden dark:bg-gray-900 p-2">
+          <Button onClick={toggleMenu} variant="primary" className="h-10 w-10 text-gray-900 shadow-md dark:text-white">
             {menuOpen ? (
                 <SidebarClose/>
             ) : (
