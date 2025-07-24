@@ -9,7 +9,7 @@ const Homepage = () => {
       <header className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-lg border-b border-slate-200 shadow-sm">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <a href="#home">
-            <img src="/src/assets/logo.png" alt="JobTrail Logo" className="h-13" />
+            <img src="/assets/logo.png" alt="JobTrail Logo" className="h-13" />
           </a>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             <a href="#features" className="text-slate-600 hover:text-indigo-600">Features</a>
