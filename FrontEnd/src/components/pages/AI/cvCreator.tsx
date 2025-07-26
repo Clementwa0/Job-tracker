@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, Upload, ClipboardPaste, Sparkles } from "lucide-react";
+import API from "@/lib/axios";
 
 const CvReview = () => {
   const [cvText, setCvText] = useState("");
@@ -43,45 +44,33 @@ const CvReview = () => {
     }
   };
 
-  const analyzeCv = async () => {
-    if (!cvText.trim()) {
-      setError("Please provide your CV");
-      return;
-    }
+ const analyzeCv = async () => {
+  if (!cvText.trim()) {
+    setError("Please provide your CV");
+    return;
+  }
 
-    setIsLoading(true);
-    setError("");
-    setReview("");
-    setProgress(20);
+  setIsLoading(true);
+  setError("");
+  setReview("");
+  setProgress(30);
 
-    try {
-      const response = await fetch("http://localhost:3000/api/cv", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cvText }),
-      });
+  try {
+    const response = await API.post("/cv", { cvText }); // Assumes response is plain text or { feedback: string }
 
-      if (!response.ok || !response.body) throw new Error("Failed stream");
+    setReview(response.data);
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
+  
+    setProgress(100);
+  } catch (err) {
+    setError("Failed to analyze CV.");
+    console.error(err);
+  } finally {
+    setIsLoading(false);
+    setTimeout(() => setProgress(0), 1000);
+  }
+};
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        setReview((prev) => prev + chunk);
-        setProgress((p) => Math.min(p + 5, 95));
-      }
-
-      setProgress(100);
-    } catch (err) {
-      setError("Failed to analyze CV.");
-    } finally {
-      setIsLoading(false);
-      setTimeout(() => setProgress(0), 1000);
-    }
-  };
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -123,7 +112,7 @@ const CvReview = () => {
         <div onClick={() => !isLoading && fileInputRef.current?.click()} className="cursor-pointer p-8 border-dashed border-2 text-center">
           <Upload className="w-10 h-10 mx-auto mb-2" />
           Click to upload .txt file (max 2MB)
-          <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept=".txt" className="hidden" />
+          <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="" className="hidden" />
         </div>
       )}
 
