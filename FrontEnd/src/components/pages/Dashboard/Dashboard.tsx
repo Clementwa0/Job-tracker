@@ -11,10 +11,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card} from "@/components/ui/card";
 import { useJobs } from "@/hooks/JobContext";
-import { tips } from "@/constants";
 import { Stat } from "./statsCard";
+import TipCard from "./TipCard";
 
 const Dashboard: React.FC = () => {
   const { jobs } = useJobs();
@@ -83,7 +83,6 @@ const Dashboard: React.FC = () => {
       }));
   }, [jobs]);
   
-  const randomTip = tips[Math.floor(Math.random() * tips.length)];
 
   return (
     <div className="container mx-auto px-4 py-4 space-y-6 bg-white dark:bg-gray-900 min-h-screen">
@@ -270,19 +269,7 @@ const Dashboard: React.FC = () => {
             </div>
           </Card>
 
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow dark:bg-gray-900">
-            <CardHeader>
-              <CardTitle className="text-md font-semibold">
-                💡 Job Application Tip
-              </CardTitle>
-              <CardDescription>{randomTip.title}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground dark:text-white">
-                {randomTip.description}
-              </p>
-            </CardContent>
-          </Card>
+            <TipCard/>
         </div>
       </div>
     </div>
