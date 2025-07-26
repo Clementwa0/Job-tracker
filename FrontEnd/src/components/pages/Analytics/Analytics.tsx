@@ -37,7 +37,7 @@ const Analytics = () => {
 
   const interviewRate =
     totalJobs > 0
-      ? (((statusCounts["interview"] || 0) / totalJobs) * 100).toFixed(1)
+      ? (((statusCounts["interviewing"] || 0) / totalJobs) * 100).toFixed(1)
       : "0";
   const offerRate =
     totalJobs > 0
