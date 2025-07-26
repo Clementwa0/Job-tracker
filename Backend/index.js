@@ -6,6 +6,7 @@ const jobRoute = require('./routes/jobRoute');
 const auth = require('./routes/auth')
 const reviewRouter = require('./routes/aiRoute')
 const analyzeJobRoute = require("./routes/analyze-job");
+const tip = require("./routes/tip")
 const app = express();
 const port = process.env.PORT;
 
@@ -22,6 +23,7 @@ app.use('/api/auth', auth);
 app.use('/api/jobs', jobRoute);
 app.use("/api/cv", reviewRouter);
 app.use("/api/analyze-job", analyzeJobRoute);
+app.use("/api/tip", tip)
 
 app.get('/', (req, res) => {
   res.json({
