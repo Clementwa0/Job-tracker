@@ -120,7 +120,7 @@ const Homepage = () => {
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <a href="#home">
             <img 
-              src="/src/assets/logo.png" 
+              src="src/assets/logo.png" 
               alt="JobTrail Logo" 
               className="h-13" 
             />
