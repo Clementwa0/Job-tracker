@@ -1,104 +1,59 @@
-const express = require("express");
-const Groq = require("groq-sdk");
-require('dotenv').config();
-const router = express.Router();
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const MAX_CHARS = 8000;
+const { Groq } = require("groq-sdk");
 
-async function getGroqMarkdownReview(cvText) {
-  const safeText = cvText.length > MAX_CHARS ? cvText.slice(0, MAX_CHARS) : cvText;
+exports.config = {
+  api: {
+    bodyParser: true,
+    responseLimit: false,
+  },
+};
 
-  return groq.chat.completions.create({
-    model: "meta-llama/llama-4-scout-17b-16e-instruct",
-    messages: [
-      {
-        role: "system",
-        content: `
-You are a professional CV reviewer.  
-Analyze the following CV text and return your feedback in **this exact markdown format**:
-
-## ✅ Structure
-
-
----
-
-## ✅ Impact & Experience
--
----
-
-## ✅ Language
-
-
----
-
-## ✅ ATS Readiness
-
----
-
-## ✅ Suggested Roles
-
-
----
-
-## ✅ Recommendations & Next Steps
-
-
----
-
-## ✅ Example Bullet Point Rewrite
-
-
-DO NOT add explanations or any extra text.  
-Respond ONLY in this markdown format.
-      `,
-      },
-      { role: "user", content: safeText },
-    ],
-  });
-}
-
-// Helper function to split markdown into sections
-function parseMarkdownSections(markdown) {
-  const sections = {
-    structure: "",
-    impact: "",
-    language: "",
-    ats: "",
-    roles: "",
-    recommendations: "",
-    examples: "",
-  };
-
-  const regex = /## ✅ (.*?)\n\n([\s\S]*?)(?=\n---|\n$)/g;
-  let match;
-  while ((match = regex.exec(markdown)) !== null) {
-    const key = match[1].toLowerCase().replace(/ &.*| /g, "");
-    if (sections[key] !== undefined) {
-      sections[key] = match[2].trim();
-    }
+module.exports = async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).end("Method Not Allowed");
   }
-  return sections;
-}
 
-router.post("/", async (req, res) => {
   const { cvText } = req.body;
-  if (!cvText) return res.status(400).json({ error: "No CV text provided" });
+
+  if (!cvText || cvText.trim().length < 50) {
+    return res.status(400).json({ error: "CV text too short." });
+  }
+
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
   try {
-    const completion = await getGroqMarkdownReview(cvText);
-    const markdown = completion.choices[0]?.message?.content || "";
+    const chatStream = await groq.chat.completions.create({
+      model: "moonshotai/kimi-k2-instruct",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert CV reviewer. Evaluate formatting, structure, skills, achievements, ATS compatibility, and clarity. Respond with bullet points per section.`,
+        },
+        {
+          role: "user",
+          content: `Please review this CV:\n\n${cvText.slice(0, 5000)}`
+        },
+      ],
+      stream: true,
+      temperature: 0.4,
+      max_tokens: 1500,
+      top_p: 0.95,
+    });
 
-    if (!markdown.startsWith("## ✅ Structure")) {
-      console.error("Unexpected Groq output:", markdown);
-      return res.status(500).json({ error: "Invalid AI response format" });
+    res.writeHead(200, {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-cache",
+      "Transfer-Encoding": "chunked",
+      Connection: "keep-alive",
+    });
+
+    for await (const chunk of chatStream) {
+      const token = chunk.choices?.[0]?.delta?.content || "";
+      res.write(token);
     }
 
-    const sections = parseMarkdownSections(markdown);
-    res.json(sections);
+    res.end();
   } catch (error) {
-    console.error("Groq API error:", error.message || error);
-    res.status(500).json({ error: "Error processing CV review" });
+    console.error("Groq error:", error);
+    res.status(500).end("Something went wrong");
   }
-});
-
-module.exports = router;
+};
