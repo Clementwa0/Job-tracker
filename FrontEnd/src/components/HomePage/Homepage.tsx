@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { features, recentApplications, steps } from "@/constants";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import LOGO from "@/assets/logo.png"
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -120,7 +121,7 @@ const Homepage = () => {
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <a href="#home">
             <img 
-              src="src/assets/logo.png" 
+              src={LOGO}
               alt="JobTrail Logo" 
               className="h-13" 
             />
