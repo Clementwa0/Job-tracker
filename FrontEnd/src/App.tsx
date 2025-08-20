@@ -11,6 +11,7 @@ import {
   Analytics,
   EditJob,
   CvCreator,
+  Profile
 } from "@/components/index";
 import { JobProvider } from "@/hooks/JobContext";
 import { AuthProvider } from "@/hooks/AuthContext";
@@ -41,6 +42,7 @@ const App = () => {
               <Route path="add-job" element={<AddJob />} />
               <Route path="/edit-job/:id" element={<EditJob />} />
               <Route path="/cvCreator" element={<CvCreator/>}/>
+              <Route path="/profile" element={<Profile/>} />
             </Route>
           </Routes>
         </JobProvider>
