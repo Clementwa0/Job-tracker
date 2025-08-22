@@ -66,19 +66,17 @@ const EditJob = () => {
   };
 
   const validateForm = (): boolean => {
-    const requiredFields = [
-      "title", "company", "location", "applicationDate",
-      "applicationDeadline", "jobType", "status",
-      "contactEmail", "contactPhone", "jobPostingUrl",
-      "nextStepsDate", "contactPerson", "source"
-    ];
+    // Only validate required fields: status, jobType, title, company, location
+    const requiredFields = ["title", "company", "location", "jobType", "status"];
     const newErrors: Record<string, string> = {};
+    
     requiredFields.forEach((field) => {
       const value = formData[field as keyof Job];
       if (typeof value === "string" && value.trim() === "") {
-        newErrors[field] = `${field.replace(/([A-Z])/g, " $1")} is required`;
+        newErrors[field] = `${field.replace(/([A-Z])/g, " $1").toLowerCase()} is required`;
       }
     });
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -106,14 +104,14 @@ const EditJob = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-slate-100 py-8 px-4">
+    <div className="min-h-screen py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center mb-6">
           <Button 
-            variant="ghost" 
+            variant="outline" 
             onClick={() => navigate("/jobs")}
-            className="flex items-center text-indigo-600 hover:text-indigo-800 hover:bg-indigo-100 rounded-full"
+            className="flex items-center shadow-md text-indigo-600 hover:text-indigo-800 hover:bg-indigo-100 rounded-md"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Jobs
@@ -122,10 +120,6 @@ const EditJob = () => {
 
         <div className="bg-white dark:bg-gray-900 shadow-xl rounded-2xl overflow-hidden">
           {/* Form Header */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
-            <h1 className="text-2xl font-bold">Edit Job Application</h1>
-            <p className="text-indigo-100 mt-1">Update your job application details</p>
-          </div>
 
           <form onSubmit={handleSubmit} className="p-6 space-y-8">
             {/* Job Information Section */}
@@ -136,14 +130,14 @@ const EditJob = () => {
               </h2>
               <div className="grid md:grid-cols-2 gap-6">
                 {[
-                  { field: "title", label: "Job Title", icon: <FileText className="w-4 h-4" /> },
-                  { field: "company", label: "Company", icon: <Briefcase className="w-4 h-4" /> },
-                  { field: "location", label: "Location", icon: <MapPin className="w-4 h-4" /> },
-                  { field: "salaryRange", label: "Salary Range", icon: <DollarSign className="w-4 h-4" /> }
-                ].map(({ field, label, icon }) => (
+                  { field: "title", label: "Job Title", icon: <FileText className="w-4 h-4" />, required: true },
+                  { field: "company", label: "Company", icon: <Briefcase className="w-4 h-4" />, required: true },
+                  { field: "location", label: "Location", icon: <MapPin className="w-4 h-4" />, required: true },
+                  { field: "salaryRange", label: "Salary Range", icon: <DollarSign className="w-4 h-4" />, required: false }
+                ].map(({ field, label, icon, required }) => (
                   <div key={field} className="space-y-2">
                     <Label htmlFor={field} className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {label} *
+                      {label} {required && "*"}
                     </Label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
@@ -217,13 +211,13 @@ const EditJob = () => {
               </h2>
               <div className="grid md:grid-cols-2 gap-6">
                 {[
-                  { field: "applicationDate", label: "Application Date" },
-                  { field: "applicationDeadline", label: "Application Deadline" },
-                  { field: "nextStepsDate", label: "Next Steps Date" }
-                ].map(({ field, label }) => (
+                  { field: "applicationDate", label: "Application Date", required: false },
+                  { field: "applicationDeadline", label: "Application Deadline", required: false },
+                  { field: "nextStepsDate", label: "Next Steps Date", required: false }
+                ].map(({ field, label, required }) => (
                   <div key={field} className="space-y-2">
                     <Label htmlFor={field} className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {label} {field !== "nextStepsDate" ? "*" : ""}
+                      {label} {required && "*"}
                     </Label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
@@ -252,15 +246,15 @@ const EditJob = () => {
               </h2>
               <div className="grid md:grid-cols-2 gap-6">
                 {[
-                  { field: "contactPerson", label: "Contact Person", icon: <User className="w-4 h-4" /> },
-                  { field: "contactEmail", label: "Contact Email", icon: <Mail className="w-4 h-4" /> },
-                  { field: "contactPhone", label: "Contact Phone", icon: <Phone className="w-4 h-4" /> },
-                  { field: "jobPostingUrl", label: "Job Posting URL", icon: <Globe className="w-4 h-4" /> },
-                  { field: "source", label: "Source", icon: <Globe className="w-4 h-4" /> }
-                ].map(({ field, label, icon }) => (
+                  { field: "contactPerson", label: "Contact Person", icon: <User className="w-4 h-4" />, required: false },
+                  { field: "contactEmail", label: "Contact Email", icon: <Mail className="w-4 h-4" />, required: false },
+                  { field: "contactPhone", label: "Contact Phone", icon: <Phone className="w-4 h-4" />, required: false },
+                  { field: "jobPostingUrl", label: "Job Posting URL", icon: <Globe className="w-4 h-4" />, required: false },
+                  { field: "source", label: "Source", icon: <Globe className="w-4 h-4" />, required: false }
+                ].map(({ field, label, icon, required }) => (
                   <div key={field} className="space-y-2">
                     <Label htmlFor={field} className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {label} {field !== "source" ? "*" : ""}
+                      {label} {required && "*"}
                     </Label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
@@ -305,7 +299,7 @@ const EditJob = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
               <Button 
                 type="submit" 
-                className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-3 rounded-lg transition-all hover:shadow-lg"
+                className="flex-1  hover:to-purple-700 text-white py-3 rounded-lg transition-all hover:shadow-lg"
               >
                 <Save className="w-5 h-5 mr-2" />
                 Save Changes
