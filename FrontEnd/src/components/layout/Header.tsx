@@ -1,87 +1,84 @@
-import { User, LogOut, Moon, Sun } from "lucide-react";
+import { ChevronDown, HelpCircle, LogOut, Settings, User } from "lucide-react";
 import { useAuth } from "@/hooks/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { ModeToggle } from "@/constants/mode-toggle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [isDarkMode, setIsDarkMode] = useState(
-    document.documentElement.classList.contains("dark")
-  );
+
 
   const handleLogout = () => {
     logout();
     navigate("/login");
-    toast.success("Logged out Successfull", {
+    toast.success("Logged out successfully", {
       description: `Goodbye ${user?.name}`,
     });
   };
 
-  const toggleTheme = () => {
-    if (isDarkMode) {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    }
-    setIsDarkMode(!isDarkMode);
-  };
+
 
   return (
-    <header className="bg-background border-b border-border h-16 flex items-center justify-between px-4 lg:px-6 dark:bg-gray-900">
-      <div className="flex items-center gap-2">
-        {/* <div className="relative w-full max-w-md hidden md:block">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search..."
-            className="pl-8 h-9 w-full rounded-md border border-input bg-transparent py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          />
-        </div> */}
-      </div>
-
+    <header className="bg-background border-b border-border h-16 flex items-center justify-end px-4 lg:px-6 dark:bg-gray-900">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <Sun className="h-4 w-4 text-muted-foreground" />
-          <Switch
-            id="theme"
-            checked={isDarkMode}
-            onCheckedChange={toggleTheme}
-          />
-          <Moon className="h-4 w-4 text-muted-foreground" />
+          <ModeToggle />
         </div>
 
         <div className="flex items-center gap-2 ">
-          <Link to="/profile">
-            <Button
-              variant="default"
-              className="flex items-center gap-2 rounded-md hover:bg-accent hover:text-accent-foreground px-2 py-1 "
-            >
-              <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                <User className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div className="hidden md:block text-left">
-                <p className="text-sm text-muted-foreground font-medium">
-                  {user?.name || "User"}
-                </p>
-                <p className="text-xs text-muted-foreground">
+            <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className="shadow-md cursor-pointer"> 
+              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarFallback>{user?.name}</AvatarFallback>
+            </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 dark:bg-gray-900">
+              <DropdownMenuLabel className="flex flex-col">
+                <div>Signed in as</div>
+                <div className="font-normal text-sm text-gray-500 truncate">
                   {user?.email || "user@example.com"}
-                </p>
-              </div>
-            </Button>
-          </Link>
-          <Button
-            onClick={handleLogout}
-            className="h-9 w-9 rounded-md border border-input flex items-center justify-center text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-            aria-label="Logout"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/profile" className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/settings" className="cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/help" className="cursor-pointer">
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>Help & Support</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="cursor-pointer text-red-600 focus:text-red-600"
+                onClick={handleLogout}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
