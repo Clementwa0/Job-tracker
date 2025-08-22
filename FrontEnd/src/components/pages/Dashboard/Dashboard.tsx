@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   BarChart3,
@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   XCircle,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card} from "@/components/ui/card";
@@ -60,7 +61,6 @@ const Dashboard: React.FC = () => {
       }));
   }, [jobs]);
 
-  // Define upcomingInterviews
   const upcomingInterviews = React.useMemo(() => {
     return jobs
       .filter(
@@ -83,7 +83,23 @@ const Dashboard: React.FC = () => {
       }));
   }, [jobs]);
   
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+  setLoading(false);
+}, []);
+
+  
+if (loading)
+  return (
+    <div className="flex flex-col items-center justify-center py-20">
+      <Loader2 />
+      <p className="mt-4 text-gray-600 text-lg font-medium">
+        Loading dashboard items...
+      </p>
+    </div>
+  );
+  
   return (
     <div className="container mx-auto px-4 py-4 space-y-6 bg-white dark:bg-gray-900 min-h-screen">
       <div className="flex justify-between items-center">
@@ -279,3 +295,5 @@ const Dashboard: React.FC = () => {
 
 
 export default Dashboard;
+
+
