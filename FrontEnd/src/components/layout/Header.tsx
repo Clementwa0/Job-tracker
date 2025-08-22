@@ -52,19 +52,19 @@ const Header = () => {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to="/profile" className="cursor-pointer">
+                <Link to="/profile" className="cursor-pointer hover:bg-blue-600">
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/settings" className="cursor-pointer">
+                <Link to="/settings" className="cursor-pointer hover:bg-blue-600">
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/help" className="cursor-pointer">
+                <Link to="/help" className="cursor-pointer hover:bg-blue-600">
                   <HelpCircle className="mr-2 h-4 w-4" />
                   <span>Help & Support</span>
                 </Link>

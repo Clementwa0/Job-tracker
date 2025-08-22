@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { links } from "@/constants";
 import { cn } from "../../lib/utils";
-import { LucideMenu, SidebarClose, SidebarOpen } from "lucide-react";
+import { LucideMenu, SidebarClose, SidebarOpen, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "../ui/button";
 
@@ -18,18 +18,25 @@ const Sidebar = () => {
     <>
       {/* Toggle Button (Mobile Only) */}
       {isMobile && (
-        <div className="fixed top-4 left-4 z-50  md:hidden dark:bg-gray-900 p-2">
-          <Button onClick={toggleMenu} variant="default" className="h-10 w-10 text-gray-900 shadow-md dark:text-white">
+        <div className="fixed left-4 z-50   md:hidden dark:bg-gray-900 p-2">
+          <Button onClick={toggleMenu} variant="default" className="flex h-10 w-10 text-gray-900 items-center shadow-md p-2 dark:text-white">
             {menuOpen ? (
-                <SidebarClose/>
+              <X />
             ) : (
-                <LucideMenu/>
+              <LucideMenu />
             )}
           </Button>
         </div>
       )}
 
       {/* Mobile Sidebar Drawer */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-gray-900 bg-opacity-30"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+
       {isMobile && menuOpen && (
         <div className="fixed inset-0 z-40 bg-white opacity-90 shadow-lg mt-15 w-50 h-screen p-3 dark:bg-gray-900">
           <nav>
@@ -40,8 +47,12 @@ const Sidebar = () => {
                     to={link.path}
                     className={cn(
                       "flex items-center gap-2 px-2 py-2 hover:bg-blue-700 hover:text-white rounded-md transition-colors",
-                      location.pathname === link.path && "active"
+                      location.pathname === link.path
+                        ? "bg-blue-700 text-white"
+                        : "text-gray-800 dark:text-white",
+                      collapsed && "justify-center px-2"
                     )}
+
                     onClick={() => setMenuOpen(false)}
                   >
                     <link.icon className="w-5 h-5" />
@@ -58,7 +69,7 @@ const Sidebar = () => {
         <div
           className={cn(
             "h-screen transition-all duration-300 border-sky-500 border-r shadow-lg flex flex-col bg-wheat",
-            collapsed ? "w-14" : "w-35"
+            collapsed ? "w-14" : "w-64"
           )}
         >
           <div className="p-3 border-b flex text-black items-center justify-between">
@@ -66,6 +77,8 @@ const Sidebar = () => {
               <span className="text-lg font-semibold dark:text-white">JT</span>
             )}
             <Button
+              aria-label="Toggle Sidebar"
+              aria-expanded={!collapsed}
               onClick={() => setCollapsed(!collapsed)}
               className="p-1 rounded-md text-gray hover:bg-blue-700 hover:text-white dark:text-white"
             >
@@ -81,9 +94,12 @@ const Sidebar = () => {
                     to={link.path}
                     className={cn(
                       "flex items-center gap-2 px-2 py-2 hover:bg-blue-700 hover:text-white rounded-md transition-colors",
-                      location.pathname === link.path && "active",
+                      location.pathname === link.path
+                        ? "bg-blue-700 text-white"
+                        : "text-gray-800 dark:text-white",
                       collapsed && "justify-center px-2"
                     )}
+
                   >
                     <link.icon className="w-5 h-5" />
                     {!collapsed && <span>{link.name}</span>}
