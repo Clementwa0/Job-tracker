@@ -76,6 +76,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
+  useEffect(() => {
+  const storedToken = apiService.getToken();
+  if (storedToken) {
+    setToken(storedToken);
+
+    // ✅ Optimistically set isAuthenticated
+    setUser({ _id: "temp", name: "Loading...", email: "" } as User);
+
+    apiService.getCurrentUser()
+      .then((response) => setUser(response.data.user))
+      .catch(() => {
+        apiService.removeToken();
+        setToken(null);
+        setUser(null);
+      });
+  }
+  setIsLoading(false);
+}, []);
+
+
   const login = async (email: string, password: string) => {
     try {
       const response: AuthResponse = await apiService.login({

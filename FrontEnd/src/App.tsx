@@ -17,6 +17,7 @@ import { JobProvider } from "@/hooks/JobContext";
 import { AuthProvider } from "@/hooks/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ThemeProvider } from "./constants/theme-provider";
+import ForgotPassword from "./components/PasswordReset";
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
             <Route path="/" element={<Homepage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgetPassword" element={<ForgotPassword/>}/>
             <Route
               element={
                 <ProtectedRoute>
