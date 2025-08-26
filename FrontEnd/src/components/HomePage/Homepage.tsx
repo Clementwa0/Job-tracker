@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, LinkedinIcon, TwitterIcon } from "lucide-react";
+import { ArrowRight, Linkedin, LinkedinIcon, Twitter, TwitterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { features, recentApplications, steps } from "@/constants";
 import gsap from "gsap";
@@ -120,7 +120,7 @@ const Homepage = () => {
         <div className="container mx-auto px-4 py-0 flex justify-between items-center">
           <a href="#home">
             <img
-              src="src/assets/logo.png"
+              src="/public/logo.png"
               alt="JobTrail Logo"
               className="h-18 "
             />
@@ -136,7 +136,7 @@ const Homepage = () => {
           </nav>
           <div className="md:hidden flex gap-2">
             <Link to="/login">
-              <Button variant="outline" size="sm" className="transition-transform text-gray-900 hover:scale-105">
+              <Button variant="outline" size="sm" className="transition-transform text-gray- hover:scale-105">
                 Login
               </Button>
             </Link>
@@ -318,23 +318,25 @@ const Homepage = () => {
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-300 py-12">
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
+         <div>
             <h4 className="text-xl font-bold mb-4 text-white">JobTrail</h4>
-            <p>Track your applications, ace your interviews, and land your dream job.</p>
+            <p className="mb-4">Track your applications, ace your interviews, and land your dream job.</p>
             <div className="flex gap-4">
-            <a href="#" className="text-slate-400 hover:text-white transition-colors">
-              <span className="sr-only">Twitter</span>
-              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <TwitterIcon />
-              </svg>
-            </a>
-            <a href="#" className="text-slate-400 hover:text-white transition-colors">
-              <span className="sr-only">LinkedIn</span>
-              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <LinkedinIcon />
-              </svg>
-            </a>
-          </div>
+              <a 
+                href="#" 
+                className="text-slate-400 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-slate-900 rounded-full p-1"
+                aria-label="Twitter"
+              >
+                <Twitter size={20} />
+              </a>
+              <a 
+                href="#" 
+                className="text-slate-400 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-slate-900 rounded-full p-1"
+                aria-label="LinkedIn"
+              >
+                <Linkedin size={20} />
+              </a>
+            </div>
           </div>
           
           <div>
