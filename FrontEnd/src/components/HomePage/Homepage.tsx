@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Linkedin, LinkedinIcon, Twitter, TwitterIcon } from "lucide-react";
+import { ArrowRight, Linkedin, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { features, recentApplications, steps } from "@/constants";
 import gsap from "gsap";
