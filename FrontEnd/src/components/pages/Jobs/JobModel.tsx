@@ -52,12 +52,36 @@ const JobModal: React.FC<JobModalProps> = ({ job, onClose }) => {
           </div>
           <div>
             <span className="font-medium text-gray-600 dark:text-gray-400">Resume:</span>{" "}
-              {job.resumeFile}
+            {job.resumeFile ? (
+              <a
+                href={`${import.meta.env.VITE_API_DB_URL}${job.resumeFile}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline"
+              >
+                View Resume
+              </a>
+            ) : (
+              <span className="text-gray-400">Not uploaded</span>
+            )}
           </div>
+
           <div>
             <span className="font-medium text-gray-600 dark:text-gray-400">Cover Letter:</span>{" "}
-              {job.coverLetterFile}
+            {job.coverLetterFile ? (
+              <a
+                href={`${import.meta.env.VITE_API_DB_URL}${job.coverLetterFile}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 underline"
+              >
+                View Cover Letter
+              </a>
+            ) : (
+              <span className="text-gray-400">Not uploaded</span>
+            )}
           </div>
+
           <div className="flex gap-2 mt-3">
             <Badge variant="destructive">{job.status}</Badge>
           </div>
