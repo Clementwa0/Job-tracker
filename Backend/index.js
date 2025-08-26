@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require("path");
 require('dotenv').config();
 const connectDB = require('./config/database');
 const jobRoute = require('./routes/jobRoute');
@@ -19,6 +20,7 @@ app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 // Routes
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use('/api/auth', auth);
 app.use('/api/jobs', jobRoute);
 app.use("/api/cv", reviewRouter);
