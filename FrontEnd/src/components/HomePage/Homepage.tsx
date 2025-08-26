@@ -136,7 +136,7 @@ const Homepage = () => {
           </nav>
           <div className="md:hidden flex gap-2">
             <Link to="/login">
-              <Button variant="outline" size="sm" className="transition-transform hover:scale-105">
+              <Button variant="outline" size="sm" className="transition-transform text-gray-900 hover:scale-105">
                 Login
               </Button>
             </Link>
@@ -167,7 +167,7 @@ const Homepage = () => {
               <Link to="/register">
                 <Button
                   size="lg"
-                  className="bg-indigo-600 hover:bg-indigo-700 transition-transform hover:scale-105"
+                  className="bg-indigo-600  transition-transform hover:scale-105"
                 >
                   Get Started Free <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
@@ -306,8 +306,8 @@ const Homepage = () => {
           <Link to="/register">
             <Button
               size="lg"
-              variant="ghost"
-              className="bg-white text-indigo-600 hover:bg-slate-100 transition-transform hover:scale-105"
+              variant="secondary"
+              className="bg-white text-indigo-600 transition-transform hover:scale-105"
             >
               Get Started Free
             </Button>
