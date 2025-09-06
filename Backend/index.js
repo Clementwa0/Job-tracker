@@ -20,7 +20,7 @@ app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 // Routes
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use('/api/auth', auth);
 app.use('/api/jobs', jobRoute);
 app.use("/api/cv", reviewRouter);
