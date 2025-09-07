@@ -9,6 +9,8 @@ import {
   FileText,
   Save,
   Contact2,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import FileUpload from "./FileUpload";
 import { toast } from "sonner";
@@ -26,7 +28,7 @@ import { Label } from "@/components/ui/label";
 import { jobTypes, sources, statuses } from "@/constants";
 import { FormField } from "@/components/ui/formfield";
 import { useJobs } from "@/hooks/JobContext";
-import API from "@/lib/axios"
+import API from "@/lib/axios";
 
 interface JobApplication {
   jobTitle: string;
@@ -45,7 +47,13 @@ interface JobApplication {
   jobPostingUrl: string;
   salaryRange: string;
   notes: string;
-  nextStepsDate: string;
+  interviews: Interview[];
+}
+
+interface Interview {
+  date: string;
+  notes: string;
+  type: string;
 }
 
 const AddJob = () => {
@@ -69,7 +77,7 @@ const AddJob = () => {
     jobPostingUrl: "",
     salaryRange: "",
     notes: "",
-    nextStepsDate: "",
+    interviews: [],
   });
 
   const [pastedDescription, setPastedDescription] = useState<string>("");
@@ -88,19 +96,41 @@ const AddJob = () => {
   };
 
   const analyzeDescription = async () => {
-  if (!pastedDescription.trim()) return;
-  setIsAnalyzing(true);
-  try {
-    const res = await API.post("/analyze-job", { description: pastedDescription });
-    setFormData((prev) => ({ ...prev, ...res.data }));
-    toast.success("Fields auto-filled from job description!");
-  } catch (err: any) {
-    toast.error("Failed to analyze", { description: err.response?.data?.message || err.message });
-  } finally {
-    setIsAnalyzing(false);
-  }
-};
-  
+    if (!pastedDescription.trim()) return;
+    setIsAnalyzing(true);
+    try {
+      const res = await API.post("/analyze-job", { description: pastedDescription });
+      setFormData((prev) => ({ ...prev, ...res.data }));
+      toast.success("Fields auto-filled from job description!");
+    } catch (err: any) {
+      toast.error("Failed to analyze", { description: err.response?.data?.message || err.message });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const addInterview = () => {
+    setFormData((prev) => ({
+      ...prev,
+      interviews: [
+        ...prev.interviews,
+        { date: today, type: "", notes: "" },
+      ],
+    }));
+  };
+
+  const removeInterview = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      interviews: prev.interviews.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateInterview = (index: number, field: keyof Interview, value: string) => {
+    const updated = [...formData.interviews];
+    updated[index] = { ...updated[index], [field]: value };
+    setFormData((prev) => ({ ...prev, interviews: updated }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,7 +159,6 @@ const AddJob = () => {
         contactPhone: formData.contactPhone,
         jobPostingUrl: formData.jobPostingUrl,
         notes: formData.notes,
-        nextStepsDate: formData.nextStepsDate,
         interviews: [],
       });
       toast.success("Job Saved Successfully!", {
@@ -152,7 +181,7 @@ const AddJob = () => {
         jobPostingUrl: "",
         salaryRange: "",
         notes: "",
-        nextStepsDate: "",
+        interviews: [],
       });
       setPastedDescription("");
     } catch (error: any) {
@@ -165,243 +194,321 @@ const AddJob = () => {
   };
 
   return (
-    <div className="mx-auto bg-white dark:bg-gray-900 px-2 py-6 transition-colors duration-300 min-h-screen flex flex-col gap-8">
-      <Card className="shadow-lg bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100">
-        <CardContent className="space-y-4">
-          <h3 className="text-lg font-semibold">Analyze Job Description</h3>
-          <div>
+    <div className="min-h-screen bg-background px-3 sm:px-6 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+        
+        {/* Job Description Analyzer */}
+        <Card className="shadow-sm sm:shadow-md">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Analyze Job Description
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="mobile-card">
             <FormField
               label="Paste Job Description"
               value={pastedDescription}
-              onChange={(
-                e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-              ) => setPastedDescription(e.target.value)}
+              onChange={(e) => setPastedDescription(e.target.value)}
               textarea
               placeholder="Paste any job description here..."
+              className="mb-4 max-h-"
             />
-          </div>
-          <Button
-            onClick={analyzeDescription}
-            disabled={isAnalyzing || !pastedDescription}
-          >
-            {isAnalyzing ? "Analyzing..." : "Auto-Fill From Description"}
-          </Button>
-        </CardContent>
-      </Card>
-      <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6 pb-10">
-        <Card className="shadow-lg bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors">
-          <CardContent className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Briefcase className="h-4 w-4" />
-              Job Details
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                label="Job Title *"
-                value={formData.jobTitle}
-                onChange={(e) => handleInputChange("jobTitle", e.target.value)}
-                placeholder="e.g. Software Engineer"
-              />
-              <FormField
-                label="Company Name *"
-                value={formData.companyName}
-                onChange={(e) =>
-                  handleInputChange("companyName", e.target.value)
-                }
-                placeholder="e.g. Google"
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                label="Location"
-                value={formData.location}
-                onChange={(e) => handleInputChange("location", e.target.value)}
-                placeholder="City, Country"
-                icon={MapPin}
-              />
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Job Type</Label>
-                <Select
-                  value={formData.jobType}
-                  onValueChange={(value) => handleInputChange("jobType", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent className="dark:bg-gray-900">
-                    {jobTypes.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <FormField
-                label="Application Date"
-                type="date"
-                value={formData.applicationDate}
-                onChange={(e) =>
-                  handleInputChange("applicationDate", e.target.value)
-                }
-              />
-              <FormField
-                label="Application Deadline"
-                type="date"
-                value={formData.applicationDeadline}
-                onChange={(e) =>
-                  handleInputChange("applicationDeadline", e.target.value)
-                }
-              />
-            </div>
-
-            <Separator />
-
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Application Details
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Source</Label>
-                <Select
-                  value={formData.source}
-                  onValueChange={(value) => handleInputChange("source", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Where did you find it?" />
-                  </SelectTrigger>
-                  <SelectContent className="dark:bg-gray-900">
-                    {sources.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Application Status</Label>
-                <Select
-                  value={formData.applicationStatus}
-                  onValueChange={(value) =>
-                    handleInputChange("applicationStatus", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="dark:bg-gray-900">
-                    {statuses.map((n) => (
-                      <SelectItem key={n} value={n}>
-                        {n}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <FormField
-              label="Job Posting URL"
-              value={formData.jobPostingUrl}
-              onChange={(e) =>
-                handleInputChange("jobPostingUrl", e.target.value)
-              }
-              placeholder="https://..."
-              icon={LinkIcon}
-            />
-
-            <Separator />
-
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <User className="h-4 w-4" />
-              Contact Info
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                label="Contact Person"
-                value={formData.contactPerson}
-                onChange={(e) =>
-                  handleInputChange("contactPerson", e.target.value)
-                }
-                icon={Contact2}
-              />
-              <FormField
-                label="Email"
-                type="email"
-                value={formData.contactEmail}
-                onChange={(e) =>
-                  handleInputChange("contactEmail", e.target.value)
-                }
-                icon={Mail}
-              />
-              <FormField
-                label="Phone"
-                type="tel"
-                value={formData.contactPhone}
-                onChange={(e) =>
-                  handleInputChange("contactPhone", e.target.value)
-                }
-                icon={Phone}
-              />
-            </div>
+            <Button
+              onClick={analyzeDescription}
+              disabled={isAnalyzing || !pastedDescription}
+              className="w-full sm:w-auto"
+            >
+              {isAnalyzing ? "Analyzing..." : "Auto-Fill"}
+            </Button>
           </CardContent>
         </Card>
-        <Card className="shadow-lg bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors">
-          <CardContent className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Documents & Notes
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FileUpload
-                label="Resume Used"
-                accept=".pdf,.doc,.docx"
-                value={formData.resumeFile}
-                onChange={(file) => handleFileChange("resumeFile", file)}
-              />
-              <FileUpload
-                label="Cover Letter (Optional)"
-                accept=".pdf,.doc,.docx"
-                value={formData.coverLetterFile}
-                onChange={(file) => handleFileChange("coverLetterFile", file)}
-              />
-            </div>
-            <FormField
-              label="Salary Range"
-              value={formData.salaryRange}
-              onChange={(e) => handleInputChange("salaryRange", e.target.value)}
-              placeholder="e.g. Kes 80,000 - Kes 100,000"
-            />
-            <FormField
-              label="Next Steps / Reminder"
-              type="date"
-              value={formData.nextStepsDate}
-              onChange={(e) =>
-                handleInputChange("nextStepsDate", e.target.value)
-              }
-            />
-            <FormField
-              label="Notes / Journal"
-              value={formData.notes}
-              onChange={(e) => handleInputChange("notes", e.target.value)}
-              textarea
-            />
-            <div className="flex justify-end pt-4">
-              <Button
-                variant="secondary"
-                type="submit"
-                disabled={isSubmitting}
-                className="px-8 py-3 text-lg font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                <Save className="h-5 w-5" />
-                {isSubmitting ? "Adding Application..." : "Add Application"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>{" "}
-      </form>
+
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            
+            {/* Job Details Card */}
+            <Card className="shadow-sm sm:shadow-md">
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+                  <Briefcase className="h-5 w-5" />
+                  Job Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="mobile-card">
+                
+                {/* Job Title & Company */}
+                <div className="mobile-form-grid">
+                  <FormField
+                    label="Job Title"
+                    value={formData.jobTitle}
+                    onChange={(e) => handleInputChange("jobTitle", e.target.value)}
+                    placeholder="e.g. Software Engineer"
+                    required
+                  />
+                  <FormField
+                    label="Company Name"
+                    value={formData.companyName}
+                    onChange={(e) => handleInputChange("companyName", e.target.value)}
+                    placeholder="e.g. Google"
+                    required
+                  />
+                </div>
+
+                {/* Location & Job Type */}
+                <div className="mobile-form-grid">
+                  <FormField
+                    label="Location"
+                    value={formData.location}
+                    onChange={(e) => handleInputChange("location", e.target.value)}
+                    placeholder="City, Country"
+                    icon={MapPin}
+                  />
+                  <div className="mobile-input-spacing">
+                    <Label className="text-sm font-medium">Job Type</Label>
+                    <Select
+                      value={formData.jobType}
+                      onValueChange={(value) => handleInputChange("jobType", value)}
+                    >
+                      <SelectTrigger className="mobile-full-width">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {jobTypes.map((t) => (
+                          <SelectItem key={t} value={t}>
+                            {t}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Dates */}
+                <div className="mobile-form-grid">
+                  <FormField
+                    label="Application Date"
+                    type="date"
+                    value={formData.applicationDate}
+                    onChange={(e) => handleInputChange("applicationDate", e.target.value)}
+                  />
+                  <FormField
+                    label="Application Deadline"
+                    type="date"
+                    value={formData.applicationDeadline}
+                    onChange={(e) => handleInputChange("applicationDeadline", e.target.value)}
+                  />
+                </div>
+
+                <Separator className="my-4 sm:my-6" />
+
+                {/* Application Details */}
+                <h4 className="text-md font-semibold flex items-center gap-2 mb-3 sm:mb-4">
+                  <FileText className="h-4 w-4" />
+                  Application Details
+                </h4>
+
+                <div className="mobile-form-grid">
+                  <div className="mobile-input-spacing">
+                    <Label className="text-sm font-medium">Source</Label>
+                    <Select
+                      value={formData.source}
+                      onValueChange={(value) => handleInputChange("source", value)}
+                    >
+                      <SelectTrigger className="mobile-full-width">
+                        <SelectValue placeholder="Where did you find it?" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sources.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="mobile-input-spacing">
+                    <Label className="text-sm font-medium">Application Status</Label>
+                    <Select
+                      value={formData.applicationStatus}
+                      onValueChange={(value) => handleInputChange("applicationStatus", value)}
+                    >
+                      <SelectTrigger className="mobile-full-width">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statuses.map((n) => (
+                          <SelectItem key={n} value={n}>
+                            {n}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <FormField
+                  label="Job Posting URL"
+                  value={formData.jobPostingUrl}
+                  onChange={(e) => handleInputChange("jobPostingUrl", e.target.value)}
+                  placeholder="https://..."
+                  icon={LinkIcon}
+                />
+
+                <Separator className="my-4 sm:my-6" />
+
+                {/* Contact Info */}
+                <h4 className="text-md font-semibold flex items-center gap-2 mb-3 sm:mb-4">
+                  <User className="h-4 w-4" />
+                  Contact Info
+                </h4>
+
+                <div className="space-y-3 sm:space-y-4">
+                  <FormField
+                    label="Contact Person"
+                    value={formData.contactPerson}
+                    onChange={(e) => handleInputChange("contactPerson", e.target.value)}
+                    icon={Contact2}
+                  />
+                  <div className="mobile-form-grid">
+                    <FormField
+                      label="Email"
+                      type="email"
+                      value={formData.contactEmail}
+                      onChange={(e) => handleInputChange("contactEmail", e.target.value)}
+                      icon={Mail}
+                    />
+                    <FormField
+                      label="Phone"
+                      type="tel"
+                      value={formData.contactPhone}
+                      onChange={(e) => handleInputChange("contactPhone", e.target.value)}
+                      icon={Phone}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Documents & Notes Card */}
+            <Card className="shadow-sm sm:shadow-md">
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Documents & Notes
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="mobile-card">
+                
+                {/* File Uploads */}
+                <div className="space-y-4">
+                  <FileUpload
+                    label="Resume Used"
+                    accept=".pdf,.doc,.docx"
+                    value={formData.resumeFile}
+                    onChange={(file) => handleFileChange("resumeFile", file)}
+                  />
+                  <FileUpload
+                    label="Cover Letter (Optional)"
+                    accept=".pdf,.doc,.docx"
+                    value={formData.coverLetterFile}
+                    onChange={(file) => handleFileChange("coverLetterFile", file)}
+                  />
+                </div>
+
+                <FormField
+                  label="Salary Range"
+                  value={formData.salaryRange}
+                  onChange={(e) => handleInputChange("salaryRange", e.target.value)}
+                  placeholder="e.g. $80,000 - $100,000"
+                />
+
+                <FormField
+                  label="Notes / Journal"
+                  value={formData.notes}
+                  onChange={(e) => handleInputChange("notes", e.target.value)}
+                  textarea
+                />
+
+                <Separator className="my-4 sm:my-6" />
+
+                {/* Interviews Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-md font-semibold">Interview Schedule</h4>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addInterview}
+                      className="flex items-center gap-1"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span className="hidden sm:inline">Add Interview</span>
+                    </Button>
+                  </div>
+
+                  {formData.interviews.map((interview, index) => (
+                    <Card key={index} className="bg-muted/50">
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-start">
+                            <h5 className="font-medium text-sm">Interview {index + 1}</h5>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeInterview(index)}
+                              className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          
+                          <div className="mobile-form-grid">
+                            <FormField
+                              label="Interview Date"
+                              type="date"
+                              value={interview.date}
+                              onChange={(e) => updateInterview(index, "date", e.target.value)}
+                            />
+                            <FormField
+                              label="Interview Type"
+                              value={interview.type}
+                              onChange={(e) => updateInterview(index, "type", e.target.value)}
+                              placeholder="e.g. Technical"
+                            />
+                          </div>
+                          
+                          <FormField
+                            label="Notes"
+                            value={interview.notes}
+                            onChange={(e) => updateInterview(index, "notes", e.target.value)}
+                            placeholder="Interview notes..."
+                            textarea
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Submit Button */}
+                <div className="pt-4 sm:pt-6">
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full sm:w-auto sm:ml-auto flex items-center gap-2 px-6 py-3 font-semibold shadow-md hover:shadow-lg transition-all duration-200"
+                  >
+                    <Save className="h-5 w-5" />
+                    {isSubmitting ? "Adding Application..." : "Add Application"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
