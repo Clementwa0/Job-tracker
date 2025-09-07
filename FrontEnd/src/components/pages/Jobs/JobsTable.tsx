@@ -19,7 +19,6 @@ export interface Job {
   contactPhone: string;
   jobPostingUrl: string;
   notes: string;
-  nextStepsDate: string;
   contactPerson: string;
   source: string;
   coverLetterFile: null;
