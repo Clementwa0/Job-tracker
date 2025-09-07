@@ -1,5 +1,5 @@
 export interface Job {
-   id: string;
+  id: string;
   title: string;
   company: string;
   location: string;
@@ -8,15 +8,18 @@ export interface Job {
   applicationDate: string;
   applicationDeadline: string;
   status: string;
-  interviews: never[];
+  resumeFile: string | null;
+  coverLetterFile: string | null;
   contactEmail: string;
   contactPhone: string;
-  jobPostingUrl: string;
-  notes: string;
-  nextStepsDate: string;
   contactPerson: string;
+  jobPostingUrl: string;
   source: string;
-  coverLetterFile: null;
-  resumeFile: null;
-  
+  notes: string;
+  interviews: {
+    date: string;
+    type: string;
+    notes: string;
+  }[];
+  nextStepsDate?: string; // ✅ optional, so older jobs won’t break
 }
