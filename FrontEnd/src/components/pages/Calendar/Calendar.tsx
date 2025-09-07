@@ -87,12 +87,6 @@ const [selectedJob, setSelectedJob] = useState<Job | null>(null);
                   ? new Date(selectedJob.applicationDeadline).toLocaleDateString()
                   : "N/A"}
               </p>
-              <p>
-                <strong>Next Steps:</strong>{" "}
-                {selectedJob?.nextStepsDate
-                  ? new Date(selectedJob.nextStepsDate).toLocaleDateString()
-                  : "N/A"}
-              </p>
             </div>
           </Dialog.Content>
         </Dialog.Portal>
