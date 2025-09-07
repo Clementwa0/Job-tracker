@@ -25,7 +25,6 @@ function mapBackendJobToFrontend(job: any): Job {
     contactPhone: "",
     jobPostingUrl: "",
     notes: "",
-    nextStepsDate: "",
     contactPerson: "",
     source: "",
   };
@@ -83,7 +82,6 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
       contactPhone: job.contactPhone,
       jobPostingUrl: job.jobPostingUrl,
       notes: job.notes,
-      nextStepsDate: job.nextStepsDate,
       interviews: job.interviews,
     };
 
