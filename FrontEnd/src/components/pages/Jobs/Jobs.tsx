@@ -2,13 +2,14 @@ import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import JobsTable, { type Job } from "./JobsTable";
+import JobsTable from "./JobsTable";
 import JobsFilter from "@/components/pages/Jobs/JobsFilter";
 import JobCard from "@/components/pages/Jobs/JobCard";
 import { useJobs } from "@/hooks/JobContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import JobModal from "./JobModel";
+import type { Job } from "./job";
 
 const Jobs: React.FC = () => {
   const { jobs, deleteJob } = useJobs();
