@@ -18,7 +18,13 @@ const jobSchema = new mongoose.Schema({
   salaryRange: String,
   notes: String,
   nextStepsDate: Date,
-
+  interviews: [
+  {
+    date: Date,
+    notes: String,
+    type: String,
+  }
+],
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
