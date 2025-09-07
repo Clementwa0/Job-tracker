@@ -24,15 +24,6 @@ export function jobToCalendarEvents(jobs: Job[]) {
       });
     }
 
-    if (job.nextStepsDate) {
-      events.push({
-        id: `${job.id}-next`,
-        title: `📆 Next Step: ${job.title}`,
-        start: job.nextStepsDate,
-        backgroundColor: "#22c55e", // green
-        extendedProps: { jobId: job.id, type: "nextStep" },
-      });
-    }
 
     return events;
   });
