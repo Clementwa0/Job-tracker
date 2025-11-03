@@ -120,10 +120,10 @@ const Homepage = () => {
         <div className="container mx-auto px-4 py-0 flex justify-between items-center">
           <a href="#home">
             <img
-              src="/FrontEnd/public/logo.png"
+              src="/logo.png"
               alt="JobTrail Logo"
-              className="h-18 "
-            />
+              className="h-18"
+              />
           </a>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
             <a href="#features" className="text-slate-600 hover:text-indigo-600 transition-colors">Features</a>
