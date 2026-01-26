@@ -93,38 +93,126 @@ const getCurrentUser = async (req, res) => {
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ success: false, message: 'No user with this email' });
 
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No account found with that email address.'
+      });
+    }
+
+    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const resetTokenHash = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
 
     user.resetPasswordToken = resetTokenHash;
-    user.resetPasswordExpire = Date.now() + 1000 * 60 * 15; // 15 mins
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
     await user.save();
 
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
+    // Email transporter
     const transporter = nodemailer.createTransport({
       service: 'gmail',
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
     });
 
+    // Send email
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: `"${process.env.APP_NAME || 'YourApp'} Support" <${process.env.EMAIL_USER}>`,
       to: user.email,
-      subject: 'Password Reset Request',
-      html: `<p>You requested a password reset</p>
-             <p><a href="${resetUrl}">Reset Password</a></p>`
-    });
+      subject: 'Reset your password',
+      html: `
+  <div style="background:#f4f6f8;padding:40px 0;">
+    <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.08);font-family:Arial,sans-serif;">
 
-    res.json({ success: true, message: 'Password reset link sent to email' });
+      <!-- Header -->
+      <div style="background:#111827;padding:24px;text-align:center;">
+        <h1 style="color:#ffffff;margin:0;font-size:22px;">
+          ${process.env.APP_NAME || 'YourApp'}
+        </h1>
+      </div>
+
+      <!-- Body -->
+      <div style="padding:32px;color:#111827;">
+        <h2 style="margin-top:0;">Reset your password</h2>
+
+        <p style="font-size:15px;color:#374151;">
+          Hi ${user.name || 'there'},
+        </p>
+
+        <p style="font-size:15px;color:#374151;line-height:1.6;">
+          We received a request to reset the password for your account.  
+          Click the button below to choose a new password.
+        </p>
+
+        <div style="text-align:center;margin:32px 0;">
+          <a href="${resetUrl}"
+             style="
+               background:#4f46e5;
+               color:#ffffff;
+               padding:14px 28px;
+               text-decoration:none;
+               border-radius:8px;
+               font-weight:600;
+               font-size:15px;
+               display:inline-block;
+             ">
+            Reset Password
+          </a>
+        </div>
+
+        <p style="font-size:14px;color:#6b7280;line-height:1.6;">
+          This link will expire in <strong>15 minutes</strong> for security reasons.
+        </p>
+
+        <p style="font-size:14px;color:#6b7280;line-height:1.6;">
+          If you didn’t request a password reset, you can safely ignore this email.
+          Your account will remain secure.
+        </p>
+
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0;" />
+
+        <p style="font-size:13px;color:#9ca3af;word-break:break-all;">
+          If the button above doesn’t work, copy and paste this link into your browser:<br/>
+          <a href="${resetUrl}" style="color:#4f46e5;">${resetUrl}</a>
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div style="background:#f9fafb;padding:20px;text-align:center;">
+        <p style="font-size:12px;color:#9ca3af;margin:0;">
+          © ${new Date().getFullYear()} ${process.env.APP_NAME || 'YourApp'}. All rights reserved.
+        </p>
+      </div>
+
+    </div>
+  </div>
+  `
+    });
+    res.json({
+      success: true,
+      message:
+        'We’ve sent a password reset link to your email. Check your inbox (and spam folder just in case).'
+    });
 
   } catch (error) {
     console.error('Forgot password error:', error);
-    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    res.status(500).json({
+      success: false,
+      message: 'Something went wrong while sending the reset email. Try again later.',
+      error: error.message
+    });
   }
 };
+
 
 // Reset Password
 const resetPassword = async (req, res) => {

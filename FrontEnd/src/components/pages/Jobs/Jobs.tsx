@@ -108,7 +108,6 @@ const Jobs: React.FC = () => {
                   jobType={job.jobType}
                   salaryRange={job.salaryRange}
                   resumeFile={job.resumeFile}
-                  coverLetterFile={job.coverLetterFile}
                 />
               ))}
             </div>

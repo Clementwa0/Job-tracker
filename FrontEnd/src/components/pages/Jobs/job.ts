@@ -9,7 +9,6 @@ export interface Job {
   applicationDeadline: string;
   status: string;
   resumeFile: string | null;
-  coverLetterFile: string | null;
   contactEmail: string;
   contactPhone: string;
   contactPerson: string;

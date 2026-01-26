@@ -12,7 +12,6 @@ interface JobCardProps {
   applicationDate: string;
   applicationDeadline: string;
   resumeFile: null;
-  coverLetterFile: null;
   status: string;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
@@ -30,7 +29,6 @@ const JobCard: React.FC<JobCardProps> = ({
   applicationDeadline,
   status,
   resumeFile,
-  coverLetterFile,
   onEdit,
   onDelete,
   onClick,
@@ -48,7 +46,6 @@ const JobCard: React.FC<JobCardProps> = ({
       <p className="text-sm">Applied: {applicationDate}</p>
       <p className="text-sm">Deadline: {applicationDeadline}</p>
       <p>{resumeFile}</p>
-      <p>{coverLetterFile}</p>
       <div className="flex justify-between items-center mt-3">
         <Badge>{status}</Badge>
       </div>

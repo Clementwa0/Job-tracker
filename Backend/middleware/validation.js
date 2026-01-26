@@ -31,7 +31,19 @@ const loginValidation = [
     .withMessage('Password is required')
 ];
 
+const forgotPasswordValidation = [
+  body('email').isEmail().withMessage('Valid email is required')
+];
+
+const resetPasswordValidation = [
+  body('password')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters')
+];
+
 module.exports = {
   registerValidation,
-  loginValidation
+  loginValidation,
+  forgotPasswordValidation,
+  resetPasswordValidation
 }; 
