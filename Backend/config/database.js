@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://jobtrailapp_db_user:z62htyTIpygya7yc@cluster0.bscissx.mongodb.net/jobtrail?appName=Cluster0', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
