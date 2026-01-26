@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_API_DB_URL;
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -22,7 +23,8 @@ const ForgotPassword: React.FC = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:4000/api/auth/forgot-password", { email });
+      const response = await axios.post(`${API_URL}/auth/forgot-password`, { email });
+
       if (response.data.success) {
         setSuccess(true);
       } else {
