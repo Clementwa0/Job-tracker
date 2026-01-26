@@ -21,7 +21,6 @@ export interface Job {
   notes: string;
   contactPerson: string;
   source: string;
-  coverLetterFile: null;
   resumeFile: null;
   
 }

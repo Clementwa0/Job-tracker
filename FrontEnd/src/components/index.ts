@@ -1,7 +1,8 @@
 // Auth
 export { default as Login } from './Login';
 export { default as Register } from './Register';
-export { default as ForgotPassword } from '@/components/PasswordReset';
+export { default as ForgotPassword } from '@/components/forgetPassword';
+export { default as ResetPassword } from '@/components/resetPassword';
 
 // Layout & Navigation
 export { default as Layout } from './layout/Layout';

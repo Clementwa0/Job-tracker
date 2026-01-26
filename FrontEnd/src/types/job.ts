@@ -23,23 +23,6 @@ export interface Interview {
   interviewers?: string[];
 }
 
-export interface JobApplication {
-  applicationDate: string | number | Date;
-  applicationStatus: any;
-  id: string;
-  company: string;
-  position: string;
-  status: ApplicationStatus;
-  appliedDate: Date;
-  lastUpdated: Date;
-  interviews?: Interview[];
-  notes?: string;
-  salary?: number;
-  location?: string;
-  jobUrl?: string;
-  followUpDate?: Date;
-  reminder?: string;
-}
 
 export interface ApplicationStats {
   total: number;

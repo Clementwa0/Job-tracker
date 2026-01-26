@@ -89,7 +89,7 @@ const AddJob = () => {
   };
 
   const handleFileChange = (
-    field: "resumeFile" | "coverLetterFile",
+    field: "resumeFile",
     file: File | null
   ) => {
     setFormData((prev) => ({ ...prev, [field]: file }));
@@ -152,7 +152,6 @@ const AddJob = () => {
         status: formData.applicationStatus.toLowerCase(),
         salaryRange: formData.salaryRange,
         resumeFile: null,
-        coverLetterFile: null,
         source: formData.source,
         contactPerson: formData.contactPerson,
         contactEmail: formData.contactEmail,
@@ -407,12 +406,6 @@ const AddJob = () => {
                     accept=".pdf,.doc,.docx"
                     value={formData.resumeFile}
                     onChange={(file) => handleFileChange("resumeFile", file)}
-                  />
-                  <FileUpload
-                    label="Cover Letter (Optional)"
-                    accept=".pdf,.doc,.docx"
-                    value={formData.coverLetterFile}
-                    onChange={(file) => handleFileChange("coverLetterFile", file)}
                   />
                 </div>
 

@@ -7,7 +7,12 @@ const {
   forgotPassword,
   resetPassword
 } = require('../controllers/authController');
-const { registerValidation, loginValidation } = require('../middleware/validation');
+const {
+  registerValidation,
+  loginValidation,
+  forgotPasswordValidation,
+  resetPasswordValidation
+} = require('../middleware/validation');
 const auth = require('../middleware/auth');
 
 // Auth routes
@@ -16,8 +21,8 @@ router.post('/login', loginValidation, login);
 router.get('/me', auth, getCurrentUser);
 
 // Password reset
-router.post('/forgot-password', forgotPassword);
-router.post('/reset-password/:token', resetPassword);
+router.post('/forgot-password', forgotPasswordValidation, forgotPassword);
+router.post('/reset-password/:token', resetPasswordValidation, resetPassword);
 
 // Logout (if you handle token revocation/blacklist)
 router.post('/logout', auth, (req, res) => {

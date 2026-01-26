@@ -39,7 +39,6 @@ const emptyJob: Job = {
   source: "",
   notes: "",
   interviews: [],
-  coverLetterFile: null,
   resumeFile: null,
 };
 
