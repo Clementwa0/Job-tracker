@@ -56,14 +56,7 @@ export const steps = [
     description:
       "Update the status of your applications as you move through the interview process.",
     isContentLeft: true,
-  },
-  {
-    id: 4,
-    title: "Get insights",
-    description:
-      "View analytics and reports to optimize your job search strategy.",
-    isContentLeft: false,
-  },
+  }
 ];
 
 export const login = [
