@@ -1,4 +1,4 @@
-import {  HelpCircle, LogOut, Settings, User } from "lucide-react";
+import {  HelpCircle, LogOut, User } from "lucide-react";
 import { useAuth } from "@/hooks/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -38,8 +38,8 @@ const Header = () => {
         <div className="flex items-center gap-2 ">
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar className="shadow-md cursor-pointer"> 
-              <AvatarImage src="https://github.com/shadcn.png" />
+              <Avatar className="shadow-lg border border-gray-900 dark:border-white cursor-pointer"> 
+              <AvatarImage src="/src/assets/profile.png" />
               <AvatarFallback>{user?.name}</AvatarFallback>
             </Avatar>
             </DropdownMenuTrigger>
@@ -58,15 +58,9 @@ const Header = () => {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/settings" className="cursor-pointer hover:bg-blue-600">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/help" className="cursor-pointer hover:bg-blue-600">
+                <Link to="/terms" className="cursor-pointer hover:bg-blue-600">
                   <HelpCircle className="mr-2 h-4 w-4" />
-                  <span>Help & Support</span>
+                  <span>Terms of Service</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

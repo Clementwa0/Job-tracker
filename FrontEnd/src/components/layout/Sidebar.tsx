@@ -69,7 +69,7 @@ const Sidebar = () => {
         <div
           className={cn(
             "h-screen transition-all duration-300 border-sky-500 border-r shadow-lg flex flex-col bg-wheat",
-            collapsed ? "w-14" : "w-64"
+            collapsed ? "w-14" : "w-40"
           )}
         >
           <div className="p-3 border-b flex text-black items-center justify-between">

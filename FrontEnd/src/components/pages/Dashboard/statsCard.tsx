@@ -56,8 +56,8 @@ export const Stat = ({
   const styles = colorStyles[color];
 
   return (
-    <div className="flex items-start lg:items-center gap-4">
-      <div className={`p-3 rounded-lg ${styles.bg} ${styles.darkBg}`}>
+    <div className="flex items-start lg:items-center gap-3">
+      <div className={`hidden sm:block p-1 rounded-lg ${styles.bg} ${styles.darkBg}`}>
         {icon}
       </div>
       <div>

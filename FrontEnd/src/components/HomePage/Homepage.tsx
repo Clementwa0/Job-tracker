@@ -134,7 +134,6 @@ const Landing = () => {
         content="job tracker, job applications, career management, interview tracker, job hunt" />
     </Helmet>
     <div className="min-h-screen bg-gradient-to-b from-white via-white to-gray-50 overflow-hidden">
-        {/* ================= HERO ================= */}
         <section ref={heroRef} className="pt-20 pb-24 px-4 sm:px-6 lg:px-8 relative">
           <div className="max-w-7xl mx-auto relative">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-100 text-green-600 text-sm font-medium mb-6">
@@ -164,11 +163,11 @@ const Landing = () => {
                 with JobTrail.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-cols-2 sm:flex-row gap-4 justify-center">
                 <Button
                   asChild
                   size="lg"
-                  className="w-full sm:w-auto gap-2 px-6 py-4 text-lg hover:scale-105 transition-transform"
+                  className="w-fit sm: gap-2 px-6 py-4 text-lg hover:scale-105 transition-transform"
                 >
                   <Link to="/register" className="flex items-center justify-center gap-2">
                     Get Started <ArrowRight className="h-5 w-5" />
@@ -179,7 +178,7 @@ const Landing = () => {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="w-full sm:w-auto px-6 py-4 text-lg hover:border-blue-500 transition-colors"
+                  className="w-fit sm:px-6 py-4 text-lg hover:border-blue-500 transition-colors"
                 >
                   <Link to="/dashboard" className="flex justify-center">
                     View Dashboard
@@ -356,17 +355,17 @@ const Landing = () => {
                     <Twitter className="h-5 w-5 sm:h-6 sm:w-6 text-gray-300 hover:text-blue-400" />
                   </a>
                 </div>
-                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-2 sm:mt-0">
+                <div className="flex flex-cols-2 gap-8 sm:flex-row items-center gap-3 sm:gap-4 mt-2 sm:mt-0">
                   <Link
                     to="/login"
-                    className="text-gray-300 hover:text-white transition-colors text-sm sm:text-base"
+                    className="text-gray-300 hover:text-yellow transition-colors text-sm sm:text-base"
                   >
                     Login
                   </Link>
                   <Button
                     asChild
                     variant="outline"
-                    className="border-blue-400 text-blue-400 hover:bg-blue-500 hover:text-white text-sm sm:text-base w-full sm:w-auto"
+                    className="border-blue-400 text-blue-400 hover:bg-blue-500 hover:text-white text-sm sm:text-base w-fit sm:w-auto"
                   >
                     <Link to="/register">Sign Up Free</Link>
                   </Button>

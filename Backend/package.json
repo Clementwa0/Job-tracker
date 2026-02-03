@@ -22,11 +22,13 @@
     "groq-sdk": "^0.27.0",
     "json5": "^2.2.3",
     "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.11.0",
     "mongodb": "^6.17.0",
     "mongoose": "^8.16.0",
     "multer": "^2.0.2",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.5",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "pdf-parse": "^2.4.5"
   }
 }
