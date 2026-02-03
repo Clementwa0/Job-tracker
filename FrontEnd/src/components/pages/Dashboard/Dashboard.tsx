@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  BarChart3,
   Calendar,
   Plus,
   Briefcase,
   Clock,
   CheckCircle2,
   XCircle,
-  ChevronRight,
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -222,7 +220,12 @@ if (loading)
             </div>
           </Card>
 
-          <Card className="p-6 bg-white dark:bg-gray-900">
+         
+        </div>
+
+        {/* Right side — future widgets */}
+        <div className="space-y-6">
+           {/* <Card className="p-6 bg-white dark:bg-gray-900">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Application Status
@@ -241,11 +244,7 @@ if (loading)
                 <p>Application status chart will be displayed here</p>
               </div>
             </div>
-          </Card>
-        </div>
-
-        {/* Right side — future widgets */}
-        <div className="space-y-6">
+          </Card> */}
           <Card className="p-6 bg-white dark:bg-gray-900">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
               Upcoming Interviews

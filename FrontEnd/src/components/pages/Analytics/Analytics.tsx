@@ -121,7 +121,7 @@ const Analytics = () => {
     <div className="min-h-screen bg-gray-50 p-6 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
             Job Application Analytics
           </h1>
           <div className="text-sm text-gray-500">
@@ -130,7 +130,7 @@ const Analytics = () => {
         </div>
 
         {/* Key Metrics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="Total Applications"
             icon={<Briefcase />}
@@ -159,7 +159,7 @@ const Analytics = () => {
 
         {/* Charts Section */}
         <Tabs defaultValue="overview" className="w-full dark:bg-gray-900">
-          <TabsList className="grid w-full grid-cols-4 dark:bg-gray-900">
+          <TabsList className="h-auto grid grid-cols-3 w-full gap-2 bg-gray-200 dark:bg-gray-900 sm:grid-cols-4 ">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="companies">Companies</TabsTrigger>
             <TabsTrigger value="locations">Locations</TabsTrigger>
@@ -233,8 +233,8 @@ const Analytics = () => {
                 <ResponsiveContainer width="100%" height={400}>
                   <BarChart data={topCompanies} layout="horizontal">
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="company" type="category" width={120} />
+                    <XAxis dataKey="company" type="category"  />
+                    <YAxis  type="number"  />
                     <Tooltip />
                     <Bar dataKey="count" fill="#00C49F" />
                   </BarChart>
@@ -254,11 +254,11 @@ const Analytics = () => {
               <CardContent>
                 <ResponsiveContainer width="100%" height={400}>
                   <BarChart data={topLocations}>
-                    <CartesianGrid strokeDasharray="3 3" />
+                    <CartesianGrid strokeDasharray="2 2" />
                     <XAxis dataKey="location" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="count" fill="#FFBB28" />
+                    <Bar dataKey="count" fill="#ffd900ff" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>

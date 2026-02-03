@@ -5,10 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
-import axios from "axios";
-const API_URL = import.meta.env.VITE_API_DB_URL;
+import API from "@/lib/axios";
 
-const ForgotPassword: React.FC = () => {
+const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,19 +18,21 @@ const ForgotPassword: React.FC = () => {
     setError("");
 
     if (!email) return setError("Please enter your email address");
-    if (!/\S+@\S+\.\S+/.test(email)) return setError("Please enter a valid email address");
+    if (!/\S+@\S+\.\S+/.test(email))
+      return setError("Please enter a valid email address");
 
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/auth/forgot-password`, { email });
-
+      const response = await API.post("/auth/forgot-password", { email });
       if (response.data.success) {
         setSuccess(true);
       } else {
         setError(response.data.message || "Something went wrong.");
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to send reset instructions. Please try again.");
+      setError(
+        err.response?.data?.message || "Failed to send reset instructions.",
+      );
     } finally {
       setLoading(false);
     }
@@ -49,7 +50,9 @@ const ForgotPassword: React.FC = () => {
                 <CheckCircle2 className="h-8 w-8 text-white" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold text-white">Check Your Email</CardTitle>
+            <CardTitle className="text-2xl font-bold text-white">
+              Check Your Email
+            </CardTitle>
             <p className="text-sm text-white/80 mt-2">
               We've sent password reset instructions to your email.
             </p>
@@ -92,7 +95,9 @@ const ForgotPassword: React.FC = () => {
                 <Mail className="h-6 w-6 text-white" />
               </div>
             </div>
-            <CardTitle className="text-2xl font-bold text-white">Forgot Password</CardTitle>
+            <CardTitle className="text-2xl font-bold text-white">
+              Forgot Password
+            </CardTitle>
             <p className="text-sm text-white/80">
               Enter your email to reset your password
             </p>
@@ -107,7 +112,10 @@ const ForgotPassword: React.FC = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white text-sm font-medium">
+                <Label
+                  htmlFor="email"
+                  className="text-white text-sm font-medium"
+                >
                   Email Address
                 </Label>
                 <div className="relative">

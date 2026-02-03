@@ -354,9 +354,20 @@ const AddJob = () => {
                   icon={LinkIcon}
                 />
 
-                <Separator className="my-4 sm:my-6" />
+              </CardContent>
+            </Card>
 
-                {/* Contact Info */}
+
+            {/* Documents & Notes Card */}
+            <Card className="shadow-sm sm:shadow-md">
+              <CardHeader>
+                <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Documents & Notes
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="mobile-card">
+                  {/* Contact Info */}
                 <h4 className="text-md font-semibold flex items-center gap-2 mb-3 sm:mb-4">
                   <User className="h-4 w-4" />
                   Contact Info
@@ -386,18 +397,8 @@ const AddJob = () => {
                     />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                 <Separator className="my-4 sm:my-6" />
 
-            {/* Documents & Notes Card */}
-            <Card className="shadow-sm sm:shadow-md">
-              <CardHeader className="pb-3 sm:pb-6">
-                <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Documents & Notes
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="mobile-card">
                 
                 {/* File Uploads */}
                 <div className="space-y-4">

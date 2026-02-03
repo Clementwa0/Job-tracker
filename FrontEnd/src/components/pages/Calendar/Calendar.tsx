@@ -41,7 +41,7 @@ const [selectedJob, setSelectedJob] = useState<Job | null>(null);
             end: "dayGridMonth",
           }}
           eventClassNames={(arg) =>
-            `px-2 py-1 text-sm font-medium rounded-md shadow-sm ${
+            `px-1 py-1 text-sm font-medium rounded-md shadow-sm ${
               arg.event.backgroundColor === "#3b82f6"
                 ? "bg-blue-500 text-white"
                 : arg.event.backgroundColor === "#ef4444"
@@ -64,7 +64,7 @@ const [selectedJob, setSelectedJob] = useState<Job | null>(null);
               </Dialog.Title>
               <Dialog.Close asChild>
                 <button className="text-gray-500 hover:text-gray-900 dark:hover:text-white">
-                  <X size={20} />
+                  <X size={10} />
                 </button>
               </Dialog.Close>
             </div>
