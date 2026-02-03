@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   MapPin,
   Briefcase,
-  User,
   Mail,
   Phone,
   Link as LinkIcon,
@@ -88,10 +87,7 @@ const AddJob = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileChange = (
-    field: "resumeFile",
-    file: File | null
-  ) => {
+  const handleFileChange = (field: "resumeFile", file: File | null) => {
     setFormData((prev) => ({ ...prev, [field]: file }));
   };
 
@@ -112,10 +108,7 @@ const AddJob = () => {
   const addInterview = () => {
     setFormData((prev) => ({
       ...prev,
-      interviews: [
-        ...prev.interviews,
-        { date: today, type: "", notes: "" },
-      ],
+      interviews: [...prev.interviews, { date: today, type: "", notes: "" }],
     }));
   };
 
@@ -193,9 +186,9 @@ const AddJob = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background px-3 sm:px-6 py-4 sm:py-8">
-      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-        
+    <div className="flex flex-col bg-background px-3 sm:px-6 py-4 sm:py-8 min-h-[100vh]">
+      <div className="max-w-7xl mx-auto w-full space-y-4 sm:space-y-6">
+
         {/* Job Description Analyzer */}
         <Card className="shadow-sm sm:shadow-md">
           <CardHeader className="pb-3 sm:pb-6">
@@ -204,14 +197,13 @@ const AddJob = () => {
               Analyze Job Description
             </CardTitle>
           </CardHeader>
-          <CardContent className="mobile-card">
+          <CardContent className="space-y-4">
             <FormField
               label="Paste Job Description"
               value={pastedDescription}
               onChange={(e) => setPastedDescription(e.target.value)}
               textarea
               placeholder="Paste any job description here..."
-              className="mb-4 max-h-"
             />
             <Button
               onClick={analyzeDescription}
@@ -225,7 +217,7 @@ const AddJob = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-            
+
             {/* Job Details Card */}
             <Card className="shadow-sm sm:shadow-md">
               <CardHeader className="pb-3 sm:pb-6">
@@ -234,10 +226,9 @@ const AddJob = () => {
                   Job Details
                 </CardTitle>
               </CardHeader>
-              <CardContent className="mobile-card">
-                
-                {/* Job Title & Company */}
-                <div className="mobile-form-grid">
+              <CardContent className="space-y-4">
+
+                <div className="space-y-4">
                   <FormField
                     label="Job Title"
                     value={formData.jobTitle}
@@ -254,8 +245,7 @@ const AddJob = () => {
                   />
                 </div>
 
-                {/* Location & Job Type */}
-                <div className="mobile-form-grid">
+                <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
                   <FormField
                     label="Location"
                     value={formData.location}
@@ -263,28 +253,25 @@ const AddJob = () => {
                     placeholder="City, Country"
                     icon={MapPin}
                   />
-                  <div className="mobile-input-spacing">
+                  <div>
                     <Label className="text-sm font-medium">Job Type</Label>
                     <Select
                       value={formData.jobType}
                       onValueChange={(value) => handleInputChange("jobType", value)}
                     >
-                      <SelectTrigger className="mobile-full-width">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
                         {jobTypes.map((t) => (
-                          <SelectItem key={t} value={t}>
-                            {t}
-                          </SelectItem>
+                          <SelectItem key={t} value={t}>{t}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
-                {/* Dates */}
-                <div className="mobile-form-grid">
+                <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
                   <FormField
                     label="Application Date"
                     type="date"
@@ -301,45 +288,35 @@ const AddJob = () => {
 
                 <Separator className="my-4 sm:my-6" />
 
-                {/* Application Details */}
-                <h4 className="text-md font-semibold flex items-center gap-2 mb-3 sm:mb-4">
-                  <FileText className="h-4 w-4" />
-                  Application Details
-                </h4>
-
-                <div className="mobile-form-grid">
-                  <div className="mobile-input-spacing">
+                <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
+                  <div>
                     <Label className="text-sm font-medium">Source</Label>
                     <Select
                       value={formData.source}
                       onValueChange={(value) => handleInputChange("source", value)}
                     >
-                      <SelectTrigger className="mobile-full-width">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Where did you find it?" />
                       </SelectTrigger>
                       <SelectContent>
                         {sources.map((s) => (
-                          <SelectItem key={s} value={s}>
-                            {s}
-                          </SelectItem>
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="mobile-input-spacing">
+                  <div>
                     <Label className="text-sm font-medium">Application Status</Label>
                     <Select
                       value={formData.applicationStatus}
                       onValueChange={(value) => handleInputChange("applicationStatus", value)}
                     >
-                      <SelectTrigger className="mobile-full-width">
+                      <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {statuses.map((n) => (
-                          <SelectItem key={n} value={n}>
-                            {n}
-                          </SelectItem>
+                          <SelectItem key={n} value={n}>{n}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -353,10 +330,8 @@ const AddJob = () => {
                   placeholder="https://..."
                   icon={LinkIcon}
                 />
-
               </CardContent>
             </Card>
-
 
             {/* Documents & Notes Card */}
             <Card className="shadow-sm sm:shadow-md">
@@ -366,21 +341,17 @@ const AddJob = () => {
                   Documents & Notes
                 </CardTitle>
               </CardHeader>
-              <CardContent className="mobile-card">
-                  {/* Contact Info */}
-                <h4 className="text-md font-semibold flex items-center gap-2 mb-3 sm:mb-4">
-                  <User className="h-4 w-4" />
-                  Contact Info
-                </h4>
+              <CardContent className="space-y-4">
 
-                <div className="space-y-3 sm:space-y-4">
+                {/* Contact Info */}
+                <div className="space-y-3">
                   <FormField
                     label="Contact Person"
                     value={formData.contactPerson}
                     onChange={(e) => handleInputChange("contactPerson", e.target.value)}
                     icon={Contact2}
                   />
-                  <div className="mobile-form-grid">
+                  <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
                     <FormField
                       label="Email"
                       type="email"
@@ -397,18 +368,16 @@ const AddJob = () => {
                     />
                   </div>
                 </div>
-                 <Separator className="my-4 sm:my-6" />
 
-                
-                {/* File Uploads */}
-                <div className="space-y-4">
-                  <FileUpload
-                    label="Resume Used"
-                    accept=".pdf,.doc,.docx"
-                    value={formData.resumeFile}
-                    onChange={(file) => handleFileChange("resumeFile", file)}
-                  />
-                </div>
+                <Separator className="my-4 sm:my-6" />
+
+                {/* File Upload */}
+                <FileUpload
+                  label="Resume Used"
+                  accept=".pdf,.doc,.docx"
+                  value={formData.resumeFile}
+                  onChange={(file) => handleFileChange("resumeFile", file)}
+                />
 
                 <FormField
                   label="Salary Range"
@@ -426,7 +395,7 @@ const AddJob = () => {
 
                 <Separator className="my-4 sm:my-6" />
 
-                {/* Interviews Section */}
+                {/* Interviews */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="text-md font-semibold">Interview Schedule</h4>
@@ -444,44 +413,40 @@ const AddJob = () => {
 
                   {formData.interviews.map((interview, index) => (
                     <Card key={index} className="bg-muted/50">
-                      <CardContent className="p-4">
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-start">
-                            <h5 className="font-medium text-sm">Interview {index + 1}</h5>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeInterview(index)}
-                              className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          
-                          <div className="mobile-form-grid">
-                            <FormField
-                              label="Interview Date"
-                              type="date"
-                              value={interview.date}
-                              onChange={(e) => updateInterview(index, "date", e.target.value)}
-                            />
-                            <FormField
-                              label="Interview Type"
-                              value={interview.type}
-                              onChange={(e) => updateInterview(index, "type", e.target.value)}
-                              placeholder="e.g. Technical"
-                            />
-                          </div>
-                          
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex justify-between items-start">
+                          <h5 className="font-medium text-sm">Interview {index + 1}</h5>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeInterview(index)}
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
                           <FormField
-                            label="Notes"
-                            value={interview.notes}
-                            onChange={(e) => updateInterview(index, "notes", e.target.value)}
-                            placeholder="Interview notes..."
-                            textarea
+                            label="Interview Date"
+                            type="date"
+                            value={interview.date}
+                            onChange={(e) => updateInterview(index, "date", e.target.value)}
+                          />
+                          <FormField
+                            label="Interview Type"
+                            value={interview.type}
+                            onChange={(e) => updateInterview(index, "type", e.target.value)}
+                            placeholder="e.g. Technical"
                           />
                         </div>
+                        <FormField
+                          label="Notes"
+                          value={interview.notes}
+                          onChange={(e) => updateInterview(index, "notes", e.target.value)}
+                          placeholder="Interview notes..."
+                          textarea
+                        />
                       </CardContent>
                     </Card>
                   ))}
@@ -498,6 +463,7 @@ const AddJob = () => {
                     {isSubmitting ? "Adding Application..." : "Add Application"}
                   </Button>
                 </div>
+
               </CardContent>
             </Card>
           </div>
