@@ -5,7 +5,29 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
 /* ===========================
-   JWT TOKEN GENERATOR
+   EMAIL TRANSPORTER
+=========================== */
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // must be false for 587
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+// Optional: verify SMTP on startup
+transporter.verify((error) => {
+  if (error) {
+    console.error("❌ SMTP ERROR:", error);
+  } else {
+    console.log("✅ SMTP READY");
+  }
+});
+
+/* ===========================
+   GENERATE JWT
 =========================== */
 const generateToken = (userId) => {
   return jwt.sign(
@@ -14,28 +36,6 @@ const generateToken = (userId) => {
     { expiresIn: '7d' }
   );
 };
-
-/* ===========================
-   EMAIL TRANSPORTER
-=========================== */
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-// Verify SMTP connection on server start
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("❌ SMTP ERROR:", error);
-  } else {
-    console.log("✅ SMTP READY");
-  }
-});
 
 /* ===========================
    REGISTER
@@ -103,6 +103,27 @@ const login = async (req, res) => {
 };
 
 /* ===========================
+   GET CURRENT USER
+=========================== */
+const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user)
+      return res.status(404).json({ success: false, message: 'User not found' });
+
+    res.json({
+      success: true,
+      data: { user: user.toJSON() }
+    });
+
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+/* ===========================
    FORGOT PASSWORD
 =========================== */
 const forgotPassword = async (req, res) => {
@@ -116,26 +137,28 @@ const forgotPassword = async (req, res) => {
         message: 'No account found with that email.'
       });
 
-    // Generate reset token
+    // Create reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
+
     const resetTokenHash = crypto
       .createHash('sha256')
       .update(resetToken)
       .digest('hex');
 
     user.resetPasswordToken = resetTokenHash;
-    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+
     await user.save();
 
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
-    // Send email
     await transporter.sendMail({
-      from: `"${process.env.APP_NAME}" <${process.env.EMAIL_USER}>`,
+      from: `"${process.env.APP_NAME || 'YourApp'}" <${process.env.EMAIL_USER}>`,
       to: user.email,
       subject: "Reset your password",
       html: `
         <h2>Password Reset</h2>
+        <p>Hi ${user.name || 'there'},</p>
         <p>Click below to reset your password:</p>
         <a href="${resetUrl}">${resetUrl}</a>
         <p>This link expires in 15 minutes.</p>
@@ -144,14 +167,14 @@ const forgotPassword = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Reset email sent. Check inbox or spam."
+      message: 'Reset email sent. Check inbox or spam.'
     });
 
   } catch (error) {
-    console.error("Forgot password error:", error);
+    console.error('Forgot password error:', error);
     res.status(500).json({
       success: false,
-      message: "Email sending failed",
+      message: 'Email sending failed',
       error: error.message
     });
   }
@@ -175,7 +198,7 @@ const resetPassword = async (req, res) => {
     if (!user)
       return res.status(400).json({
         success: false,
-        message: "Invalid or expired token"
+        message: 'Invalid or expired token'
       });
 
     user.password = req.body.password;
@@ -186,18 +209,19 @@ const resetPassword = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Password reset successful"
+      message: 'Password reset successful'
     });
 
   } catch (error) {
-    console.error("Reset password error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error('Reset password error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
 module.exports = {
   register,
   login,
+  getCurrentUser,
   forgotPassword,
   resetPassword
 };
