@@ -93,8 +93,9 @@ const Profile: React.FC = () => {
       await updateProfile(profileData);
       setMessage({ type: "success", text: "Profile updated successfully!" });
       setIsEditing(false);
-    } catch (error: any) {
-      setMessage({ type: "error", text: error.response?.data?.message || "Failed to update profile" });
+    } catch (error) {
+      const text = error instanceof Error ? error.message : "Failed to update profile";
+      setMessage({ type: "error", text });
     } finally {
       setIsSubmitting(false);
     }
@@ -115,8 +116,9 @@ const Profile: React.FC = () => {
       await updatePassword(passwordData.currentPassword, passwordData.newPassword);
       setMessage({ type: "success", text: "Password updated successfully!" });
       setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    } catch (error: any) {
-      setMessage({ type: "error", text: error.response?.data?.message || "Failed to update password" });
+    } catch (error) {
+      const text = error instanceof Error ? error.message : "Failed to update password";
+      setMessage({ type: "error", text });
     } finally {
       setIsSubmitting(false);
     }
@@ -183,7 +185,9 @@ const Profile: React.FC = () => {
           <p className="text-gray-600 flex items-center mt-1"><Mail className="h-4 w-4 mr-2" />{user.email}</p>
           {user.jobTitle && <p className="text-gray-600 flex items-center mt-1"><Briefcase className="h-4 w-4 mr-2" />{user.jobTitle}</p>}
           {user.location && <p className="text-gray-600 flex items-center mt-1"><MapPin className="h-4 w-4 mr-2" />{user.location}</p>}
-          <p className="text-sm text-gray-500 mt-3">Member since {new Date(user.createdAt).toLocaleDateString()}</p>
+          {user.createdAt && (
+            <p className="text-sm text-gray-500 mt-3">Member since {new Date(user.createdAt).toLocaleDateString()}</p>
+          )}
         </div>
       </div>
 
