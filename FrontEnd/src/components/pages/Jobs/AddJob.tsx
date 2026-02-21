@@ -27,7 +27,7 @@ import { Label } from "@/components/ui/label";
 import { jobTypes, sources, statuses } from "@/constants";
 import { FormField } from "@/components/ui/formfield";
 import { useJobs } from "@/hooks/JobContext";
-import API from "@/lib/axios";
+import { api } from "@/lib/api-client";
 
 interface JobApplication {
   jobTitle: string;
@@ -91,19 +91,66 @@ const AddJob = () => {
     setFormData((prev) => ({ ...prev, [field]: file }));
   };
 
-  const analyzeDescription = async () => {
-    if (!pastedDescription.trim()) return;
-    setIsAnalyzing(true);
-    try {
-      const res = await API.post("/analyze-job", { description: pastedDescription });
-      setFormData((prev) => ({ ...prev, ...res.data }));
-      toast.success("Fields auto-filled from job description!");
-    } catch (err: any) {
-      toast.error("Failed to analyze", { description: err.response?.data?.message || err.message });
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
+ const analyzeDescription = async () => {
+  if (!pastedDescription.trim()) return;
+
+  setIsAnalyzing(true);
+
+  try {
+    const { data } = await api.post<Record<string, unknown>>(
+      "/analyze-job",
+      { description: pastedDescription }
+    );
+
+    type StringJobKeys = {
+      [K in keyof JobApplication]: JobApplication[K] extends string
+        ? K
+        : never;
+    }[keyof JobApplication];
+
+    const backendToFormKey: Record<string, StringJobKeys> = {
+      jobTitle: "jobTitle",
+      companyName: "companyName",
+      location: "location",
+      jobType: "jobType",
+      applicationDate: "applicationDate",
+      applicationDeadline: "applicationDeadline",
+      source: "source",
+      applicationStatus: "applicationStatus",
+      contactPerson: "contactPerson",
+      contactEmail: "contactEmail",
+      contactPhone: "contactPhone",
+      jobPostingUrl: "jobPostingUrl",
+      salaryRange: "salaryRange",
+      notes: "notes",
+    };
+
+    setFormData((prev) => {
+      const updated = { ...prev };
+
+      (Object.entries(backendToFormKey) as [
+        string,
+        StringJobKeys
+      ][]).forEach(([backendKey, formKey]) => {
+        const value = data?.[backendKey];
+
+        if (typeof value === "string") {
+          updated[formKey] = value;
+        }
+      });
+
+      return updated;
+    });
+
+    toast.success("Fields auto-filled from job description!");
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to analyze";
+    toast.error("Failed to analyze", { description: message });
+  } finally {
+    setIsAnalyzing(false);
+  }
+};
 
   const addInterview = () => {
     setFormData((prev) => ({
@@ -119,7 +166,11 @@ const AddJob = () => {
     }));
   };
 
-  const updateInterview = (index: number, field: keyof Interview, value: string) => {
+  const updateInterview = (
+    index: number,
+    field: keyof Interview,
+    value: string,
+  ) => {
     const updated = [...formData.interviews];
     updated[index] = { ...updated[index], [field]: value };
     setFormData((prev) => ({ ...prev, interviews: updated }));
@@ -176,10 +227,9 @@ const AddJob = () => {
         interviews: [],
       });
       setPastedDescription("");
-    } catch (error: any) {
-      toast.error("Failed to add job", {
-        description: error.message || "Unknown error",
-      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      toast.error("Failed to add job", { description: message });
     } finally {
       setIsSubmitting(false);
     }
@@ -188,7 +238,6 @@ const AddJob = () => {
   return (
     <div className="flex flex-col bg-background px-3 sm:px-6 py-4 sm:py-8 min-h-[100vh]">
       <div className="max-w-7xl mx-auto w-full space-y-4 sm:space-y-6">
-
         {/* Job Description Analyzer */}
         <Card className="shadow-sm sm:shadow-md">
           <CardHeader className="pb-3 sm:pb-6">
@@ -217,7 +266,6 @@ const AddJob = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-
             {/* Job Details Card */}
             <Card className="shadow-sm sm:shadow-md">
               <CardHeader className="pb-3 sm:pb-6">
@@ -227,19 +275,22 @@ const AddJob = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-
                 <div className="space-y-4">
                   <FormField
                     label="Job Title"
                     value={formData.jobTitle}
-                    onChange={(e) => handleInputChange("jobTitle", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("jobTitle", e.target.value)
+                    }
                     placeholder="e.g. Software Engineer"
                     required
                   />
                   <FormField
                     label="Company Name"
                     value={formData.companyName}
-                    onChange={(e) => handleInputChange("companyName", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("companyName", e.target.value)
+                    }
                     placeholder="e.g. Google"
                     required
                   />
@@ -249,7 +300,9 @@ const AddJob = () => {
                   <FormField
                     label="Location"
                     value={formData.location}
-                    onChange={(e) => handleInputChange("location", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("location", e.target.value)
+                    }
                     placeholder="City, Country"
                     icon={MapPin}
                   />
@@ -257,14 +310,18 @@ const AddJob = () => {
                     <Label className="text-sm font-medium">Job Type</Label>
                     <Select
                       value={formData.jobType}
-                      onValueChange={(value) => handleInputChange("jobType", value)}
+                      onValueChange={(value) =>
+                        handleInputChange("jobType", value)
+                      }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
                         {jobTypes.map((t) => (
-                          <SelectItem key={t} value={t}>{t}</SelectItem>
+                          <SelectItem key={t} value={t}>
+                            {t}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -276,13 +333,17 @@ const AddJob = () => {
                     label="Application Date"
                     type="date"
                     value={formData.applicationDate}
-                    onChange={(e) => handleInputChange("applicationDate", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("applicationDate", e.target.value)
+                    }
                   />
                   <FormField
                     label="Application Deadline"
                     type="date"
                     value={formData.applicationDeadline}
-                    onChange={(e) => handleInputChange("applicationDeadline", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("applicationDeadline", e.target.value)
+                    }
                   />
                 </div>
 
@@ -293,30 +354,40 @@ const AddJob = () => {
                     <Label className="text-sm font-medium">Source</Label>
                     <Select
                       value={formData.source}
-                      onValueChange={(value) => handleInputChange("source", value)}
+                      onValueChange={(value) =>
+                        handleInputChange("source", value)
+                      }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Where did you find it?" />
                       </SelectTrigger>
                       <SelectContent>
                         {sources.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium">Application Status</Label>
+                    <Label className="text-sm font-medium">
+                      Application Status
+                    </Label>
                     <Select
                       value={formData.applicationStatus}
-                      onValueChange={(value) => handleInputChange("applicationStatus", value)}
+                      onValueChange={(value) =>
+                        handleInputChange("applicationStatus", value)
+                      }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {statuses.map((n) => (
-                          <SelectItem key={n} value={n}>{n}</SelectItem>
+                          <SelectItem key={n} value={n}>
+                            {n}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -326,7 +397,9 @@ const AddJob = () => {
                 <FormField
                   label="Job Posting URL"
                   value={formData.jobPostingUrl}
-                  onChange={(e) => handleInputChange("jobPostingUrl", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("jobPostingUrl", e.target.value)
+                  }
                   placeholder="https://..."
                   icon={LinkIcon}
                 />
@@ -342,13 +415,14 @@ const AddJob = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-
                 {/* Contact Info */}
                 <div className="space-y-3">
                   <FormField
                     label="Contact Person"
                     value={formData.contactPerson}
-                    onChange={(e) => handleInputChange("contactPerson", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("contactPerson", e.target.value)
+                    }
                     icon={Contact2}
                   />
                   <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
@@ -356,14 +430,18 @@ const AddJob = () => {
                       label="Email"
                       type="email"
                       value={formData.contactEmail}
-                      onChange={(e) => handleInputChange("contactEmail", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("contactEmail", e.target.value)
+                      }
                       icon={Mail}
                     />
                     <FormField
                       label="Phone"
                       type="tel"
                       value={formData.contactPhone}
-                      onChange={(e) => handleInputChange("contactPhone", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("contactPhone", e.target.value)
+                      }
                       icon={Phone}
                     />
                   </div>
@@ -382,7 +460,9 @@ const AddJob = () => {
                 <FormField
                   label="Salary Range"
                   value={formData.salaryRange}
-                  onChange={(e) => handleInputChange("salaryRange", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("salaryRange", e.target.value)
+                  }
                   placeholder="e.g. $80,000 - $100,000"
                 />
 
@@ -398,7 +478,9 @@ const AddJob = () => {
                 {/* Interviews */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-md font-semibold">Interview Schedule</h4>
+                    <h4 className="text-md font-semibold">
+                      Interview Schedule
+                    </h4>
                     <Button
                       type="button"
                       variant="outline"
@@ -415,7 +497,9 @@ const AddJob = () => {
                     <Card key={index} className="bg-muted/50">
                       <CardContent className="p-4 space-y-3">
                         <div className="flex justify-between items-start">
-                          <h5 className="font-medium text-sm">Interview {index + 1}</h5>
+                          <h5 className="font-medium text-sm">
+                            Interview {index + 1}
+                          </h5>
                           <Button
                             type="button"
                             variant="ghost"
@@ -431,19 +515,25 @@ const AddJob = () => {
                             label="Interview Date"
                             type="date"
                             value={interview.date}
-                            onChange={(e) => updateInterview(index, "date", e.target.value)}
+                            onChange={(e) =>
+                              updateInterview(index, "date", e.target.value)
+                            }
                           />
                           <FormField
                             label="Interview Type"
                             value={interview.type}
-                            onChange={(e) => updateInterview(index, "type", e.target.value)}
+                            onChange={(e) =>
+                              updateInterview(index, "type", e.target.value)
+                            }
                             placeholder="e.g. Technical"
                           />
                         </div>
                         <FormField
                           label="Notes"
                           value={interview.notes}
-                          onChange={(e) => updateInterview(index, "notes", e.target.value)}
+                          onChange={(e) =>
+                            updateInterview(index, "notes", e.target.value)
+                          }
                           placeholder="Interview notes..."
                           textarea
                         />
@@ -463,7 +553,6 @@ const AddJob = () => {
                     {isSubmitting ? "Adding Application..." : "Add Application"}
                   </Button>
                 </div>
-
               </CardContent>
             </Card>
           </div>
