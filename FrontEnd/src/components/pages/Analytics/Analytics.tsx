@@ -24,9 +24,14 @@ import {
   Building,
 } from "lucide-react";
 import StatCard from "./StatCard";
+import { AnalyticsPageSkeleton } from "@/components/shared/skeletons";
 
 const Analytics = () => {
-  const { jobs } = useJobs();
+  const { jobs, isLoading } = useJobs();
+
+  if (isLoading) {
+    return <AnalyticsPageSkeleton />;
+  }
 
   // Calculate key metrics
   const totalJobs = jobs.length;

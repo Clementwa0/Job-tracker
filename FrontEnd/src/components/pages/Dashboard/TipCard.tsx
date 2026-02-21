@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RefreshCcw } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import API from "@/lib/axios";
+import { api } from "@/lib/api-client";
 
 type Tip = { title: string; description: string };
 
@@ -13,8 +13,8 @@ const TipCard = () => {
   const fetchTip = async () => {
     try {
       setLoading(true);
-      const res = await API.get("/tip");
-      setTip(res.data);
+      const { data } = await api.get<Tip>("/tip");
+      setTip(data);
     } catch (err) {
       console.error("Failed to fetch tip:", err);
       setTip({ title: "Oops!", description: "Unable to fetch tip at the moment." });

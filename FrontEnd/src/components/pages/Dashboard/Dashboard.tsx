@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import {
   Calendar,
@@ -7,16 +7,16 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card} from "@/components/ui/card";
 import { useJobs } from "@/hooks/JobContext";
 import { Stat } from "./statsCard";
 import TipCard from "./TipCard";
+import { DashboardPageSkeleton } from "@/components/shared/skeletons";
 
 const Dashboard: React.FC = () => {
-  const { jobs } = useJobs();
+  const { jobs, isLoading } = useJobs();
 
   const stats = React.useMemo(() => {
     const total = jobs.length;
@@ -65,39 +65,29 @@ const Dashboard: React.FC = () => {
         (job) =>
           job.status?.toLowerCase() === "interviewing" &&
           Array.isArray(job.interviews) &&
-          job.interviews.length > 0 &&
-          new Date(job.interviews[0]) >= new Date()
+          job.interviews.length > 0
       )
-      .sort(
-        (a, b) =>
-          new Date(a.interviews[0]).getTime() -
-          new Date(b.interviews[0]).getTime()
-      )
-      .map((job) => ({
+      .map((job) => {
+        const firstInterview = job.interviews[0];
+        const dateStr = typeof firstInterview === "object" && firstInterview !== null && "date" in firstInterview
+          ? (firstInterview as { date: string }).date
+          : String(firstInterview);
+        return { job, dateStr };
+      })
+      .filter(({ dateStr }) => new Date(dateStr) >= new Date())
+      .sort((a, b) => new Date(a.dateStr).getTime() - new Date(b.dateStr).getTime())
+      .map(({ job, dateStr }) => ({
         id: job.id,
         company: job.company,
         position: job.title,
-        date: new Date(job.interviews[0]),
+        date: new Date(dateStr),
       }));
   }, [jobs]);
   
-  const [loading, setLoading] = useState(true);
+  if (isLoading) {
+    return <DashboardPageSkeleton />;
+  }
 
-  useEffect(() => {
-  setLoading(false);
-}, []);
-
-  
-if (loading)
-  return (
-    <div className="flex flex-col items-center justify-center py-20">
-      <Loader2 />
-      <p className="mt-4 text-gray-600 text-lg font-medium">
-        Loading dashboard items...
-      </p>
-    </div>
-  );
-  
   return (
     <div className="container mx-auto px-4 py-4 space-y-6 bg-white dark:bg-gray-900 min-h-screen">
       <div className="flex justify-between items-center">
