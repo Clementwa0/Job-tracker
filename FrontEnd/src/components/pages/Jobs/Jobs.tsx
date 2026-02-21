@@ -9,10 +9,11 @@ import { useJobs } from "@/hooks/JobContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import JobModal from "./JobModel";
-import type { Job } from "./job";
+import { JobsPageSkeleton } from "@/components/shared/skeletons";
+import type { Job } from "@/types";
 
 const Jobs: React.FC = () => {
-  const { jobs, deleteJob } = useJobs();
+  const { jobs, deleteJob, isLoading } = useJobs();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -35,6 +36,15 @@ const Jobs: React.FC = () => {
 
   const handleEdit = (id: string) => navigate(`/edit-job/${id}`);
   const handleDelete = (id: string) => deleteJob(id);
+
+  if (isLoading) {
+    return (
+      <JobsPageSkeleton
+        variant={isMobile ? "grid" : "table"}
+        count={8}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in bg-white dark:bg-gray-900 min-h-screen px-4 py-6 transition-colors">
@@ -107,7 +117,7 @@ const Jobs: React.FC = () => {
                   location={job.location}
                   jobType={job.jobType}
                   salaryRange={job.salaryRange}
-                  resumeFile={job.resumeFile}
+                  resumeFile={job.resumeFile as any}
                 />
               ))}
             </div>

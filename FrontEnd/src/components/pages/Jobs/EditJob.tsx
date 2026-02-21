@@ -20,7 +20,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import type { Job } from "./JobsTable";
+import type { Job } from "@/types";
 
 const emptyJob: Job = {
   id: "",

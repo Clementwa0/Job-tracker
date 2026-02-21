@@ -3,27 +3,7 @@ import { ArrowDown, ArrowUp, Edit2, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { joblabel } from "@/constants";
-
-export interface Job {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  jobType: string;
-  salaryRange: string;
-  applicationDate: string;
-  applicationDeadline: string;
-  status: string;
-  interviews: never[];
-  contactEmail: string;
-  contactPhone: string;
-  jobPostingUrl: string;
-  notes: string;
-  contactPerson: string;
-  source: string;
-  resumeFile: null;
-  
-}
+import type { Job } from "@/types";
 
 interface JobsTableProps {
   jobs: Job[];

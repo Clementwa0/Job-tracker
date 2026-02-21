@@ -5,7 +5,7 @@ import { jobToCalendarEvents } from "@/lib/calendar-utils";
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import type { Job } from "@/components/pages/Jobs/JobsTable";
+import type { Job } from "@/types";
 
 const Calendar = () => {
   const { jobs } = useJobs();
@@ -13,7 +13,7 @@ const Calendar = () => {
 
 const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
-  const handleEventClick = (info: any) => {
+  const handleEventClick = (info: { event: { extendedProps: { jobId: string } } }) => {
     const jobId = info.event.extendedProps.jobId;
     const job = jobs.find((j) => j.id === jobId);
     if (job) setSelectedJob(job);

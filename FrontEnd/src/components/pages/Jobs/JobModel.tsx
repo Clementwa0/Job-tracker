@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { Job } from "@/components/pages/Jobs/job";
+import type { Job } from "@/types";
 
 interface JobModalProps {
   job: Job | null;
@@ -54,7 +54,7 @@ const JobModal: React.FC<JobModalProps> = ({ job, onClose }) => {
             <span className="font-medium text-gray-600 dark:text-gray-400">Resume:</span>{" "}
             {job.resumeFile ? (
               <a
-                href={`${import.meta.env.VITE_API_DB_URL}${job.resumeFile}`}
+                href={`${import.meta.env.VITE_API_DB_URL ?? ""}${job.resumeFile}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-500 underline"
