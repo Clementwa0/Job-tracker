@@ -25,7 +25,6 @@ export function Login({ className, ...props }: React.ComponentProps<"div">) {
   const [error, setError] = useState<string | null>(null);
   const { login: authLogin } = useAuth();
   const navigate = useNavigate();
-  useAuth();
 
   const {
     register,

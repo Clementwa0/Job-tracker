@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
-import API from "@/lib/axios";
+import { forgotPassword as forgotPasswordApi } from "@/features/auth/api/auth-api";
+import { ApiClientError } from "@/lib/api-client";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -23,16 +24,15 @@ const ForgotPassword = () => {
 
     setLoading(true);
     try {
-      const response = await API.post("/auth/forgot-password", { email });
-      if (response.data.success) {
+      const response = await forgotPasswordApi(email);
+      if (response.success) {
         setSuccess(true);
       } else {
-        setError(response.data.message || "Something went wrong.");
+        setError(response.message || "Something went wrong.");
       }
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Failed to send reset instructions.",
-      );
+    } catch (err) {
+      const message = err instanceof ApiClientError ? err.message : "Failed to send reset instructions.";
+      setError(message);
     } finally {
       setLoading(false);
     }

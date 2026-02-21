@@ -1,14 +1,13 @@
 // ResetPassword.tsx
 import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { resetPassword as resetPasswordApi } from "@/features/auth/api/auth-api";
+import { ApiClientError } from "@/lib/api-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Lock, CheckCircle2 } from "lucide-react";
-
-const API_URL = import.meta.env.VITE_API_DB_URL;
 
 const ResetPassword: React.FC = () => {
   const { token } = useParams<{ token: string }>();
@@ -26,16 +25,18 @@ const ResetPassword: React.FC = () => {
     if (!password || !confirmPassword) return setError("All fields are required");
     if (password.length < 6) return setError("Password must be at least 6 characters");
     if (password !== confirmPassword) return setError("Passwords do not match");
+    if (!token) return setError("Invalid reset link");
 
     setLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/auth/reset-password/${token}`, { password });
-      if (res.data.success) {
+      const res = await resetPasswordApi(token, password);
+      if (res.success) {
         setSuccess(true);
         setTimeout(() => navigate("/login"), 3000);
-      } else setError(res.data.message || "Failed to reset password");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Something went wrong. Try again.");
+      } else setError(res.message || "Failed to reset password");
+    } catch (err) {
+      const message = err instanceof ApiClientError ? err.message : "Something went wrong. Try again.";
+      setError(message);
     } finally {
       setLoading(false);
     }
