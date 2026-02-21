@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
-import API from "@/lib/axios";
+import { api } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,7 +27,7 @@ import {
   TrendingUp,
   ShieldCheck,
 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import mammoth from "mammoth";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
@@ -126,7 +126,7 @@ const CVReview: React.FC = () => {
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        const strings = content.items.map((item: any) => item.str);
+        const strings = content.items.map((item: { str?: string }) => item.str ?? "");
         text += strings.join(" ") + "\n";
       }
 
@@ -163,8 +163,7 @@ const CVReview: React.FC = () => {
     if (!file) return;
 
     if (file.size > MAX_FILE_SIZE) {
-      toast({ 
-        title: "File too large", 
+      toast.error("File too large", {
         description: "Maximum file size is 5MB.",
       });
       return;
@@ -177,8 +176,7 @@ const CVReview: React.FC = () => {
       file.name.endsWith(".txt");
 
     if (!isAllowed) {
-      toast({ 
-        title: "Invalid file type", 
+      toast.error("Invalid file type", {
         description: "Please upload PDF, DOCX, DOC or TXT files.",
       });
       return;
@@ -203,15 +201,12 @@ const CVReview: React.FC = () => {
       setCvText(cleaned.slice(0, MAX_CV_LENGTH));
       setUploadedFile({ name: file.name, size: file.size, type: file.type });
 
-      toast({ 
-        title: "File uploaded successfully", 
+      toast.success("File uploaded successfully", {
         description: `"${file.name}" has been loaded.`,
       });
-    } catch (err: any) {
-      toast({ 
-        title: "Upload failed", 
-        description: err.message,
-      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Upload failed";
+      toast.error("Upload failed", { description: msg });
     } finally {
       setParsingFile(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -221,8 +216,7 @@ const CVReview: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValidCV) {
-      toast({
-        title: "Invalid CV length",
+      toast.error("Invalid CV length", {
         description: `CV must be between ${MIN_CV_LENGTH} and ${MAX_CV_LENGTH} characters.`,
       });
       return;
@@ -232,19 +226,15 @@ const CVReview: React.FC = () => {
     setError(null);
 
     try {
-      const res = await API.post<CVFeedback>("/cv", { cvText: cvText.trim() });
-      setFeedback(res.data);
-      toast({ 
-        title: "✅ CV Analysis Complete!", 
+      const { data } = await api.post<CVFeedback>("/cv", { cvText: cvText.trim() });
+      setFeedback(data);
+      toast.success("CV Analysis Complete!", {
         description: "Your CV has been analyzed successfully.",
       });
-    } catch (err: any) {
-      const errorMsg = err.response?.data?.error || "Failed to analyze CV. Please try again.";
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Failed to analyze CV. Please try again.";
       setError(errorMsg);
-      toast({ 
-        title: "Analysis Failed", 
-        description: errorMsg,
-      });
+      toast.error("Analysis Failed", { description: errorMsg });
     } finally {
       setLoading(false);
     }
@@ -276,9 +266,8 @@ ${feedback.recommended_jobs}`;
 
     await navigator.clipboard.writeText(feedbackText);
     setCopied(true);
-    toast({ 
-      title: "Feedback copied!", 
-      description: "Analysis results copied to clipboard." 
+    toast.success("Feedback copied!", {
+      description: "Analysis results copied to clipboard.",
     });
     setTimeout(() => setCopied(false), 2000);
   };
