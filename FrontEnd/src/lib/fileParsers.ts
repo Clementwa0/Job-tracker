@@ -14,7 +14,7 @@ export async function parsePDF(file: File): Promise<string> {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    const strings = content.items.map((item: any) => item.str);
+    const strings = content.items.map((item: { str?: string }) => item.str ?? "");
     text += strings.join(' ') + '\n';
   }
 

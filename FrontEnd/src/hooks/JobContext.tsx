@@ -1,159 +1,140 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
-import type { Job } from "@/components/pages/Jobs/JobsTable";
-import { useToast } from "@/hooks/use-toast";
-import API from "@/lib/axios";
-
-function mapBackendJobToFrontend(job: any): Job {
-  return {
-    id: job._id,
-    title: job.jobTitle,
-    company: job.companyName,
-    location: job.location || "",
-    jobType: job.jobType || "",
-    salaryRange: job.salaryRange || "",
-    applicationDate: job.applicationDate
-      ? new Date(job.applicationDate).toISOString().split("T")[0]
-      : "",
-    applicationDeadline: job.applicationDeadline
-      ? new Date(job.applicationDeadline).toISOString().split("T")[0]
-      : "",
-    status: (job.applicationStatus || "applied").toLowerCase(),
-    resumeFile: job.resumeFile,
-    interviews: [],
-    contactEmail: "",
-    contactPhone: "",
-    jobPostingUrl: "",
-    notes: "",
-    contactPerson: "",
-    source: "",
-  };
-}
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { toast } from "sonner";
+import type { Job } from "@/types";
+import { useAuth } from "@/hooks/AuthContext";
+import {
+  fetchJobs,
+  createJob,
+  updateJob as updateJobApi,
+  deleteJob as deleteJobApi,
+  type CreateJobRequest,
+} from "@/features/jobs/api/jobs-api";
+import { mapJobToBackendPayload } from "@/features/jobs/utils/job-mappers";
+import { ApiClientError } from "@/lib/api-client";
 
 interface JobContextType {
   jobs: Job[];
+  isLoading: boolean;
   addJob: (job: Omit<Job, "id">) => Promise<void>;
   updateJob: (id: string, job: Partial<Job>) => Promise<void>;
   deleteJob: (id: string) => Promise<void>;
   getJob: (id: string) => Job | undefined;
+  refreshJobs: () => Promise<void>;
 }
 
 const JobContext = createContext<JobContextType | undefined>(undefined);
 
-export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+function getErrorMessage(error: unknown): string {
+  if (error instanceof ApiClientError) return error.message;
+  if (error instanceof Error) return error.message;
+  return "Something went wrong.";
+}
+
+export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [jobs, setJobs] = useState<Job[]>([]);
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const res = await API.get("/jobs");
-        if (res.data.success) {
-          setJobs(res.data.data.map(mapBackendJobToFrontend));
-        }
-      } catch (error: any) {
-        toast({
-          title: "Error loading jobs",
-          description: error.response?.data?.message || "Something went wrong.",
-        });
-      }
-    };
-
-    fetchJobs();
+  const loadJobs = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchJobs();
+      setJobs(data);
+    } catch (error) {
+      toast.error("Error loading jobs", {
+        description: getErrorMessage(error),
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const addJob = async (job: Omit<Job, "id">) => {
-    const backendJob = {
-      jobTitle: job.title,
-      companyName: job.company,
-      location: job.location,
-      applicationDate: job.applicationDate,
-      applicationDeadline: job.applicationDeadline,
-      applicationStatus: job.status,
-      jobType: job.jobType,
-      salaryRange: job.salaryRange,
-      resumeFile: job.resumeFile,
-      source: job.source,
-      contactPerson: job.contactPerson,
-      contactEmail: job.contactEmail,
-      contactPhone: job.contactPhone,
-      jobPostingUrl: job.jobPostingUrl,
-      notes: job.notes,
-      interviews: job.interviews,
-    };
+  useEffect(() => {
+    if (authLoading) return;
+    if (!isAuthenticated) return;
+    loadJobs();
+  }, [isAuthenticated, authLoading, loadJobs]);
 
+  const addJob = async (job: Omit<Job, "id">) => {
     try {
-      const res = await API.post("/jobs", backendJob);
-      if (res.data.success) {
-        setJobs((prev) => [
-          ...prev,
-          mapBackendJobToFrontend(res.data.data.job),
-        ]);
-        toast({
-          title: "Job added",
-          description: `${job.title} at ${job.company}`,
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Failed to add job",
-        description: error.response?.data?.message || error.message,
+      const payload: CreateJobRequest = {
+        jobTitle: job.title,
+        companyName: job.company,
+        location: job.location,
+        jobType: job.jobType,
+        applicationDate: job.applicationDate,
+        applicationDeadline: job.applicationDeadline,
+        applicationStatus: job.status,
+        salaryRange: job.salaryRange,
+        resumeFile: job.resumeFile,
+        source: job.source,
+        contactPerson: job.contactPerson,
+        contactEmail: job.contactEmail,
+        contactPhone: job.contactPhone,
+        jobPostingUrl: job.jobPostingUrl,
+        notes: job.notes,
+        interviews: job.interviews,
+      };
+      const newJob = await createJob(payload);
+      setJobs((prev) => [...prev, newJob]);
+      toast.success("Job added", {
+        description: `${job.title} at ${job.company}`,
       });
+    } catch (error) {
+      toast.error("Failed to add job", {
+        description: getErrorMessage(error),
+      });
+      throw error;
     }
   };
 
   const updateJob = async (id: string, updatedJob: Partial<Job>) => {
-    const backendJob: any = {};
-    if (updatedJob.title) backendJob.jobTitle = updatedJob.title;
-    if (updatedJob.company) backendJob.companyName = updatedJob.company;
-    if (updatedJob.applicationDate)
-      backendJob.applicationDate = updatedJob.applicationDate;
-    if (updatedJob.applicationDeadline)
-      backendJob.applicationDeadline = updatedJob.applicationDeadline;
-    if (updatedJob.status) backendJob.applicationStatus = updatedJob.status;
-    if (updatedJob.jobType) backendJob.jobType = updatedJob.jobType;
-
     try {
-      const res = await API.put(`/jobs/${id}`, backendJob);
-      if (res.data.success) {
-        setJobs((prev) =>
-          prev.map((job) =>
-            job.id === id ? mapBackendJobToFrontend(res.data.data) : job
-          )
-        );
-        toast({ title: "Job updated", description: "Update successful." });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Update failed",
-        description: error.response?.data?.message || error.message,
+      const payload = mapJobToBackendPayload(updatedJob);
+      const updated = await updateJobApi(id, payload);
+      setJobs((prev) =>
+        prev.map((job) => (job.id === id ? updated : job))
+      );
+      toast.success("Job updated", {
+        description: "Update successful.",
       });
+    } catch (error) {
+      toast.error("Update failed", {
+        description: getErrorMessage(error),
+      });
+      throw error;
     }
   };
 
   const deleteJob = async (id: string) => {
     try {
-      const res = await API.delete(`/jobs/${id}`);
-      if (res.data.success) {
-        setJobs((prev) => prev.filter((job) => job.id !== id));
-        toast({
-          title: "Job deleted",
-          description: "The job has been removed.",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Delete failed",
-        description: error.response?.data?.message || error.message,
+      await deleteJobApi(id);
+      setJobs((prev) => prev.filter((job) => job.id !== id));
+      toast.success("Job deleted", {
+        description: "The job has been removed.",
       });
+    } catch (error) {
+      toast.error("Delete failed", {
+        description: getErrorMessage(error),
+      });
+      throw error;
     }
   };
 
   const getJob = (id: string) => jobs.find((job) => job.id === id);
 
   return (
-    <JobContext.Provider value={{ jobs, addJob, updateJob, deleteJob, getJob }}>
+    <JobContext.Provider
+      value={{
+        jobs,
+        isLoading,
+        addJob,
+        updateJob,
+        deleteJob,
+        getJob,
+        refreshJobs: loadJobs,
+      }}
+    >
       {children}
     </JobContext.Provider>
   );

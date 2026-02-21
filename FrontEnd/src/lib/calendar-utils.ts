@@ -1,4 +1,4 @@
-import type { Job } from "@/components/pages/Jobs/JobsTable";
+import type { Job } from "@/types";
 
 export function jobToCalendarEvents(jobs: Job[]) {
   return jobs.flatMap((job) => {
