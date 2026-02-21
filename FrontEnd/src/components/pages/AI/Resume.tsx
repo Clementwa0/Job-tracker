@@ -126,7 +126,13 @@ const CVReview: React.FC = () => {
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        const strings = content.items.map((item: { str?: string }) => item.str ?? "");
+        const strings = content.items.map((item) => {
+          // Handle both TextItem and TextMarkedContent types
+          if ("str" in item && typeof item.str === "string") {
+            return item.str;
+          }
+          return "";
+        });
         text += strings.join(" ") + "\n";
       }
 

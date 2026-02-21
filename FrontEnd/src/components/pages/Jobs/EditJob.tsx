@@ -205,7 +205,7 @@ const EditJob = () => {
                         <Input
                           id={field}
                           name={field}
-                          value={formData[field as keyof Job] ?? ""}
+                          value={String(formData[field as keyof Job] ?? "")}
                           onChange={handleChange}
                           className={`pl-10 ${errors[field] ? "border-red-500 focus:ring-red-500" : "border-gray-300"}`}
                           placeholder={`Enter ${label.toLowerCase()}`}
@@ -310,7 +310,7 @@ const EditJob = () => {
                           id={field}
                           name={field}
                           type="date"
-                          value={formData[field as keyof Job] ?? ""}
+                          value={String(formData[field as keyof Job] ?? "")}
                           onChange={handleChange}
                           className={`pl-10 ${errors[field] ? "border-red-500" : "border-gray-300"}`}
                         />
@@ -382,7 +382,7 @@ const EditJob = () => {
                         <Input
                           id={field}
                           name={field}
-                          value={formData[field as keyof Job] ?? ""}
+                          value={String(formData[field as keyof Job] ?? "")}
                           onChange={handleChange}
                           className={`pl-10 ${errors[field] ? "border-red-500" : "border-gray-300"}`}
                           placeholder={`Enter ${label.toLowerCase()}`}

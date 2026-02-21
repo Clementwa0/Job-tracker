@@ -1,5 +1,6 @@
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
+import type { EventClickArg } from "@fullcalendar/core";
 import { useJobs } from "@/hooks/JobContext";
 import { jobToCalendarEvents } from "@/lib/calendar-utils";
 import { useState } from "react";
@@ -11,10 +12,10 @@ const Calendar = () => {
   const { jobs } = useJobs();
   const events = jobToCalendarEvents(jobs);
 
-const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
-  const handleEventClick = (info: { event: { extendedProps: { jobId: string } } }) => {
-    const jobId = info.event.extendedProps.jobId;
+  const handleEventClick = (info: EventClickArg) => {
+    const jobId = info.event.extendedProps.jobId as string;
     const job = jobs.find((j) => j.id === jobId);
     if (job) setSelectedJob(job);
   };
