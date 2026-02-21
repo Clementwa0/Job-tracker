@@ -6,9 +6,9 @@ import {
   Plus,
   BriefcaseBusiness,
   FileText,
-  TrendingUp, Bell 
+  TrendingUp,
+  Bell,
 } from "lucide-react";
-  import { } from "lucide-react";
 
 
 export const features = [
