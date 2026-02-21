@@ -1,4 +1,4 @@
-import {  HelpCircle, LogOut, User } from "lucide-react";
+import { HelpCircle, LogOut, User } from "lucide-react";
 import { useAuth } from "@/hooks/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -11,12 +11,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import profileImg from "@/assets/profile.png";
 
 const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-
 
   const handleLogout = () => {
     logout();
@@ -26,8 +26,6 @@ const Header = () => {
     });
   };
 
-
-
   return (
     <header className="bg-background border-b border-border h-16 flex items-center justify-end px-4 lg:px-6 dark:bg-gray-900">
       <div className="flex items-center gap-4">
@@ -36,12 +34,12 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-2 ">
-            <DropdownMenu>
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar className="shadow-lg border border-gray-900 dark:border-white cursor-pointer"> 
-              <AvatarImage src="/src/assets/profile.png" />
-              <AvatarFallback>{user?.name}</AvatarFallback>
-            </Avatar>
+              <Avatar className="shadow-lg border border-gray-900 dark:border-white cursor-pointer">
+                <AvatarImage src={profileImg} />{" "}
+                <AvatarFallback>{user?.name}</AvatarFallback>
+              </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 dark:bg-gray-900">
               <DropdownMenuLabel className="flex flex-col">
@@ -52,7 +50,10 @@ const Header = () => {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to="/profile" className="cursor-pointer hover:bg-blue-600">
+                <Link
+                  to="/profile"
+                  className="cursor-pointer hover:bg-blue-600"
+                >
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </Link>
