@@ -158,18 +158,15 @@ const forgotPassword = async (req, res) => {
     // Send email
     await sgMail.send({
       to: user.email,
-      from: {
-        email: process.env.SENDER_EMAIL,
-        name: process.env.APP_NAME || "JobTracker",
-      },
+      from: `${process.env.APP_NAME || "JobTracker"} <${process.env.SENDER_EMAIL}>`,
       subject: "Reset your password",
       html: `
-        <h2>Password Reset</h2>
-        <p>Hi ${user.name || "there"},</p>
-        <p>Click below to reset your password:</p>
-        <a href="${resetUrl}">${resetUrl}</a>
-        <p>This link expires in 15 minutes.</p>
-      `,
+    <h2>Password Reset</h2>
+    <p>Hi ${user.name || "there"},</p>
+    <p>Click below to reset your password:</p>
+    <a href="${resetUrl}">${resetUrl}</a>
+    <p>This link expires in 15 minutes.</p>
+  `,
     });
 
     res.json({
@@ -177,7 +174,10 @@ const forgotPassword = async (req, res) => {
       message: "Reset email sent successfully.",
     });
   } catch (error) {
-    console.error("Forgot password error:", error.response?.body || error.message);
+    console.error(
+      "Forgot password error:",
+      error.response?.body || error.message,
+    );
     res.status(500).json({
       success: false,
       message: "Email sending failed",
