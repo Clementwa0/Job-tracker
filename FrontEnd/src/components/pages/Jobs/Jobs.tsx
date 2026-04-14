@@ -11,6 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import JobModal from "./JobModel";
 import { JobsPageSkeleton } from "@/components/shared/skeletons";
 import type { Job } from "@/types";
+import * as XLSX from "xlsx";
 
 const Jobs: React.FC = () => {
   const { jobs, deleteJob, isLoading } = useJobs();
@@ -19,7 +20,9 @@ const Jobs: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [viewMode, setViewMode] = useState<"table" | "grid">(isMobile ? "grid" : "table");
+  const [viewMode, setViewMode] = useState<"table" | "grid">(
+    isMobile ? "grid" : "table",
+  );
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   const filteredJobs = useMemo(() => {
@@ -38,28 +41,58 @@ const Jobs: React.FC = () => {
   const handleDelete = (id: string) => deleteJob(id);
 
   if (isLoading) {
-    return (
-      <JobsPageSkeleton
-        variant={isMobile ? "grid" : "table"}
-        count={8}
-      />
-    );
+    return <JobsPageSkeleton variant={isMobile ? "grid" : "table"} count={8} />;
   }
+
+  const handleExportToExcel = () => {
+    const exportData = filteredJobs.map((job) => ({
+      Title: job.title,
+      Company: job.company,
+      Status: job.status,
+      Location: job.location,
+      JobType: job.jobType,
+      SalaryRange: job.salaryRange,
+      ApplicationDate: new Date(job.applicationDate).toLocaleDateString(),
+ApplicationDeadline: new Date(job.applicationDeadline).toLocaleDateString(),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Jobs");
+
+    XLSX.writeFile(workbook, "jobs_export.xlsx");
+  };
 
   return (
     <div className="space-y-6 animate-fade-in bg-white dark:bg-gray-900 min-h-screen px-4 py-6 transition-colors">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Jobs</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+            Jobs
+          </h1>
           <p className="text-muted-foreground mt-1 dark:text-gray-400">
             Manage your job applications and track their status
           </p>
         </div>
-        <Button onClick={() => navigate("/add-job")} className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+         <Button
+          onClick={handleExportToExcel}
+          variant="outline"
+          className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+        >
+          Export to Excel
+        </Button>
+
+        <Button
+          onClick={() => navigate("/add-job")}
+          className="flex items-center gap-2"
+        >
           <Plus className="h-4 w-4" />
           Add Job
         </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -71,7 +104,10 @@ const Jobs: React.FC = () => {
       />
 
       {/* View Switch */}
-      <Tabs defaultValue={viewMode} onValueChange={(v) => setViewMode(v as "table" | "grid")}>
+      <Tabs
+        defaultValue={viewMode}
+        onValueChange={(v) => setViewMode(v as "table" | "grid")}
+      >
         <div className="flex justify-between items-center">
           <div className="text-sm text-muted-foreground dark:text-gray-400">
             Showing {filteredJobs.length} of {jobs.length} jobs
@@ -93,7 +129,9 @@ const Jobs: React.FC = () => {
             />
           ) : (
             <div className="text-center py-10 bg-card dark:bg-gray-800 rounded-lg border border-border dark:border-gray-700">
-              <p className="text-muted-foreground dark:text-gray-400">No jobs found matching your filters.</p>
+              <p className="text-muted-foreground dark:text-gray-400">
+                No jobs found matching your filters.
+              </p>
             </div>
           )}
         </TabsContent>
@@ -123,7 +161,9 @@ const Jobs: React.FC = () => {
             </div>
           ) : (
             <div className="text-center py-10 bg-card dark:bg-gray-800 rounded-lg border border-border dark:border-gray-700">
-              <p className="text-muted-foreground dark:text-gray-400">No jobs found matching your filters.</p>
+              <p className="text-muted-foreground dark:text-gray-400">
+                No jobs found matching your filters.
+              </p>
             </div>
           )}
         </TabsContent>
