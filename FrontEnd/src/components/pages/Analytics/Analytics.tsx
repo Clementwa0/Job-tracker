@@ -164,7 +164,7 @@ const Analytics = () => {
 
         {/* Charts Section */}
         <Tabs defaultValue="overview" className="w-full dark:bg-gray-900">
-          <TabsList className="h-auto grid grid-cols-3 w-full gap-2 bg-gray-200 dark:bg-gray-900 sm:grid-cols-4 ">
+          <TabsList className="h-auto bg-gray-700 grid grid-cols-3 w-full gap-2 sm:grid-cols-4 ">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="companies">Companies</TabsTrigger>
             <TabsTrigger value="locations">Locations</TabsTrigger>

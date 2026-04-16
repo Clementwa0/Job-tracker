@@ -1,17 +1,15 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { Toaster } from '@/components/ui/sonner';
-import './index.css'
-import App from './App.tsx'
-import { HelmetProvider } from 'react-helmet-async';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { Toaster } from "@/components/ui/sonner";
+import "./index.css";
+import App from "./App.tsx";
+import { HelmetProvider } from "react-helmet-async";
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
-     <HelmetProvider>
+    <HelmetProvider>
       <App />
-     </HelmetProvider>
-    
-    <Toaster/>
-  </StrictMode>
-)
-
+      <Toaster position="top-right" richColors />
+    </HelmetProvider>
+  </StrictMode>,
+);

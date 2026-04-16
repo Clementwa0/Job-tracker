@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/AuthContext";
-import { FullPageLoader } from "@/components/shared/LoadingSpinner";
+import { Spinner } from "@/components/shared/LoadingSpinner";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -11,7 +11,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <FullPageLoader message="Verifying authentication..." />;
+    return <Spinner fullScreen message="Verifying authentication..." />;
   }
 
   if (!isAuthenticated) {
@@ -19,4 +19,4 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   return <>{children}</>;
-}; 
+};

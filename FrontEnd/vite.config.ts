@@ -1,14 +1,36 @@
-import path from "path"
-import tailwindcss from "@tailwindcss/vite"
-import react from "@vitejs/plugin-react"
-import { defineConfig } from "vite"
+import path from "path";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-})
+
+  build: {
+    target: "esnext",
+    minify: "esbuild",
+
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("react")) return "react-vendor";
+            if (id.includes("recharts")) return "charts";
+            if (id.includes("pdfjs-dist")) return "pdf";
+            if (id.includes("xlsx")) return "excel";
+            if (id.includes("mammoth")) return "docx";
+            return "vendor";
+          }
+        },
+      },
+    },
+
+    chunkSizeWarningLimit: 800,
+  },
+});

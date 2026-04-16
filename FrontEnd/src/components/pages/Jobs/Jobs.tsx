@@ -87,7 +87,8 @@ ApplicationDeadline: new Date(job.applicationDeadline).toLocaleDateString(),
 
         <Button
           onClick={() => navigate("/add-job")}
-          className="flex items-center gap-2"
+          variant="secondary"
+          size="lg"
         >
           <Plus className="h-4 w-4" />
           Add Job

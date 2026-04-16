@@ -11,7 +11,7 @@ export { ProtectedRoute } from './ProtectedRoute';
 
 // Pages
 export { default as Terms } from './pages/Terms'
-export { default as Homepage } from './HomePage/Homepage';
+export { default as Landing } from './landing/Landing';
 export { default as Dashboard } from './pages/Dashboard/Dashboard';
 export { default as Calendar } from './pages/Calendar/Calendar';
 export { default as Analytics } from './pages/Analytics/Analytics';
@@ -22,3 +22,10 @@ export { default as Profile } from '@/components/pages/Profile';
 export { default as Jobs } from '@/components/pages/Jobs/Jobs';
 export { default as AddJob } from '@/components/pages/Jobs/AddJob';
 export { default as EditJob } from '@/components/pages/Jobs/EditJob';
+
+export { Spinner } from "@/components/shared/LoadingSpinner";
+export { PageSkeleton } from "@/components/shared/PageSkeleton";
+
+export { DashboardPageSkeleton } from "@/components/shared/skeletons/DashboardPageSkeleton";
+export { JobsPageSkeleton } from "@/components/shared/skeletons/JobsPageSkeleton";
+export { AnalyticsPageSkeleton } from "@/components/shared/skeletons/AnalyticsPageSkeleton";

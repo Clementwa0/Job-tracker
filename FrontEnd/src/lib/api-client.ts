@@ -1,8 +1,3 @@
-/**
- * Centralized API client - single source for all HTTP requests.
- * Replaces dual api.ts + axios.ts with typed, consistent fetch-based client.
- */
-
 import { env } from "@/config/env";
 
 export interface ApiError {

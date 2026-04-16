@@ -1,4 +1,3 @@
-// src/context/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { apiService, type AuthResponse } from "@/lib/api";
 import { register as registerApi, tokenStorage } from "@/features/auth/api/auth-api";
@@ -46,7 +45,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 🔥 Initialize auth once
   useEffect(() => {
     const initAuth = async () => {
       const storedToken = apiService.getToken();

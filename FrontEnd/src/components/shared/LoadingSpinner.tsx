@@ -1,36 +1,52 @@
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface LoadingSpinnerProps {
+export function Spinner({
+  size = "md",
+  fullScreen = false,
+  message,
+  className,
+}: {
   size?: "sm" | "md" | "lg";
+  fullScreen?: boolean;
+  message?: string;
   className?: string;
-}
+}) {
+  const sizes = {
+    sm: "h-4 w-4",
+    md: "h-6 w-6",
+    lg: "h-10 w-10",
+  };
 
-const sizeClasses = {
-  sm: "h-4 w-4",
-  md: "h-8 w-8",
-  lg: "h-12 w-12",
-};
-
-export function LoadingSpinner({ size = "md", className }: LoadingSpinnerProps) {
-  return (
+  const spinner = (
     <Loader2
-      className={cn("animate-spin text-muted-foreground", sizeClasses[size], className)}
-      aria-hidden
+      className={cn(
+        "animate-spin text-muted-foreground",
+        sizes[size],
+        className
+      )}
     />
   );
-}
 
-export function FullPageLoader({ message = "Loading..." }: { message?: string }) {
+  // Fullscreen overlay
+  if (fullScreen) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm gap-3">
+        {spinner}
+        {message && (
+          <p className="text-sm text-muted-foreground">{message}</p>
+        )}
+      </div>
+    );
+  }
+
+  // Inline / page usage
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center gap-4"
-      role="status"
-      aria-live="polite"
-      aria-label={message}
-    >
-      <LoadingSpinner size="lg" />
-      <p className="text-sm text-muted-foreground">{message}</p>
+    <div className="flex flex-col items-center justify-center gap-3 py-20">
+      {spinner}
+      {message && (
+        <p className="text-sm text-muted-foreground">{message}</p>
+      )}
     </div>
   );
 }

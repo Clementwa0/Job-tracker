@@ -9,7 +9,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { useJobs } from "@/hooks/JobContext";
 import { Stat } from "./statsCard";
 import TipCard from "./TipCard";
@@ -21,16 +21,16 @@ const Dashboard: React.FC = () => {
   const stats = React.useMemo(() => {
     const total = jobs.length;
     const inProgress = jobs.filter(
-      (j) => j.status?.toLowerCase() === "applied"
+      (j) => j.status?.toLowerCase() === "applied",
     ).length;
     const interviewed = jobs.filter(
-      (j) => j.status?.toLowerCase() === "interviewing"
+      (j) => j.status?.toLowerCase() === "interviewing",
     ).length;
     const offered = jobs.filter(
-      (j) => j.status?.toLowerCase() === "offer"
+      (j) => j.status?.toLowerCase() === "offer",
     ).length;
     const rejections = jobs.filter(
-      (j) => j.status?.toLowerCase() === "rejected"
+      (j) => j.status?.toLowerCase() === "rejected",
     ).length;
     return { total, inProgress, interviewed, offered, rejections };
   }, [jobs]);
@@ -40,19 +40,19 @@ const Dashboard: React.FC = () => {
       .sort(
         (a, b) =>
           new Date(b.applicationDate).getTime() -
-          new Date(a.applicationDate).getTime()
+          new Date(a.applicationDate).getTime(),
       )
       .slice(0, 5)
       .map((job) => ({
         id: job.id,
         type:
-          job.status === "offered"
+          job.status === "offer"
             ? "offer"
             : job.status === "rejected"
-            ? "rejection"
-            : job.status === "interviewed"
-            ? "interview"
-            : "application",
+              ? "rejection"
+              : job.status === "interviewing"
+                ? "interview"
+                : "application",
         company: job.company,
         position: job.title,
         date: new Date(job.applicationDate),
@@ -65,17 +65,22 @@ const Dashboard: React.FC = () => {
         (job) =>
           job.status?.toLowerCase() === "interviewing" &&
           Array.isArray(job.interviews) &&
-          job.interviews.length > 0
+          job.interviews.length > 0,
       )
       .map((job) => {
         const firstInterview = job.interviews[0];
-        const dateStr = typeof firstInterview === "object" && firstInterview !== null && "date" in firstInterview
-          ? (firstInterview as { date: string }).date
-          : String(firstInterview);
+        const dateStr =
+          typeof firstInterview === "object" &&
+          firstInterview !== null &&
+          "date" in firstInterview
+            ? (firstInterview as { date: string }).date
+            : String(firstInterview);
         return { job, dateStr };
       })
       .filter(({ dateStr }) => new Date(dateStr) >= new Date())
-      .sort((a, b) => new Date(a.dateStr).getTime() - new Date(b.dateStr).getTime())
+      .sort(
+        (a, b) => new Date(a.dateStr).getTime() - new Date(b.dateStr).getTime(),
+      )
       .map(({ job, dateStr }) => ({
         id: job.id,
         company: job.company,
@@ -83,27 +88,30 @@ const Dashboard: React.FC = () => {
         date: new Date(dateStr),
       }));
   }, [jobs]);
-  
+
   if (isLoading) {
     return <DashboardPageSkeleton />;
   }
 
   return (
-    <div className="container mx-auto px-4 py-4 space-y-6 bg-white dark:bg-gray-900 min-h-screen">
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-          Dashboard
-        </h1>
-        <Link to="/add-job">
-          <Button className="flex items-center gap-2 hover:bg-gray-200 dark:hover:bg-gray-700">
-            <Plus className="h-4 w-4" />
-            Add New Job
-          </Button>
-        </Link>
-      </div>
+   <div className="min-h-screen  px-4 py-6 space-y-6">
+
+    {/* HEADER */}
+    <div className="flex justify-between items-center">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        Dashboard
+      </h1>
+
+      <Link to="/add-job">
+        <Button variant="secondary" size="lg">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Job
+        </Button>
+      </Link>
+    </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <Card className="p-6 bg-blue-50 dark:bg-gray-900">
           <Stat
             icon={
@@ -160,7 +168,7 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 gap-8">
         {/* Left - Activity & Chart */}
         <div className="space-y-6">
-          <Card className="p-6 bg-white dark:bg-gray-900">
+          <Card className="p-6 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
               Recent Activity
             </h2>
@@ -176,18 +184,10 @@ const Dashboard: React.FC = () => {
                     className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg"
                   >
                     <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-900">
-                      {activity.type === "application" && (
-                        <Briefcase className="h-5 w-5 text-blue-600 dark:text-blue-300" />
-                      )}
-                      {activity.type === "interviewed" && (
-                        <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-300" />
-                      )}
-                      {activity.type === "offered" && (
-                        <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-300" />
-                      )}
-                      {activity.type === "rejection" && (
-                        <XCircle className="h-5 w-5 text-red-600 dark:text-red-300" />
-                      )}
+                      {activity.type === "application" && <Briefcase />}
+                      {activity.type === "interview" && <Calendar />}
+                      {activity.type === "offer" && <CheckCircle2 />}
+                      {activity.type === "rejection" && <XCircle />}
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between items-start">
@@ -209,13 +209,11 @@ const Dashboard: React.FC = () => {
               )}
             </div>
           </Card>
-
-         
         </div>
 
         {/* Right side — future widgets */}
         <div className="space-y-6">
-           {/* <Card className="p-6 bg-white dark:bg-gray-900">
+          {/* <Card className="p-6 bg-white dark:bg-gray-900">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Application Status
@@ -274,15 +272,11 @@ const Dashboard: React.FC = () => {
             </div>
           </Card>
 
-            <TipCard/>
+          <TipCard />
         </div>
       </div>
     </div>
   );
 };
 
-
-
 export default Dashboard;
-
-
