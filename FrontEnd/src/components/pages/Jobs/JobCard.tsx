@@ -11,7 +11,7 @@ interface JobCardProps {
   salaryRange: string;
   applicationDate: string;
   applicationDeadline: string;
-  resumeFile: null;
+  resumeFile: string | null;
   status: string;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
