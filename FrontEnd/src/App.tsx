@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import { JobProvider } from "@/hooks/JobContext";
 import { AuthProvider } from "@/hooks/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ThemeProvider } from "./constants/theme-provider";
@@ -25,9 +24,7 @@ import {
 
 const ProtectedLayout = () => (
   <ProtectedRoute>
-    <JobProvider>
-      <Layout />
-    </JobProvider>
+    <Layout />
   </ProtectedRoute>
 );
 
