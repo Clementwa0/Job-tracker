@@ -26,7 +26,7 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { jobTypes, sources, statuses } from "@/constants";
 import { FormField } from "@/components/ui/formfield";
-import { useJobs } from "@/hooks/JobContext";
+import { useCreateJob } from "@/hooks/useCreateJob";
 import { api } from "@/lib/api-client";
 
 interface JobApplication {
@@ -56,7 +56,7 @@ interface Interview {
 }
 
 const AddJob = () => {
-  const { addJob } = useJobs();
+  const createJob = useCreateJob();
   const today = new Date().toISOString().split("T")[0];
 
   const [formData, setFormData] = useState<JobApplication>({
@@ -91,66 +91,63 @@ const AddJob = () => {
     setFormData((prev) => ({ ...prev, [field]: file }));
   };
 
- const analyzeDescription = async () => {
-  if (!pastedDescription.trim()) return;
+  const analyzeDescription = async () => {
+    if (!pastedDescription.trim()) return;
 
-  setIsAnalyzing(true);
+    setIsAnalyzing(true);
 
-  try {
-    const { data } = await api.post<Record<string, unknown>>(
-      "/analyze-job",
-      { description: pastedDescription }
-    );
-
-    type StringJobKeys = {
-      [K in keyof JobApplication]: JobApplication[K] extends string
-        ? K
-        : never;
-    }[keyof JobApplication];
-
-    const backendToFormKey: Record<string, StringJobKeys> = {
-      jobTitle: "jobTitle",
-      companyName: "companyName",
-      location: "location",
-      jobType: "jobType",
-      applicationDate: "applicationDate",
-      applicationDeadline: "applicationDeadline",
-      source: "source",
-      applicationStatus: "applicationStatus",
-      contactPerson: "contactPerson",
-      contactEmail: "contactEmail",
-      contactPhone: "contactPhone",
-      jobPostingUrl: "jobPostingUrl",
-      salaryRange: "salaryRange",
-      notes: "notes",
-    };
-
-    setFormData((prev) => {
-      const updated = { ...prev };
-
-      (Object.entries(backendToFormKey) as [
-        string,
-        StringJobKeys
-      ][]).forEach(([backendKey, formKey]) => {
-        const value = data?.[backendKey];
-
-        if (typeof value === "string") {
-          updated[formKey] = value;
-        }
+    try {
+      const { data } = await api.post<Record<string, unknown>>("/analyze-job", {
+        description: pastedDescription,
       });
 
-      return updated;
-    });
+      type StringJobKeys = {
+        [K in keyof JobApplication]: JobApplication[K] extends string
+          ? K
+          : never;
+      }[keyof JobApplication];
 
-    toast.success("Fields auto-filled from job description!");
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Failed to analyze";
-    toast.error("Failed to analyze", { description: message });
-  } finally {
-    setIsAnalyzing(false);
-  }
-};
+      const backendToFormKey: Record<string, StringJobKeys> = {
+        jobTitle: "jobTitle",
+        companyName: "companyName",
+        location: "location",
+        jobType: "jobType",
+        applicationDate: "applicationDate",
+        applicationDeadline: "applicationDeadline",
+        source: "source",
+        applicationStatus: "applicationStatus",
+        contactPerson: "contactPerson",
+        contactEmail: "contactEmail",
+        contactPhone: "contactPhone",
+        jobPostingUrl: "jobPostingUrl",
+        salaryRange: "salaryRange",
+        notes: "notes",
+      };
+
+      setFormData((prev) => {
+        const updated = { ...prev };
+
+        (Object.entries(backendToFormKey) as [string, StringJobKeys][]).forEach(
+          ([backendKey, formKey]) => {
+            const value = data?.[backendKey];
+
+            if (typeof value === "string") {
+              updated[formKey] = value;
+            }
+          },
+        );
+
+        return updated;
+      });
+
+      toast.success("Fields auto-filled from job description!");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to analyze";
+      toast.error("Failed to analyze", { description: message });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   const addInterview = () => {
     setFormData((prev) => ({
@@ -186,14 +183,14 @@ const AddJob = () => {
     }
     setIsSubmitting(true);
     try {
-      await addJob({
-        title: formData.jobTitle,
-        company: formData.companyName,
+      await createJob.mutateAsync({
+        jobTitle: formData.jobTitle,
+        companyName: formData.companyName,
         location: formData.location,
         jobType: formData.jobType,
         applicationDate: formData.applicationDate,
         applicationDeadline: formData.applicationDeadline,
-        status: formData.applicationStatus.toLowerCase(),
+        applicationStatus: formData.applicationStatus,
         salaryRange: formData.salaryRange,
         resumeFile: null,
         source: formData.source,
@@ -202,7 +199,7 @@ const AddJob = () => {
         contactPhone: formData.contactPhone,
         jobPostingUrl: formData.jobPostingUrl,
         notes: formData.notes,
-        interviews: [],
+        interviews: formData.interviews,
       });
       toast.success("Job Saved Successfully!", {
         description: `${formData.jobTitle} at ${formData.companyName} has been saved.`,
