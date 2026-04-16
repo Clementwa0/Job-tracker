@@ -1,4 +1,4 @@
-import { useJobs } from "@/hooks/JobContext";
+import { useJobs } from "@/hooks/useJobs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -26,17 +26,28 @@ import {
 import StatCard from "./StatCard";
 import { AnalyticsPageSkeleton } from "@/components/shared/skeletons";
 
+const normalize = (v?: string) => (v ?? "").toLowerCase().trim();
+
+const safeDate = (d: any) => {
+  const date = new Date(d);
+  return isNaN(date.getTime()) ? null : date;
+};
+
 const Analytics = () => {
-  const { jobs, isLoading } = useJobs();
+  const { data: jobs = [], isLoading } = useJobs();
 
   if (isLoading) {
     return <AnalyticsPageSkeleton />;
   }
 
-  // Calculate key metrics
   const totalJobs = jobs.length;
+
+  // ---------------- STATUS COUNT ----------------
   const statusCounts = jobs.reduce((acc, job) => {
-    acc[job.status] = (acc[job.status] || 0) + 1;
+    const status = normalize(job.status);
+    if (!status) return acc;
+
+    acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -44,20 +55,23 @@ const Analytics = () => {
     totalJobs > 0
       ? (((statusCounts["interviewing"] || 0) / totalJobs) * 100).toFixed(1)
       : "0";
+
   const offerRate =
     totalJobs > 0
       ? (((statusCounts["offer"] || 0) / totalJobs) * 100).toFixed(1)
       : "0";
 
-  // Prepare data for charts
   const statusData = Object.entries(statusCounts).map(([status, count]) => ({
     status: status.charAt(0).toUpperCase() + status.slice(1),
     count,
-    percentage: totalJobs > 0 ? ((count / totalJobs) * 100).toFixed(1) : "0",
+    percentage:
+      totalJobs > 0 ? ((count / totalJobs) * 100).toFixed(1) : "0",
   }));
 
+  // ---------------- COMPANIES ----------------
   const companyData = jobs.reduce((acc, job) => {
-    acc[job.company] = (acc[job.company] || 0) + 1;
+    const company = job.company || "Unknown";
+    acc[company] = (acc[company] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -66,38 +80,40 @@ const Analytics = () => {
     .slice(0, 10)
     .map(([company, count]) => ({ company, count }));
 
+  // ---------------- JOB TYPES ----------------
   const jobTypeData = jobs.reduce((acc, job) => {
-    acc[job.jobType] = (acc[job.jobType] || 0) + 1;
+    const type = job.jobType || "Not specified";
+    acc[type] = (acc[type] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
   const jobTypeChartData = Object.entries(jobTypeData).map(([type, count]) => ({
-    type: type || "Not specified",
+    type,
     count,
   }));
 
+  // ---------------- LOCATIONS ----------------
   const locationData = jobs.reduce((acc, job) => {
-    acc[job.location] = (acc[job.location] || 0) + 1;
+    const location = job.location || "Unknown";
+    acc[location] = (acc[location] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
   const topLocations = Object.entries(locationData)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 8)
-    .map(([location, count]) => ({
-      location: location || "Not specified",
-      count,
-    }));
+    .map(([location, count]) => ({ location, count }));
 
-  // Timeline data - applications per month
+  // ---------------- TIMELINE ----------------
   const timelineData = jobs.reduce((acc, job) => {
-    if (job.applicationDate) {
-      const date = new Date(job.applicationDate);
-      const monthKey = `${date.getFullYear()}-${String(
-        date.getMonth() + 1
-      ).padStart(2, "0")}`;
-      acc[monthKey] = (acc[monthKey] || 0) + 1;
-    }
+    const date = safeDate(job.applicationDate);
+    if (!date) return acc;
+
+    const key = `${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}`;
+
+    acc[key] = (acc[key] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -125,6 +141,8 @@ const Analytics = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto space-y-6">
+
+        {/* HEADER */}
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">
             Job Application Analytics
@@ -134,70 +152,44 @@ const Analytics = () => {
           </div>
         </div>
 
-        {/* Key Metrics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Total Applications"
-            icon={<Briefcase />}
-            value={totalJobs}
-            description="Job applications submitted"
-          />
-          <StatCard
-            title="Interview Rate"
-            icon={<TrendingUp />}
-            value={`${interviewRate}%`}
-            description="Applications to interviews"
-          />
-          <StatCard
-            title="Offer Rate"
-            icon={<Clock />}
-            value={`${offerRate}%`}
-            description="Applications to offers"
-          />
-          <StatCard
-            title="Active Applications"
-            icon={<CalendarDays />}
-            value={statusCounts["applied"] || 0}
-            description="Pending responses"
-          />
+        {/* STATS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard title="Total Applications" icon={<Briefcase />} value={totalJobs} description="Total number of job applications" />
+          <StatCard title="Interview Rate" icon={<TrendingUp />} value={`${interviewRate}%`} description="Percentage of applications that progressed to interviews" />
+          <StatCard title="Offer Rate" icon={<Clock />} value={`${offerRate}%`} description="Percentage of applications that resulted in job offers" />
+          <StatCard title="Active" icon={<CalendarDays />} value={statusCounts["applied"] || 0} description="Number of active job applications" />
         </div>
 
-        {/* Charts Section */}
-        <Tabs defaultValue="overview" className="w-full dark:bg-gray-900">
-          <TabsList className="h-auto bg-gray-700 grid grid-cols-3 w-full gap-2 sm:grid-cols-4 ">
+        {/* CHARTS */}
+        <Tabs defaultValue="overview" className="w-full">
+
+          <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="companies">Companies</TabsTrigger>
             <TabsTrigger value="locations">Locations</TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6 dark:bg-gray-900">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 dark:bg-gray-900">
-              {/* Application Status Pie Chart */}
-              <Card className="bg-white shadow-sm dark:bg-gray-900">
+          {/* PIE + JOB TYPE */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+              <Card>
                 <CardHeader>
-                  <CardTitle>Application Status Distribution</CardTitle>
+                  <CardTitle>Status Distribution</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
                         data={statusData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
+                        dataKey="count"
                         label={({ status, percentage }) =>
                           `${status} (${percentage}%)`
                         }
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="count"
                       >
-                        {statusData.map((_entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
+                        {statusData.map((_, i) => (
+                          <Cell key={i} fill={COLORS[i % COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip />
@@ -206,10 +198,9 @@ const Analytics = () => {
                 </CardContent>
               </Card>
 
-              {/* Job Type Distribution */}
-              <Card className="bg-white shadow-sm dark:bg-gray-900">
+              <Card>
                 <CardHeader>
-                  <CardTitle>Job Type Distribution</CardTitle>
+                  <CardTitle>Job Types</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
@@ -223,23 +214,24 @@ const Analytics = () => {
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
+
             </div>
           </TabsContent>
 
-          <TabsContent value="companies" className="space-y-6">
-            <Card className="bg-white shadow-sm dark:bg-gray-900">
+          {/* COMPANIES */}
+          <TabsContent value="companies">
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building className="h-5 w-5" />
-                  Top Companies Applied To
+                <CardTitle className="flex gap-2 items-center">
+                  <Building /> Top Companies
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={topCompanies} layout="horizontal">
+                  <BarChart data={topCompanies}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="company" type="category"  />
-                    <YAxis  type="number"  />
+                    <XAxis dataKey="company" />
+                    <YAxis />
                     <Tooltip />
                     <Bar dataKey="count" fill="#00C49F" />
                   </BarChart>
@@ -248,30 +240,31 @@ const Analytics = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="locations" className="space-y-6">
-            <Card className="bg-white shadow-sm dark:bg-gray-900">
+          {/* LOCATIONS */}
+          <TabsContent value="locations">
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Applications by Location
+                <CardTitle className="flex gap-2 items-center">
+                  <MapPin /> Locations
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={400}>
                   <BarChart data={topLocations}>
-                    <CartesianGrid strokeDasharray="2 2" />
+                    <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="location" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="count" fill="#ffd900ff" />
+                    <Bar dataKey="count" fill="#FFBB28" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="timeline" className="space-y-6">
-            <Card className="bg-white shadow-sm dark:bg-gray-900">
+          {/* TIMELINE */}
+          <TabsContent value="timeline">
+            <Card>
               <CardHeader>
                 <CardTitle>Application Timeline</CardTitle>
               </CardHeader>
@@ -294,6 +287,7 @@ const Analytics = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
         </Tabs>
       </div>
     </div>
