@@ -10,28 +10,38 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useJobs } from "@/hooks/JobContext";
+import { useJobs } from "@/hooks/useJobs";
 import { Stat } from "./statsCard";
 import TipCard from "./TipCard";
 import { DashboardPageSkeleton } from "@/components/shared/skeletons";
 
+const normalize = (status?: string) =>
+  (status ?? "").toLowerCase().trim();
+
+const safeDate = (d: any) => {
+  const date = new Date(d);
+  return isNaN(date.getTime()) ? null : date;
+};
+
 const Dashboard: React.FC = () => {
-  const { jobs, isLoading } = useJobs();
+  const { data: jobs = [], isLoading } = useJobs();
 
   const stats = React.useMemo(() => {
-    const total = jobs.length;
-    const inProgress = jobs.filter(
-      (j) => j.status?.toLowerCase() === "applied",
-    ).length;
-    const interviewed = jobs.filter(
-      (j) => j.status?.toLowerCase() === "interviewing",
-    ).length;
-    const offered = jobs.filter(
-      (j) => j.status?.toLowerCase() === "offer",
-    ).length;
-    const rejections = jobs.filter(
-      (j) => j.status?.toLowerCase() === "rejected",
-    ).length;
+    let total = jobs.length;
+    let inProgress = 0;
+    let interviewed = 0;
+    let offered = 0;
+    let rejections = 0;
+
+    for (const j of jobs) {
+      const status = normalize(j.status);
+
+      if (status === "applied") inProgress++;
+      else if (status === "interviewing") interviewed++;
+      else if (status === "offer") offered++;
+      else if (status === "rejected") rejections++;
+    }
+
     return { total, inProgress, interviewed, offered, rejections };
   }, [jobs]);
 
@@ -40,53 +50,50 @@ const Dashboard: React.FC = () => {
       .sort(
         (a, b) =>
           new Date(b.applicationDate).getTime() -
-          new Date(a.applicationDate).getTime(),
+          new Date(a.applicationDate).getTime()
       )
       .slice(0, 5)
       .map((job) => ({
         id: job.id,
         type:
-          job.status === "offer"
+          normalize(job.status) === "offer"
             ? "offer"
-            : job.status === "rejected"
-              ? "rejection"
-              : job.status === "interviewing"
-                ? "interview"
-                : "application",
+            : normalize(job.status) === "rejected"
+            ? "rejection"
+            : normalize(job.status) === "interviewing"
+            ? "interview"
+            : "application",
         company: job.company,
         position: job.title,
-        date: new Date(job.applicationDate),
+        date: safeDate(job.applicationDate) ?? new Date(),
       }));
   }, [jobs]);
 
   const upcomingInterviews = React.useMemo(() => {
     return jobs
-      .filter(
-        (job) =>
-          job.status?.toLowerCase() === "interviewing" &&
-          Array.isArray(job.interviews) &&
-          job.interviews.length > 0,
-      )
-      .map((job) => {
-        const firstInterview = job.interviews[0];
-        const dateStr =
-          typeof firstInterview === "object" &&
-          firstInterview !== null &&
-          "date" in firstInterview
-            ? (firstInterview as { date: string }).date
-            : String(firstInterview);
-        return { job, dateStr };
+      .flatMap((job) => {
+        if (
+          normalize(job.status) !== "interviewing" ||
+          !Array.isArray(job.interviews)
+        ) {
+          return [];
+        }
+
+        return job.interviews.map((i: any) => {
+          const date = safeDate(i?.date);
+          if (!date) return null;
+
+          return {
+            id: job.id,
+            company: job.company,
+            position: job.title,
+            date,
+          };
+        });
       })
-      .filter(({ dateStr }) => new Date(dateStr) >= new Date())
-      .sort(
-        (a, b) => new Date(a.dateStr).getTime() - new Date(b.dateStr).getTime(),
-      )
-      .map(({ job, dateStr }) => ({
-        id: job.id,
-        company: job.company,
-        position: job.title,
-        date: new Date(dateStr),
-      }));
+      .filter(Boolean)
+      .filter((x: any) => x.date >= new Date())
+      .sort((a: any, b: any) => a.date - b.date);
   }, [jobs]);
 
   if (isLoading) {
@@ -94,186 +101,104 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-   <div className="min-h-screen  px-4 py-6 space-y-6">
+    <div className="min-h-screen px-4 py-6 space-y-6">
 
-    {/* HEADER */}
-    <div className="flex justify-between items-center">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-        Dashboard
-      </h1>
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Dashboard
+        </h1>
 
-      <Link to="/add-job">
-        <Button variant="secondary" size="lg">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Job
-        </Button>
-      </Link>
-    </div>
+        <Link to="/add-job">
+          <Button variant="secondary" size="lg">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Job
+          </Button>
+        </Link>
+      </div>
 
-      {/* Quick Stats */}
+      {/* STATS */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <Card className="p-6 bg-blue-50 dark:bg-gray-900">
-          <Stat
-            icon={
-              <Briefcase className="h-6 w-6 text-blue-600 dark:text-blue-300" />
-            }
-            label="Total Applications"
-            value={stats.total}
-            color="blue"
-          />
+          <Stat icon={<Briefcase />} label="Total" value={stats.total} color="blue" />
         </Card>
+
         <Card className="p-6 bg-amber-50 dark:bg-gray-900">
-          <Stat
-            icon={
-              <Clock className="h-6 w-6 text-amber-600 dark:text-amber-300" />
-            }
-            label="In Progress"
-            value={stats.inProgress}
-            color="amber"
-          />
+          <Stat icon={<Clock />} label="Applied" value={stats.inProgress} color="amber" />
         </Card>
+
         <Card className="p-6 bg-purple-50 dark:bg-gray-900">
-          <Stat
-            icon={
-              <Calendar className="h-6 w-6 text-purple-600 dark:text-purple-300" />
-            }
-            label="Interviews"
-            value={stats.interviewed}
-            color="purple"
-          />
+          <Stat icon={<Calendar />} label="Interviews" value={stats.interviewed} color="purple" />
         </Card>
+
         <Card className="p-6 bg-green-50 dark:bg-gray-900">
-          <Stat
-            icon={
-              <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-300" />
-            }
-            label="Offers"
-            value={stats.offered}
-            color="green"
-          />
+          <Stat icon={<CheckCircle2 />} label="Offers" value={stats.offered} color="green" />
         </Card>
+
         <Card className="p-6 bg-red-50 dark:bg-gray-900">
-          <Stat
-            icon={
-              <XCircle className="h-6 w-6 text-red-600 dark:text-red-300" />
-            }
-            label="Rejections"
-            value={stats.rejections}
-            color="red"
-          />
+          <Stat icon={<XCircle />} label="Rejected" value={stats.rejections} color="red" />
         </Card>
       </div>
 
-      {/* Main Content */}
-      <div className="grid grid-cols-1 gap-2 lg:grid-cols-2 gap-8">
-        {/* Left - Activity & Chart */}
-        <div className="space-y-6">
-          <Card className="p-6 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-              Recent Activity
-            </h2>
-            <div className="space-y-4">
-              {recentActivity.length === 0 ? (
-                <div className="text-gray-500 dark:text-gray-400">
-                  No recent activity.
-                </div>
-              ) : (
-                recentActivity.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg"
-                  >
-                    <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-900">
-                      {activity.type === "application" && <Briefcase />}
-                      {activity.type === "interview" && <Calendar />}
-                      {activity.type === "offer" && <CheckCircle2 />}
-                      {activity.type === "rejection" && <XCircle />}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium text-gray-800 dark:text-white">
-                            {activity.position}
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {activity.company}
-                          </p>
-                        </div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {activity.date.toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </Card>
-        </div>
+      {/* CONTENT */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        {/* Right side — future widgets */}
-        <div className="space-y-6">
-          {/* <Card className="p-6 bg-white dark:bg-gray-900">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Application Status
-              </h2>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600"
-              >
-                View Details <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
-            <div className="h-[200px] flex items-center justify-center">
-              <div className="text-center text-gray-500 dark:text-gray-400">
-                <BarChart3 className="h-12 w-12 mx-auto mb-2 text-gray-400 dark:text-gray-600" />
-                <p>Application status chart will be displayed here</p>
+        {/* RECENT */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+
+          {recentActivity.length === 0 ? (
+            <p className="text-gray-500">No recent activity.</p>
+          ) : (
+            recentActivity.map((a) => (
+              <div key={a.id} className="flex gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900 mb-3">
+                <div>
+                  {a.type === "offer" && <CheckCircle2 />}
+                  {a.type === "rejection" && <XCircle />}
+                  {a.type === "interview" && <Calendar />}
+                  {a.type === "application" && <Briefcase />}
+                </div>
+
+                <div className="flex-1">
+                  <p className="font-medium">{a.position}</p>
+                  <p className="text-sm text-gray-500">{a.company}</p>
+                </div>
+
+                <span className="text-sm text-gray-400">
+                  {a.date.toLocaleDateString()}
+                </span>
               </div>
-            </div>
-          </Card> */}
-          <Card className="p-6 bg-white dark:bg-gray-900">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-              Upcoming Interviews
-            </h2>
-            <div className="space-y-4">
-              {upcomingInterviews.length === 0 ? (
-                <div className="text-gray-500 dark:text-gray-400">
-                  No upcoming interviews.
-                </div>
-              ) : (
-                upcomingInterviews.map((interview) => (
-                  <div
-                    key={interview.id}
-                    className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg"
-                  >
-                    <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-900">
-                      <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-300" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium text-gray-800 dark:text-white">
-                            {interview.position}
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {interview.company}
-                          </p>
-                        </div>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {interview.date.toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </Card>
+            ))
+          )}
+        </Card>
 
-          <TipCard />
-        </div>
+        {/* INTERVIEWS */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">
+            Upcoming Interviews
+          </h2>
+
+          {upcomingInterviews.length === 0 ? (
+            <p className="text-gray-500">No upcoming interviews.</p>
+          ) : (
+            upcomingInterviews.map((i: any) => (
+              <div key={`${i.id}-${i.date}`} className="flex gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900 mb-3">
+                <Calendar className="text-purple-500" />
+
+                <div className="flex-1">
+                  <p className="font-medium">{i.position}</p>
+                  <p className="text-sm text-gray-500">{i.company}</p>
+                </div>
+
+                <span className="text-sm text-gray-400">
+                  {i.date.toLocaleDateString()}
+                </span>
+              </div>
+            ))
+          )}
+        </Card>
+
+        <TipCard />
       </div>
     </div>
   );
