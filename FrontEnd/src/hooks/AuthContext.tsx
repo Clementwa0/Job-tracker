@@ -12,14 +12,19 @@ interface User {
   phone?: string;
   avatarUrl?: string;
   createdAt?: string;
-  notifications?: { jobUpdates?: boolean; interviewReminders?: boolean; weeklySummary?: boolean };
-  security?: { twoFactorEnabled?: boolean };
+  notifications?: {
+    jobUpdates?: boolean;
+    interviewReminders?: boolean;
+    weeklySummary?: boolean;
+  };
+  security?: {
+    twoFactorEnabled?: boolean;
+  };
 }
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  isLoading: boolean;
   isAuthenticated: boolean;
   register: (name: string, email: string, password: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
@@ -43,88 +48,90 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+
 
   useEffect(() => {
-    const initAuth = async () => {
-      const storedToken = apiService.getToken();
+    const storedToken = apiService.getToken();
 
-      if (!storedToken) {
-        setIsLoading(false);
-        return;
-      }
+    if (!storedToken) {
+      setToken(null);
+      setUser(null);
+      return;
+    }
 
+    setToken(storedToken);
+
+    (async () => {
       try {
-        setToken(storedToken);
         const res = await apiService.getCurrentUser();
         setUser(res.data.user);
       } catch (err) {
         apiService.removeToken();
         setToken(null);
         setUser(null);
-      } finally {
-        setIsLoading(false);
       }
-    };
-
-    initAuth();
+    })();
   }, []);
 
-  const register = async (name: string, email: string, password: string) => {
-    const res = await registerApi({ name, email, password });
-    if (!res.success || !res.data) {
-      throw new Error(res.message || "Registration failed");
-    }
-    const { user, token } = res.data;
-    tokenStorage.set(token);
-    setToken(token);
-    setUser(user);
-    toast.success("Account created successfully!");
-  };
-
+  
   const login = async (email: string, password: string) => {
     const res: AuthResponse = await apiService.login({ email, password });
+
     const { user, token } = res.data;
 
     apiService.setToken(token);
+
     setToken(token);
     setUser(user);
+
+    toast.success("Login successful!");
   };
 
+  
+  const register = async (name: string, email: string, password: string) => {
+    const res = await registerApi({ name, email, password });
+
+    if (!res.success || !res.data) {
+      throw new Error(res.message || "Registration failed");
+    }
+
+    const { user, token } = res.data;
+
+    tokenStorage.set(token);
+
+    setToken(token);
+    setUser(user);
+
+    toast.success("Account created successfully!");
+  };
+
+  
   const logout = () => {
     apiService.removeToken();
-    setUser(null);
     setToken(null);
+    setUser(null);
   };
 
+  
   const updateProfile = async (data: Partial<User>) => {
-    if (!user) {
-      throw new Error("User not authenticated");
-    }
-    // Optimistically update local state
+    if (!user) throw new Error("User not authenticated");
+
     setUser((prev) => (prev ? { ...prev, ...data } : null));
+
     toast.success("Profile updated successfully");
   };
 
-  const updatePassword = async (_current: string, _new: string) => {
-    throw new Error("Password update not yet implemented. Use forgot password flow.");
+ 
+  const updatePassword = async () => {
+    throw new Error("Password update not implemented");
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" role="status" aria-label="Loading authentication">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
-    );
-  }
 
   return (
     <AuthContext.Provider
       value={{
         user,
         token,
-        isLoading,
-        isAuthenticated: !!user && !!token,
+        isAuthenticated: !!token, 
         register,
         login,
         logout,
