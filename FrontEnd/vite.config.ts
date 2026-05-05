@@ -12,9 +12,14 @@ export default defineConfig({
     },
   },
 
+  optimizeDeps: {
+    include: ["mammoth", "docx"],
+  },
+
   build: {
     target: "esnext",
     minify: "esbuild",
+    sourcemap: true,
 
     rollupOptions: {
       output: {
@@ -24,7 +29,8 @@ export default defineConfig({
             if (id.includes("recharts")) return "charts";
             if (id.includes("pdfjs-dist")) return "pdf";
             if (id.includes("xlsx")) return "excel";
-            if (id.includes("mammoth")) return "docx";
+            if (id.includes("mammoth")) return "mammoth";
+            if (id.includes("docx")) return "docx";
             return "vendor";
           }
         },
