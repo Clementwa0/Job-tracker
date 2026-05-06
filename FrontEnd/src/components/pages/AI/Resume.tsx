@@ -28,7 +28,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
-import mammoth from "mammoth";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
 
@@ -61,6 +60,8 @@ interface UploadedFile {
 const MIN_CV_LENGTH = 50;
 const MAX_CV_LENGTH = 90000;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+const mammoth = await import("mammoth");
 
 const CVReview: React.FC = () => {
   const [cvText, setCvText] = useState("");
