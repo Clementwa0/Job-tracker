@@ -31,7 +31,7 @@ export default function HeroSection({
             <span className="block text-green-500 mt-2 text-2xl sm:text-3xl md:text-4xl">
               <span ref={typingTextRef}></span>
               <span ref={cursorRef} className="ml-1 inline-block">
-                hello |
+                Start Your Job Hunt with JobTrail
               </span>
             </span>
           </h1>
