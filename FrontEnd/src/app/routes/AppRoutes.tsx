@@ -27,52 +27,60 @@ const Profile = lazy(() => import("@/components/pages/Profile"));
 export function AppRoutes() {
   return (
     <BrowserRouter>
-      <Suspense fallback={<RouteFallback />}>
-        <Routes>
-          {/* ---------------- PUBLIC ROUTES ---------------- */}
-          <Route path="/" element={<Landing />} />
-          <Route
-            path="/login"
-            element={
+      <Routes>
+        {/* ---------------- PUBLIC ROUTES ---------------- */}
+        <Route path="/" element={<Suspense fallback={null}><Landing /></Suspense>} />
+        <Route
+          path="/login"
+          element={
+            <Suspense fallback={<RouteFallback />}>
               <RedirectIfAuthed>
                 <Login />
               </RedirectIfAuthed>
-            }
-          />
-          <Route
-            path="/register"
-            element={
+            </Suspense>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <Suspense fallback={<RouteFallback />}>
               <RedirectIfAuthed>
                 <Register />
               </RedirectIfAuthed>
-            }
-          />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/forgetPassword" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
+            </Suspense>
+          }
+        />
+        <Route path="/terms" element={<Suspense fallback={<RouteFallback />}><Terms /></Suspense>} />
+        <Route
+          path="/forgetPassword"
+          element={<Suspense fallback={<RouteFallback />}><ForgotPassword /></Suspense>}
+        />
+        <Route
+          path="/reset-password/:token"
+          element={<Suspense fallback={<RouteFallback />}><ResetPassword /></Suspense>}
+        />
 
-          {/* ---------------- PROTECTED ROUTES ---------------- */}
-          <Route
-            element={
-              <RequireAuth>
-                <DashboardLayout />
-              </RequireAuth>
-            }
-          >
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/jobs" element={<Jobs />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/add-job" element={<AddJob />} />
-            <Route path="/edit-job/:id" element={<EditJob />} />
-            <Route path="/cvCreator" element={<Resume />} />
-            <Route path="/profile" element={<Profile />} />
-          </Route>
+        {/* ---------------- PROTECTED ROUTES ---------------- */}
+        <Route
+          element={
+            <RequireAuth>
+              <DashboardLayout />
+            </RequireAuth>
+          }
+        >
+          <Route path="/dashboard" element={<Suspense fallback={<RouteFallback />}><Dashboard /></Suspense>} />
+          <Route path="/calendar" element={<Suspense fallback={<RouteFallback />}><Calendar /></Suspense>} />
+          <Route path="/jobs" element={<Suspense fallback={<RouteFallback />}><Jobs /></Suspense>} />
+          <Route path="/analytics" element={<Suspense fallback={<RouteFallback />}><Analytics /></Suspense>} />
+          <Route path="/add-job" element={<Suspense fallback={<RouteFallback />}><AddJob /></Suspense>} />
+          <Route path="/edit-job/:id" element={<Suspense fallback={<RouteFallback />}><EditJob /></Suspense>} />
+          <Route path="/cvCreator" element={<Suspense fallback={<RouteFallback />}><Resume /></Suspense>} />
+          <Route path="/profile" element={<Suspense fallback={<RouteFallback />}><Profile /></Suspense>} />
+        </Route>
 
-          {/* ---------------- 404 PAGE ---------------- */}
-          <Route path="*" element={<div>404 - Page Not Found</div>} />
-        </Routes>
-      </Suspense>
+        {/* ---------------- 404 PAGE ---------------- */}
+        <Route path="*" element={<div>404 - Page Not Found</div>} />
+      </Routes>
     </BrowserRouter>
   );
 }
