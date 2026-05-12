@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { apiService, type AuthResponse } from "@/lib/api";
-import { register as registerApi } from "@/features/auth/api/auth-api";
+import { register as registerApi } from "@/lib/auth/auth-api";
+import { authService } from "@/lib/auth/auth-service";
+import type { AuthResponse } from "@/lib/auth/auth-types";
 import { toast } from "sonner";
 
 export interface User {
@@ -53,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const storedToken = apiService.getToken();
+        const storedToken = authService.getToken();
 
         if (!storedToken) {
           setToken(null);
@@ -62,10 +63,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         setToken(storedToken);
-        const res = await apiService.getCurrentUser();
+        const res = await authService.getCurrentUser();
         setUser(res.data.user);
       } catch {
-        apiService.removeToken();
+        authService.removeToken();
         setToken(null);
         setUser(null);
       } finally {
@@ -77,8 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const login = async (email: string, password: string) => {
-    const res: AuthResponse = await apiService.login({ email, password });
-    apiService.setToken(res.data.token);
+    const res: AuthResponse = await authService.login({ email, password });
+    authService.setToken(res.data.token);
     setToken(res.data.token);
     setUser(res.data.user);
     toast.success("Login successful!");
@@ -91,14 +92,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       throw new Error(res.message || "Registration failed");
     }
 
-    apiService.setToken(res.data.token);
+    authService.setToken(res.data.token);
     setToken(res.data.token);
     setUser(res.data.user);
     toast.success("Account created successfully!");
   };
 
   const logout = () => {
-    apiService.removeToken();
+    authService.removeToken();
     setToken(null);
     setUser(null);
   };
