@@ -1,11 +1,8 @@
-/**
- * @deprecated Use types from '@/types' instead.
- * Re-exports for backward compatibility.
- */
 export type {
-  ApplicationStatus,
+  JobCardProps,
   Interview,
-  Job,
-  ApiResponse,
-  User,
-} from "./index";
+  JobsFilterProps,
+  JobForm,
+  JobApplication,
+} from "./job.types";
+export type { Job } from "./job.types";
