@@ -1,12 +1,8 @@
 import {
-  FileCheck,
   Calendar,
-  LineChart,
   BriefcaseBusiness,
   TrendingUp,
   Bell,
-  LayoutDashboard,
-  Plus,
   FileText,
   BarChart3,
   CheckCircle,

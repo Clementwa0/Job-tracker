@@ -6,8 +6,10 @@ export { default as Analytics } from "@/components/Analytics/Analytics";
 export { default as StatCard } from "@/components/Analytics/StatCard";
 
 // Auth Components
-export { default as LoginForm } from "@/components/auth/LoginForm";
-export { default as RegisterForm } from "@/components/auth/RegisterForm";
+export {  LoginForm } from "@/components/auth/LoginForm";
+export { LoginFeatures } from "@/components/auth/LoginFeatures";
+export {  RegisterForm } from "@/components/auth/RegisterForm";
+export { RegisterFeatures } from "@/components/auth/RegisterFeatures";
 // export { default as SocialLogin } from "@/components/auth/SocialLogin";
 
 // Calendar Components
