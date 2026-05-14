@@ -4,31 +4,16 @@ const { validationResult } = require('express-validator');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
-/* ===========================
-   EMAIL TRANSPORTER
-=========================== */
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // must be false for 587
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
-// Optional: verify SMTP on startup
-transporter.verify((error) => {
-  if (error) {
-    console.error("❌ SMTP ERROR:", error);
-  } else {
-    console.log("✅ SMTP READY");
-  }
-});
+// transporter.verify((error) => {
+//   if (error) {
+//     console.error("❌ SMTP ERROR:", error);
+//   } else {
+//     console.log("✅ SMTP READY");
+//   }
+// });
 
-/* ===========================
-   GENERATE JWT
-=========================== */
+
 const generateToken = (userId) => {
   return jwt.sign(
     { userId },
@@ -120,108 +105,105 @@ const getCurrentUser = async (req, res) => {
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
-  }
-};
+  };
+}
 
-/* ===========================
-   FORGOT PASSWORD
-=========================== */
-const forgotPassword = async (req, res) => {
-  try {
-    const { email } = req.body;
+// const forgotPassword = async (req, res) => {
+//   try {
+//     const { email } = req.body;
 
-    const user = await User.findOne({ email });
-    if (!user)
-      return res.status(404).json({
-        success: false,
-        message: 'No account found with that email.'
-      });
+//     const user = await User.findOne({ email });
+//     if (!user)
+//       return res.status(404).json({
+//         success: false,
+//         message: 'No account found with that email.'
+//       });
 
-    // Create reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
+//     // Create reset token
+//     const resetToken = crypto.randomBytes(32).toString('hex');
 
-    const resetTokenHash = crypto
-      .createHash('sha256')
-      .update(resetToken)
-      .digest('hex');
+//     const resetTokenHash = crypto
+//       .createHash('sha256')
+//       .update(resetToken)
+//       .digest('hex');
 
-    user.resetPasswordToken = resetTokenHash;
-    user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+//     user.resetPasswordToken = resetTokenHash;
+//     user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
 
-    await user.save();
+//     await user.save();
 
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+//     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
-    await transporter.sendMail({
-      from: `"${process.env.APP_NAME || 'YourApp'}" <${process.env.EMAIL_USER}>`,
-      to: user.email,
-      subject: "Reset your password",
-      html: `
-        <h2>Password Reset</h2>
-        <p>Hi ${user.name || 'there'},</p>
-        <p>Click below to reset your password:</p>
-        <a href="${resetUrl}">${resetUrl}</a>
-        <p>This link expires in 15 minutes.</p>
-      `
-    });
+//     await transporter.sendMail({
+//       from: `"${process.env.APP_NAME || 'YourApp'}" <${process.env.EMAIL_USER}>`,
+//       to: user.email,
+//       subject: "Reset your password",
+//       html: `
+//         <h2>Password Reset</h2>
+//         <p>Hi ${user.name || 'there'},</p>
+//         <p>Click below to reset your password:</p>
+//         <a href="${resetUrl}">${resetUrl}</a>
+//         <p>This link expires in 15 minutes.</p>
+//       `
+//     });
 
-    res.json({
-      success: true,
-      message: 'Reset email sent. Check inbox or spam.'
-    });
+//     res.json({
+//       success: true,
+//       message: 'Reset email sent. Check inbox or spam.'
+//     });
 
-  } catch (error) {
-    console.error('Forgot password error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Email sending failed',
-      error: error.message
-    });
-  }
-};
+//   } catch (error) {
+//     console.error('Forgot password error:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Email sending failed',
+//       error: error.message
+//     });
+//   }
+// };
 
 /* ===========================
    RESET PASSWORD
 =========================== */
-const resetPassword = async (req, res) => {
-  try {
-    const resetTokenHash = crypto
-      .createHash('sha256')
-      .update(req.params.token)
-      .digest('hex');
+// const resetPassword = async (req, res) => {
+//   try {
+//     const resetTokenHash = crypto
+//       .createHash('sha256')
+//       .update(req.params.token)
+//       .digest('hex');
 
-    const user = await User.findOne({
-      resetPasswordToken: resetTokenHash,
-      resetPasswordExpire: { $gt: Date.now() }
-    });
+//     const user = await User.findOne({
+//       resetPasswordToken: resetTokenHash,
+//       resetPasswordExpire: { $gt: Date.now() }
+//     });
 
-    if (!user)
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid or expired token'
-      });
+//     if (!user)
+//       return res.status(400).json({
+//         success: false,
+//         message: 'Invalid or expired token'
+//       });
 
-    user.password = req.body.password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
+//     user.password = req.body.password;
+//     user.resetPasswordToken = undefined;
+//     user.resetPasswordExpire = undefined;
 
-    await user.save();
+//     await user.save();
 
-    res.json({
-      success: true,
-      message: 'Password reset successful'
-    });
+//     res.json({
+//       success: true,
+//       message: 'Password reset successful'
+//     });
 
-  } catch (error) {
-    console.error('Reset password error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-};
+//   } catch (error) {
+//     console.error('Reset password error:', error);
+//     res.status(500).json({ success: false, message: 'Server error' });
+//   }
+// };
 
 module.exports = {
   register,
   login,
   getCurrentUser,
-  forgotPassword,
-  resetPassword
+  // forgotPassword,
+  // resetPassword
 };
