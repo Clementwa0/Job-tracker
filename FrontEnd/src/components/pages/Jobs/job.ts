@@ -20,5 +20,5 @@ export interface Job {
     type: string;
     notes: string;
   }[];
-  nextStepsDate?: string; // ✅ optional, so older jobs won’t break
+  nextStepsDate?: string; 
 }

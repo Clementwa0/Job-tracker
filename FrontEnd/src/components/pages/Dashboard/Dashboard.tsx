@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card} from "@/components/ui/card";
 import { useJobs } from "@/hooks/JobContext";
-import { Stat } from "./statsCard";
+import { Stat } from "../../../features/dashboard/statsCard";
 import TipCard from "./TipCard";
 
 const Dashboard: React.FC = () => {

@@ -6,9 +6,10 @@ import {
   Plus,
   BriefcaseBusiness,
   FileText,
-  TrendingUp, Bell 
+  TrendingUp, Bell, 
+  BarChart3
 } from "lucide-react";
-  import { } from "lucide-react";
+import { } from "lucide-react";
 
 
 export const features = [
@@ -59,21 +60,21 @@ export const steps = [
   }
 ];
 
-export const login = [
+export const loginFeatures = [
   {
-    icon: "📋",
+    icon: FileText,
     title: "Application Management",
-    desc: "Keep track of your job applications and statuses",
+    description: "Keep track of your job applications and statuses",
   },
   {
-    icon: "🔔",
+    icon: Bell,
     title: "Job Alerts",
-    desc: "Get notified about new opportunities matching your profile",
+    description: "Get notified about new opportunities matching your profile",
   },
   {
-    icon: "📊",
+    icon: BarChart3,
     title: "Progress Reports",
-    desc: "Visualize your job search journey and milestones",
+    description: "Visualize your job search journey and milestones",
   },
 ];
 

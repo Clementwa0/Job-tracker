@@ -5,8 +5,6 @@ import {
   Dashboard,
   Jobs,
   Layout,
-  Login,
-  Register,
   AddJob,
   Analytics,
   EditJob,
@@ -15,11 +13,14 @@ import {
   ForgotPassword,
   ResetPassword,
   Terms,
+  Login,
+  Register,
 } from "@/components/index";
 import { JobProvider } from "@/hooks/JobContext";
 import { AuthProvider } from "@/hooks/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ThemeProvider } from "./constants/theme-provider";
+
 
 const App = () => {
   return (
