@@ -1,65 +1,64 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Slot } from "radix-ui";
+
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 cursor-pointer disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 [&_svg]:size-4 shrink-0",
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default:
-          "bg-white text-gray-900 border border-gray-200 shadow-sm hover:bg-gray-50 dark:bg-gray-900 dark:text-white dark:border-gray-700",
-
-        primary:
-          "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md hover:from-blue-700 hover:to-purple-700 hover:shadow-lg active:scale-[0.98]",
-
-        secondary:
-          "bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800",
+          "bg-sky-600 text-white hover:from-blue-600 hover:to-indigo-500 shadow-sm hover:shadow-md",
 
         destructive:
-          "bg-red-500 text-white shadow-sm hover:bg-red-600 active:scale-[0.98]",
+          "bg-gradient-to-r from-red-500 to-rose-600 text-white hover:from-red-600 hover:to-rose-600 shadow-sm hover:shadow-md",
 
         outline:
-          "border border-gray-300 dark:border-gray-700 bg-transparent text-gray-700 hover:bg-gray-300 dark:hover:bg-green-700 dark:hover:text-white",
+          "border border-slate-700 bg-slate-950/30 text-slate-100 hover:bg-slate-800/40 hover:border-slate-500",
 
-        ghost:
-          "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800",
+        secondary: "bg-slate-800/60 text-slate-100 hover:bg-slate-700/70",
 
-        link:
-          "text-blue-600 dark:text-blue-400 underline-offset-4 hover:underline",
+        ghost: "hover:bg-slate-800/40 text-slate-200 hover:text-white",
+
+        link: "text-blue-400 hover:text-blue-300 underline-offset-4 hover:underline",
       },
-
       size: {
-        sm: "h-8 px-3 rounded-md",
-        default: "h-10 px-4 rounded-md",
-        lg: "h-11 px-6 rounded-lg",
-        icon: "h-9 w-9 p-0",
+        default: "h-9 px-4 py-2 has-[>svg]:px-3",
+        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
+        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        icon: "size-9",
+        "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm": "size-8",
+        "icon-lg": "size-10",
       },
     },
-
     defaultVariants: {
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 function Button({
   className,
-  variant,
-  size,
+  variant = "default",
+  size = "default",
   asChild = false,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
   }) {
-  const Comp = asChild ? Slot : "button";
+  const Comp = asChild ? Slot.Root : "button";
 
   return (
     <Comp
       data-slot="button"
+      data-variant={variant}
+      data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
