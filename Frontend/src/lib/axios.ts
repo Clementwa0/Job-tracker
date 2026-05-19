@@ -1,2 +1,2 @@
-
-export { api as default } from "./api-client";
+/** @deprecated Prefer `import axiosInstance from "@/lib/axiosInstance"` */
+export { default } from "@/lib/axiosInstance";

@@ -1,3 +1,4 @@
+import type { ApplicationStatus } from "@/types/job";
 import {
   FileCheck,
   Calendar,
@@ -6,10 +7,7 @@ import {
   Plus,
   BriefcaseBusiness,
   FileText,
-  TrendingUp,
-  Bell,
 } from "lucide-react";
-
 
 export const features = [
   {
@@ -56,22 +54,29 @@ export const steps = [
     description:
       "Update the status of your applications as you move through the interview process.",
     isContentLeft: true,
-  }
+  },
+  {
+    id: 4,
+    title: "Get insights",
+    description:
+      "View analytics and reports to optimize your job search strategy.",
+    isContentLeft: false,
+  },
 ];
 
-export const login = [
+export const loginFeatures = [
   {
-    icon: "📋",
+    icon: FileCheck,
     title: "Application Management",
     desc: "Keep track of your job applications and statuses",
   },
   {
-    icon: "🔔",
+    icon: Calendar,
     title: "Job Alerts",
     desc: "Get notified about new opportunities matching your profile",
   },
   {
-    icon: "📊",
+    icon: LineChart,
     title: "Progress Reports",
     desc: "Visualize your job search journey and milestones",
   },
@@ -79,28 +84,26 @@ export const login = [
 
 export const register = [
   {
-    icon: BriefcaseBusiness,
-    title: "Track Applications",
-    desc: "Organize all your job applications in one place",
+    icon: FileCheck,
+    title: "Track Progress",
+    desc: "Visualize your job hunt journey",
   },
   {
     icon: Calendar,
-    title: "Interview Scheduler",
-    desc: "Never miss an interview with smart reminders",
-  },
-  {
-    icon: TrendingUp,
-    title: "Progress Analytics",
-    desc: "Visualize your job search performance",
-  },
-  {
-    icon: Bell,
     title: "Smart Alerts",
-    desc: "Get notified about application updates",
+    desc: "Never miss deadlines or interviews",
+  },
+  {
+    icon: FileText,
+    title: "Centralized",
+    desc: "All your job data in one hub",
+  },
+  {
+    icon: LineChart,
+    title: "Performance Insights",
+    desc: "Understand your job search performance",
   },
 ];
-
-
 
 export const links = [
   { path: "/dashboard", name: "Dashboard", icon: LayoutDashboard },
@@ -108,10 +111,8 @@ export const links = [
   { path: "/add-job", name: "Add Job", icon: Plus },
   { path: "/analytics", name: "Analytics", icon: LineChart },
   { path: "/calendar", name: "Calendar", icon: Calendar },
-  {path: "/cvCreator", name: "AI CV Review", icon: FileText}
-
+  { path: "/cv-review", name: "AI CV Review", icon: FileText },
 ];
-
 
 export const jobTypes = [
   "Full-time",
@@ -129,21 +130,25 @@ export const sources = [
   "AngelList",
   "Other",
 ];
-export const statuses = [
-  "Applied",
-  "Interviewing",
-  "Offer",
-  "Rejected",
-  "Waiting Response",
-  "Ghosted",
+
+export const statuses: { value: ApplicationStatus; label: string }[] = [
+  { label: "Applied", value: "applied" },
+  { label: "Interviewing", value: "interviewing" },
+  { label: "Offer", value: "offer" },
+  { label: "Rejected", value: "rejected" },
+  { label: "Waiting Response", value: "waiting response" },
+  { label: "Ghosted", value: "ghosted" },
+  { label: "Completed", value: "completed" },
 ];
 
 export const statusOptions = [
   { label: "All Statuses", value: "" },
   { label: "Applied", value: "applied" },
-  { label: "Interviewed", value: "interviewed" },
-  { label: "Offered", value: "offered" },
+  { label: "Interviewing", value: "interviewing" },
+  { label: "Offer", value: "offer" },
   { label: "Rejected", value: "rejected" },
+  { label: "Waiting Response", value: "waiting response" },
+  { label: "Ghosted", value: "ghosted" },
   { label: "Completed", value: "completed" },
 ];
 
@@ -169,45 +174,41 @@ export const recentApplications = [
 ];
 
 export const joblabel = [
-  { label: "Title", field: "title" },
-  { label: "Company", field: "company" },
+  { label: "Title", field: "jobTitle" },
+  { label: "Company", field: "companyName" },
   { label: "Location" },
   { label: "Type" },
   { label: "Applied On", field: "applicationDate" },
   { label: "Deadline" },
   { label: "Salary" },
-  { label: "Status", field: "status" },
+  { label: "Status", field: "applicationStatus" },
 ];
 
+export const interviewStages = [
+  { value: "applied", label: "Application Submitted" },
+  { value: "screening", label: "HR Screening" },
+  { value: "phone_interview", label: "Phone Interview" },
+  { value: "technical", label: "Technical Interview" },
+  { value: "onsite", label: "Onsite / In-person Interview" },
+  { value: "final", label: "Final Interview" },
+  { value: "offer", label: "Offer Stage" },
+  { value: "hired", label: "Hired" },
+] as const;
 
-export const tips = [
+export const interviewStatus = [
   {
-    title: "Customize Every Application",
-    description: "Tailor your resume and cover letter for each job. Use keywords from the job description to pass applicant tracking systems (ATS).",
+    value: "scheduled",
+    label: "Scheduled",
+    className: "text-blue-400 bg-blue-500/10 border-blue-500/30",
   },
   {
-    title: "Quantify Your Achievements",
-    description: "Use measurable impact: 'Increased website traffic by 40% in 3 months.' It shows real value.",
+    value: "completed",
+    label: "Completed",
+    className: "text-green-400 bg-green-500/10 border-green-500/30",
   },
   {
-    title: "Follow Up Professionally",
-    description: "If you don’t hear back in 7–10 days, send a polite follow-up email to show continued interest.",
+    value: "cancelled",
+    label: "Cancelled",
+    className: "text-red-400 bg-red-500/10 border-red-500/30",
   },
-  {
-    title: "Use a Clean, Readable Format",
-    description: "Keep your resume simple with clear headings and bullet points. Avoid overly fancy designs.",
-  },
-  {
-    title: "Build and Share a Portfolio",
-    description: "Showcase your projects in a portfolio. It increases trust and helps you stand out.",
-  },
-];
-
-export const motivationalQuotes = [
-  "Every application brings you closer to your dream job! 🚀",
-  "Your next opportunity is just around the corner! 💪",
-  "Persistence is the key to success! Keep going! ✨",
-  "Every 'no' brings you closer to your 'yes'! 🎯",
-  "Your skills are in demand. Keep pushing forward! 🔥",
-];
-
+] as const;

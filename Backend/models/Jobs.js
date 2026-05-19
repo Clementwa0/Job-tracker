@@ -1,12 +1,12 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const jobSchema = new mongoose.Schema({
   jobTitle: String,
   companyName: String,
   location: String,
   jobType: String,
-  applicationDate: Date,
-  applicationDeadline: Date,
+  applicationDate: String,
+  applicationDeadline: String,
   source: String,
   applicationStatus: String,
   contactPerson: String,
@@ -17,19 +17,19 @@ const jobSchema = new mongoose.Schema({
   jobPostingUrl: String,
   salaryRange: String,
   notes: String,
-  nextStepsDate: Date,
+
   interviews: [
-  {
-    date: Date,
-    notes: String,
-    type: String,
-  }
-],
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Interview",
+    },
+  ],
+
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  }
+    ref: "User",
+    required: true,
+  },
 });
 
-module.exports = mongoose.model('Job', jobSchema);
+module.exports = mongoose.model("Job", jobSchema);

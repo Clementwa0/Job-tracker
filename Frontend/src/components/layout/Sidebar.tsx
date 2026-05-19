@@ -32,7 +32,7 @@ const Sidebar = () => {
       {/* Mobile Sidebar Drawer */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-30 bg-gray-900 bg-opacity-30"
+          className="fixed inset-0 z-30 bg-opacity-30"
           onClick={() => setMenuOpen(false)}
         />
       )}
@@ -72,9 +72,9 @@ const Sidebar = () => {
             collapsed ? "w-14" : "w-40"
           )}
         >
-          <div className="p-3 border-b flex text-black items-center justify-between">
+          <div className="p-3 border-b flex text-sky-900 items-center justify-between dark:text-white">
             {!collapsed && (
-              <span className="text-lg font-semibold dark:text-white">JT</span>
+              <span className="text-lg font-bold tracking-tight">JTrail</span>
             )}
             <Button
               aria-label="Toggle Sidebar"

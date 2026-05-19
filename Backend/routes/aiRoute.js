@@ -12,8 +12,8 @@ const corsHeaders = {
 /* ---------------- MODELS ---------------- */
 
 const groqModels = [
-  'llama-3.1-8b-instant',
-  'gemma-7b-it',
+  'groq/compound-mini',
+  'groq/compound-mini'
 ];
 
 /* ---------------- LIMITS ---------------- */

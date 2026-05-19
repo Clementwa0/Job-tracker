@@ -3,7 +3,9 @@ import { ArrowDown, ArrowUp, Edit2, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { joblabel } from "@/constants";
-import type { Job } from "@/types";
+import type { Job } from "@/types/job";
+
+export type { Job };
 
 interface JobsTableProps {
   jobs: Job[];
@@ -14,7 +16,7 @@ interface JobsTableProps {
 
 type SortField = keyof Pick<
   Job,
-  "title" | "company" | "applicationDate" | "status"
+  "jobTitle" | "companyName" | "applicationDate" | "applicationStatus"
 >;
 
 const JobsTable: React.FC<JobsTableProps> = ({
@@ -36,11 +38,11 @@ const JobsTable: React.FC<JobsTableProps> = ({
   };
 
   const sortedJobs = [...jobs].sort((a, b) => {
-    const aValue = a[sortField];
-    const bValue = b[sortField];
+    const aValue = a[sortField] ?? "";
+    const bValue = b[sortField] ?? "";
     return sortDirection === "asc"
-      ? aValue.localeCompare(bValue)
-      : bValue.localeCompare(aValue);
+      ? String(aValue).localeCompare(String(bValue))
+      : String(bValue).localeCompare(String(aValue));
   });
 
   const SortIcon = ({ field }: { field: SortField }) => {
@@ -50,6 +52,19 @@ const JobsTable: React.FC<JobsTableProps> = ({
     ) : (
       <ArrowDown className="h-4 w-4" />
     );
+  };
+
+  const statusVariant = (status: string) => {
+    switch (status) {
+      case "applied":
+        return "default" as const;
+      case "interviewing":
+        return "secondary" as const;
+      case "rejected":
+        return "destructive" as const;
+      default:
+        return "outline" as const;
+    }
   };
 
   if (jobs.length === 0) {
@@ -66,7 +81,7 @@ const JobsTable: React.FC<JobsTableProps> = ({
         <table className="w-full">
           <thead className="bg-muted/50">
             <tr className="border-b border-border dark:bg-gray-900">
-             {joblabel.map(({ label, field }) => (
+              {joblabel.map(({ label, field }) => (
                 <th
                   key={label}
                   className="px-4 py-3 text-sm font-medium cursor-pointer"
@@ -91,8 +106,8 @@ const JobsTable: React.FC<JobsTableProps> = ({
                 className="group hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
                 onClick={() => onSelect?.(job)}
               >
-                <td className="px-4 py-3 text-sm">{job.title}</td>
-                <td className="px-4 py-3 text-sm">{job.company}</td>
+                <td className="px-4 py-3 text-sm">{job.jobTitle}</td>
+                <td className="px-4 py-3 text-sm">{job.companyName}</td>
                 <td className="px-4 py-3 text-sm">{job.location}</td>
                 <td className="px-4 py-3 text-sm">{job.jobType}</td>
                 <td className="px-4 py-3 text-sm">{job.applicationDate}</td>
@@ -101,18 +116,8 @@ const JobsTable: React.FC<JobsTableProps> = ({
                   {job.salaryRange ? `KES ${job.salaryRange}` : "—"}
                 </td>
                 <td className="px-4 py-3 text-sm">
-                  <Badge
-                    variant={
-                      job.status === "applied"
-                        ? "default"
-                        : job.status === "interview"
-                        ? "secondary"
-                        : job.status === "rejected"
-                        ? "destructive"
-                        : "outline"
-                    }
-                  >
-                    {job.status}
+                  <Badge variant={statusVariant(job.applicationStatus)}>
+                    {job.applicationStatus}
                   </Badge>
                 </td>
                 <td className="px-4 py-3 text-right">

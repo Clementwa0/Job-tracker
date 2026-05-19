@@ -25,7 +25,6 @@ Extract the following fields from the job description:
 - contactEmail
 - contactPhone
 - notes (summary of responsibilities)
-- nextStepsDate (if mentioned)
 
 Respond ONLY with a valid JSON object and NO explanation or formatting. Here's an example of the expected format:
 
@@ -41,7 +40,6 @@ Respond ONLY with a valid JSON object and NO explanation or formatting. Here's a
   "contactEmail": "jane@acme.com",
   "contactPhone": "+254700000000",
   "notes": "Responsible for frontend development using React.",
-  "nextStepsDate": "2025-08-07"
 }
 
 Now extract the fields from this job description:
@@ -51,7 +49,7 @@ Now extract the fields from this job description:
   try {
     const completion = await groq.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
-      model: 'compound-beta-mini',
+      model: 'groq/compound-mini',
       temperature: 0.3,
       max_tokens: 1024,
     });
