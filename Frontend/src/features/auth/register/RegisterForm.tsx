@@ -1,16 +1,16 @@
-import { useState, useRef } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Loader2, Eye, EyeOff } from "lucide-react";
-import { registerSchema } from "@/lib/validation/auth.schema";
-import type { RegisterFormData } from "@/lib/validation/auth.types";
-import { usePasswordStrength } from "@/hooks/usePasswordStrength";
-import { useRegisterAnimation } from "@/hooks/useRegisterAnimation";
+import { useState, useRef } from "react";
+import { useAuth } from "@/hooks/AuthContext";
+import { usePasswordStrength } from "./usePasswordStrength";
+import { useRegisterAnimation } from "./useRegisterAnimation";
+import { registerSchema, type RegisterFormData } from "@/lib/validation";
+
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,10 +19,9 @@ export function RegisterForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { register: authRegister } = useAuth();
   const navigate = useNavigate();
+  
   const formRef = useRef<HTMLDivElement>(null);
-  const leftPanelRef = useRef<HTMLDivElement>(null);
-  const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
-
+  
   const {
     register,
     handleSubmit,
@@ -42,7 +41,7 @@ export function RegisterForm() {
   } = usePasswordStrength(passwordValue);
 
   // Initialize animations
-  useRegisterAnimation(leftPanelRef, formRef, featureRefs);
+  useRegisterAnimation(isLoading, !error && !isLoading);
 
   const onSubmit: SubmitHandler<RegisterFormData> = async (data) => {
     setIsLoading(true);
@@ -58,12 +57,8 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-blue-50 relative overflow-hidden">
-      {/* Animated background shapes */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-sky-400/20 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl pointer-events-none animate-pulse"></div>
-      <div className="absolute top-40 left-40 w-72 h-72 bg-teal-400/20 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl pointer-events-none animate-pulse delay-1000"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400/20 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl pointer-events-none animate-pulse delay-2000"></div>
-
+    <div className="flex-1 flex items-center justify-center p-4 lg:p-6 relative overflow-hidden">
+      
       <div
         ref={formRef}
         className="w-full max-w-sm bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl p-6 shadow-xl 
@@ -247,3 +242,4 @@ export function RegisterForm() {
     </div>
   );
 }
+

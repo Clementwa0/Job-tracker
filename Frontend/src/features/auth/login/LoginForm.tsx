@@ -1,25 +1,26 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "sonner";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+
 import { useAuth } from "@/hooks/AuthContext";
+import { loginSchema, type LoginFormData } from "@/lib/validation";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Loader2, Eye, EyeOff } from "lucide-react";
-import { toast } from "sonner";
-import gsap from "gsap";
-import { loginSchema } from "@/lib/validation/auth.schema";
-import type { LoginFormData } from "@/lib/validation/auth.types";
 import { socialProviders } from "./SocialLogin";
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  const formRef = useRef<HTMLDivElement>(null);
+
   const { login: authLogin } = useAuth();
   const navigate = useNavigate();
-  const formRef = useRef<HTMLDivElement>(null);
 
   const {
     register,
@@ -35,38 +36,29 @@ export function LoginForm() {
 
     try {
       await authLogin(data.email, data.password);
-      navigate("/dashboard");
       toast.success("Welcome Back!");
-    } catch (error) {
+      navigate("/dashboard");
+    } catch (err) {
       toast.error("Invalid Email or Password", {
-        description: "Check Your Email or Password",
+        description: "Check your credentials",
       });
-      setError(error instanceof Error ? error.message : "Login failed");
+
+      setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (formRef.current) {
-      gsap.fromTo(
-        formRef.current,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.7, delay: 0.2, ease: "power3.out" },
-      );
-    }
-  }, []);
-
   return (
-    <div className="flex-1 flex items-center justify-center p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-green-50 relative overflow-hidden">
+    <div className="flex-1 flex items-center justify-center p-4 lg:p-6  relative overflow-hidden">
       {/* Animated background shapes */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-green-400/20 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl pointer-events-none animate-pulse"></div>
+      {/* <div className="absolute top-0 left-0 w-72 h-72 bg-green-400/20 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl pointer-events-none animate-pulse"></div>
       <div className="absolute top-40 left-40 w-72 h-72 bg-teal-400/20 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl pointer-events-none animate-pulse delay-1000"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-400/20 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl pointer-events-none animate-pulse delay-2000"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-400/20 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl pointer-events-none animate-pulse delay-2000"></div> */}
 
       <div
         ref={formRef}
-        className="w-full max-w-sm bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl p-6 shadow-xl 
+        className="w-full max-w-sm  backdrop-blur-md border border-gray-200 rounded-2xl p-6 shadow-xl 
           hover:shadow-2xl transition-shadow duration-300 relative z-10"
       >
         <div className="text-center mb-5">

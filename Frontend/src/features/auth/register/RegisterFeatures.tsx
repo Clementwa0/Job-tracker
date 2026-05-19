@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
+import { register as registerConstants } from "@/constants";
 import gsap from "gsap";
-import { loginFeatures } from "@/constants/features";
 
-export function LoginFeatures() {
+export function RegisterFeatures() {
   const leftPanelRef = useRef<HTMLDivElement>(null);
   const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -12,12 +12,12 @@ export function LoginFeatures() {
         gsap.fromTo(
           leftPanelRef.current.querySelector("h1"),
           { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+          { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }
         );
         gsap.fromTo(
           leftPanelRef.current.querySelector("p"),
           { opacity: 0, y: 15 },
-          { opacity: 1, y: 0, duration: 0.5, delay: 0.15, ease: "power3.out" },
+          { opacity: 1, y: 0, duration: 0.5, delay: 0.15, ease: "power3.out" }
         );
       }
 
@@ -32,7 +32,7 @@ export function LoginFeatures() {
               duration: 0.5,
               delay: 0.3 + index * 0.08,
               ease: "power3.out",
-            },
+            }
           );
         }
       });
@@ -44,7 +44,7 @@ export function LoginFeatures() {
   return (
     <div
       ref={leftPanelRef}
-      className="hidden lg:flex lg:w-[42%] flex-col justify-between bg-gradient-to-br from-green-600 to-teal-700 p-8 xl:p-10"
+      className="hidden lg:flex lg:w-[42%] flex-col justify-between bg-gradient-to-br from-teal-700 to-sky-600 p-8 xl:p-10"
     >
       <div className="space-y-6">
         <div>
@@ -58,15 +58,14 @@ export function LoginFeatures() {
 
         <div className="space-y-1">
           <h2 className="text-xl xl:text-2xl font-semibold text-white leading-tight">
-            Welcome Back to
+            Track Applications
             <br />
-            Your Job Search Hub
+            Stay Organized, Get Hired
           </h2>
         </div>
 
         <div className="grid gap-3 pt-2">
-          
-          {loginFeatures.map((feature, index) => {
+          {registerConstants.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <div
@@ -78,15 +77,15 @@ export function LoginFeatures() {
                   border border-white/20 hover:bg-white/20 transition-all duration-300
                   hover:shadow-lg hover:scale-[1.02] cursor-default"
               >
-                <div className="flex-shrink-0 w-9 h-9 rounded-md bg-white/20 flex items-center justify-center">
-                  <Icon className="text-white text-lg" aria-hidden="true" />
+                <div className="flex-shrink-0 w-9 h-9 rounded-md bg-white/20 flex items-center justify-center text-lg">
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
                 <div className="min-w-0">
                   <h3 className="font-medium text-white text-sm">
                     {feature.title}
                   </h3>
                   <p className="text-xs text-white/70 truncate">
-                    {feature.description}
+                    {feature.desc}
                   </p>
                 </div>
               </div>
