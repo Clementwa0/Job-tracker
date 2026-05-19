@@ -1,79 +1,59 @@
-// AI Components
-export { default as Resume } from "@/components/AI/Resume";
+// Landing Page
+export {default as HeroSection} from '@/features/home/HeroSection';
+export {default as TypingText} from '@/features/home/TypingText';
+export {default as DashboardPreview} from '@/features/home/DashboardPreview';
+export {default as CTASection} from '@/features/home/CTASection';
+export {default as FeaturesSection} from '@/features/home/FeaturesSection';
+export {default as Footer} from '@/features/home/Footer';
+export { default as Home } from '@/pages/Home/Home';
+// Auth
+export { LoginForm } from '@/features/auth/login/LoginForm';
+export { RegisterForm } from '@/features/auth/register/RegisterForm';
+export { LoginFeatures } from '@/features/auth/login/LoginFeatures';
+export { RegisterFeatures } from '@/features/auth/register/RegisterFeatures';
 
-// Analytics Components
-export { default as Analytics } from "@/components/Analytics/Analytics";
-export { default as StatCard } from "@/components/Analytics/StatCard";
+export { default as ForgotPassword } from '@/features/auth/forgetPassword';
+export { default as ResetPassword } from '@/features/auth/resetPassword';
+export { default as Login } from '@/pages/Auth/Login';
+export { default as Register } from '@/pages/Auth/Register';
 
-// Auth Components
-export {  LoginForm } from "@/components/auth/LoginForm";
-export { LoginFeatures } from "@/components/auth/LoginFeatures";
-export {  RegisterForm } from "@/components/auth/RegisterForm";
-export { RegisterFeatures } from "@/components/auth/RegisterFeatures";
-// export { default as SocialLogin } from "@/components/auth/SocialLogin";
+// Layout & Navigation
+export { default as Layout } from './layout/Layout';
+export { default as Header } from './layout/Header';
+export { ProtectedRoute } from './ProtectedRoute';
 
-// Calendar Components
-export { default as JobCalendar } from "@/components/calendar/JobCalendar";
-export { default as CalendarModal } from "@/components/calendar/CalendarModal";
+// Pages
+export { default as Terms } from './pages/Terms'
+export { default as Calendar } from './pages/Calendar/Calendar';
+export { default as Analytics } from './pages/Analytics/Analytics';
+export { default as Profile } from '@/components/pages/Profile';
 
-// Common Components
-// export { default as ConfirmDialog } from "@/components/common/ConfirmDialog";
-// export { default as EmptyState } from "@/components/common/EmptyState";
-// export { default as LoadingSpinner } from "@/components/common/LoadingSpinner";
-// export { default as PageHeader } from "@/components/common/PageHeader";
-// export { default as SearchInput } from "@/components/common/SearchInput";
-// export { default as StatusBadge } from "@/components/common/StatusBadge";
+// Jobs
+export {default as ContactSection } from '@/features/jobs/ContactSection';
+export {default as InterviewSection} from '@/features/interviews/InterviewSection';
+export {default as JobDescriptionAnalyzer} from '@/features/jobs/JobDescriptionAnalyzer';
+export {default as JobDetailsSection} from '@/features/jobs/JobDetailsSection';
+export {default as NotesSection} from '@/features/jobs/NotesSection';
 
+export { default as Jobs } from '@/components/pages/Jobs/Jobs';
+export { default as AddJob } from '@/pages/jobs/AddJob';
+export { default as EditJob } from '@/pages/jobs/EditJob';
+
+export { default as Interviews } from '@/pages/Interviews/Interviews'
 // Dashboard Components
-export { default as ActivityChart } from "@/components/dashboard/ActivityChart";
-export { default as DashboardStats } from "@/components/dashboard/DashboardStats";
-export { default as RecentApplications } from "@/components/dashboard/RecentApplications";
-export { default as UpcomingInterviews } from "@/components/dashboard/UpcomingInterviews";
-export { default as TipCard } from "@/components/dashboard/TipCard";
-//export { default as StatsCard } from "@/components/dashboard/statsCard";
+export { default as DashboardStats } from '@/features/dashboard/components/DashboardStats';
+export { default as RecentApplications } from '@/features/dashboard/components/RecentApplications';
+export { default as UpcomingInterviews } from '@/features/dashboard/components/UpcomingInterviews';
+export { default as TipCard } from '@/features/dashboard/components/TipCard';
+export { default as StatCard } from '@/features/dashboard/components/StatCard';
+export { default as DashboardMood } from '@/features/dashboard/components/DashboardMood';
+export { default as Dashboard} from '@/pages/Dashboard/Dashboard';
 
-// Form Components
-// export { default as FormInput } from "@/components/forms/FormInput";
-// export { default as FormSelect } from "@/components/forms/FormSelect";
-// export { default as FormTextarea } from "@/components/forms/FormTextarea";
-// export { default as PasswordInput } from "@/components/forms/PasswordInput";
-
-// Job Components
-export { default as JobCard } from "@/components/jobs/JobCard";
-export { default as JobActions } from "@/components/jobs/JobActions";
-export { default as JobFilters } from "@/components/jobs/JobFilters";
-
-// Job Add Components
-export { default as DocumentsNotesCard } from "@/components/jobs/addJob/DocumentsNotesCard";
-export { default as FileUpload } from "@/components/jobs/addJob/FileUpload";
-export { default as InterviewSection } from "@/components/jobs/addJob/InterviewSection";
-export { default as JobDescriptionAnalyzer } from "@/components/jobs/addJob/JobDescriptionAnalyzer";
-export { default as JobDetailsCard } from "@/components/jobs/addJob/JobDetailsCard";
-
-// Job Edit Components
-export { default as ContactSection } from "@/components/jobs/editJob/ContactSection";
-export { default as DatesSection } from "@/components/jobs/editJob/DatesSection";
-export { default as JobInformationSection } from "@/components/jobs/editJob/JobInformationSection";
-export { default as NotesSection } from "@/components/jobs/editJob/NotesSection";
-export { default as SectionCard } from "@/components/jobs/editJob/SectionCard";
-
-// Job Modal Components
-
-export { default as JobModal } from "@/components/jobs/job-model/JobModal";
-
-// Jobs Table Components
-export { default as JobsTable } from "@/components/jobs/jobs-table/JobsTable";
-
-// Landing Components
-export { default as DashboardPreview } from "@/components/landing/DashboardPreview";
-export { default as FeaturesSection } from "@/components/landing/FeaturesSection";
-export { default as FooterSection } from "@/components/landing/FooterSection";
-export { default as HeroSection } from "@/components/landing/HeroSection";
-export { default as Landing } from "@/components/landing/Landing";
-export { default as StepsSection } from "@/components/landing/StepsSection";
-
-// Layout Components
-export { default as Header } from "@/components/layout/Header";
-export { default as Layout } from "@/components/layout/Layout";
-export { default as Sidebar } from "@/components/layout/Sidebar";
-
+// cv-review
+export {default as ActionsPanel } from '@/features/cvReview/ActionsPanel'
+export {default as FeedbackTabs} from '@/features/cvReview/FeedbackTabs'
+export {default as QuickTips } from '@/features/cvReview/QuickTips';
+export {default as ScoreOverview} from '@/features/cvReview/ScoreOverview';
+export {default as UploadSection} from '@/features/cvReview/UploadSection';
+export {default as RecommendedJobs} from '@/features/cvReview/RecommendedJobs';
+export {default as CvReview} from '@/pages/cvreview/cvReview';
