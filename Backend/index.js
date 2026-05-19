@@ -15,11 +15,11 @@ const port = process.env.PORT;
 connectDB();
 
 // Middleware
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL,
-    credentials: true, 
+app.use(cors({
+  origin: process.env.CLIENT_URL,
+  credentials: true,
 }));
+
 app.use(express.json({ limit: '20mb' })); 
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
@@ -30,7 +30,7 @@ app.use('/api/jobs', jobRoute);
 app.use("/api/cv", reviewRouter);
 app.use("/api/analyze-job", analyzeJobRoute);
 app.use("/api/tip", tip)
-
+app.use("/api/interviews", require("./routes/interviewRoutes"));
 app.get('/', (req, res) => {
   res.json({
     message: 'Job Tracker API is running',
