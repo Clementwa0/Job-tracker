@@ -1,4 +1,5 @@
 // Landing Page
+export {default as Nav} from '@/features/home/Nav';
 export {default as HeroSection} from '@/features/home/HeroSection';
 export {default as TypingText} from '@/features/home/TypingText';
 export {default as DashboardPreview} from '@/features/home/DashboardPreview';

@@ -1,69 +1,96 @@
-const express = require('express');
-const cors = require('cors');
-const path = require("path");
-require('dotenv').config();
-const connectDB = require('./config/database');
-const jobRoute = require('./routes/jobRoute');
-const auth = require('./routes/auth')
-const reviewRouter = require('./routes/aiRoute')
-const analyzeJobRoute = require("./routes/analyze-job");
-const tip = require("./routes/tip")
-const app = express();
-const port = process.env.PORT;
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
 
-// Connect to database
+const connectDB = require("./config/database");
+
+const jobRoute = require("./routes/jobRoute");
+const authRoute = require("./routes/auth");
+
+const cvRoute = require("./routes/ai/cv.route");
+const analyzeJobRoute = require("./routes/ai/jobs.route");
+const tipRoute = require("./routes/ai/tips.route");
+
+const interviewRoutes = require("./routes/interviewRoutes");
+
+const app = express();
+const port = process.env.PORT || 5000;
+
+/* ---------------- DATABASE ---------------- */
 connectDB();
 
-// Middleware
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true,
-}));
+/* ---------------- MIDDLEWARE ---------------- */
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
 
-app.use(express.json({ limit: '20mb' })); 
-app.use(express.urlencoded({ extended: true, limit: '20mb' }));
+app.use(express.json({ limit: "20mb" }));
+app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 
-// Routes
+/* ---------------- ROUTES ---------------- */
 
-app.use('/api/auth', auth);
-app.use('/api/jobs', jobRoute);
-app.use("/api/cv", reviewRouter);
+// Auth
+app.use("/api/auth", authRoute);
+
+// Jobs (CRUD)
+app.use("/api/jobs", jobRoute);
+
+// Interviews
+app.use("/api/interviews", interviewRoutes);
+
+// AI MODULES (clean namespace grouping)
+app.use("/api/cv", cvRoute);
 app.use("/api/analyze-job", analyzeJobRoute);
-app.use("/api/tip", tip)
-app.use("/api/interviews", require("./routes/interviewRoutes"));
-app.get('/', (req, res) => {
+app.use("/api/tip", tipRoute);
+
+/* ---------------- HEALTH CHECK ---------------- */
+app.get("/", (req, res) => {
   res.json({
-    message: 'Job Tracker API is running',
+    message: "Job Tracker API is running",
+    version: "1.0.0",
     endpoints: {
       auth: {
-        register: 'POST /api/auth/register',
-        login: 'POST /api/auth/login',
-        getCurrentUser: 'GET /api/auth/me'
-      }
-    }
+        register: "POST /api/auth/register",
+        login: "POST /api/auth/login",
+        me: "GET /api/auth/me",
+      },
+      jobs: "GET /api/jobs",
+      interviews: "GET /api/interviews",
+      ai: {
+        cv: "POST /api/cv",
+        analyzeJob: "POST /api/analyze-job",
+        tip: "GET /api/tip",
+      },
+    },
   });
 });
 
-
-// Error handling middleware
+/* ---------------- ERROR HANDLING ---------------- */
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error("ERROR:", err);
+
   res.status(500).json({
     success: false,
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    message: "Something went wrong!",
+    error:
+      process.env.NODE_ENV === "development"
+        ? err.message
+        : "Internal server error",
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
+/* ---------------- 404 HANDLER ---------------- */
+app.use("*", (req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found'
+    message: "Route not found",
   });
 });
 
+/* ---------------- START SERVER ---------------- */
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-  console.log(`API Documentation: http://localhost:${port}`);
+  console.log(`Server running on http://localhost:${port}`);
 });

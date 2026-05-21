@@ -4,8 +4,7 @@ const {
   register,
   login,
   getCurrentUser,
-  // forgotPassword,
-  // resetPassword
+
 } = require('../controllers/authController');
 const {
   registerValidation,

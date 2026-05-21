@@ -113,6 +113,11 @@ export const links = [
   { path: "/calendar", name: "Calendar", icon: Calendar },
   { path: "/cv-review", name: "AI CV Review", icon: FileText },
 ];
+export const navItems = [
+    { id: "features", label: "Features" },
+    { id: "how", label: "How it works" },
+    { id: "pricing", label: "Contact" },
+  ];
 
 export const jobTypes = [
   "Full-time",
@@ -154,18 +159,21 @@ export const statusOptions = [
 
 export const recentApplications = [
   {
+    id: 1,
     company: "Google",
     position: "Frontend Developer",
     status: "interview",
     date: "2 days ago",
   },
   {
+    id: 2,
     company: "Microsoft",
     position: "Product Manager",
     status: "applied",
     date: "4 days ago",
   },
   {
+    id: 3,
     company: "UshauriTech",
     position: "UX Designer",
     status: "offer",

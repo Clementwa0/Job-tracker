@@ -27,16 +27,16 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import type { DateRange } from "react-day-picker";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface Props {
   formData: Job;
   setFormData: React.Dispatch<React.SetStateAction<Job>>;
-  errors?: Record<string, string>
+  errors?: Record<string, string>;
 }
 
-const JobDetailsSection = ({ formData, setFormData,errors = {} }: Props) => {
+const JobDetailsSection = ({ formData, setFormData, errors = {} }: Props) => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: formData.applicationDate
       ? new Date(formData.applicationDate)
@@ -46,227 +46,280 @@ const JobDetailsSection = ({ formData, setFormData,errors = {} }: Props) => {
       : undefined,
   });
 
-  // Safe SSR layout initialization for dual-pane calendar views
-  const [monthsToShow, setMonthsToShow] = useState<number>(2);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setMonthsToShow(window.innerWidth < 768 ? 1 : 2);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const handleStatusChange = (value: ApplicationStatus) => {
-    setFormData((prev) => ({
-      ...prev,
-      applicationStatus: value,
-    }));
+    setFormData((prev) => ({ ...prev, applicationStatus: value }));
   };
 
   const handleDateChange = (range: DateRange | undefined) => {
     setDateRange(range);
-
     setFormData((prev) => ({
       ...prev,
       applicationDate: range?.from ? range.from.toISOString() : "",
       applicationDeadline: range?.to ? range.to.toISOString() : "",
     }));
+
+    // Close calendar when both dates are selected
+    if (range?.from && range?.to) {
+      setIsCalendarOpen(false);
+    }
   };
 
-  return (
-    <div className="space-y-4 p-5 border rounded-xl text-card-foreground shadow-sm">
-      <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground border-b pb-2">
-        <Briefcase className="w-4 h-4 text-primary" />
-        Job Details
-      </h2>
+  const fieldWrapper = "space-y-1.5";
+  const iconBase =
+    "w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground";
+  const inputBase =
+    "pl-9 h-10 rounded-xl border-muted focus-visible:ring-2 focus-visible:ring-primary/30 transition";
 
-      {/* Main Container Grid: Handles 1 col on mobile, 2 cols on tablet/desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-        
-        {/* Job Title */}
-        <div className="space-y-1.5">
-          <Label htmlFor="jobTitle" className="text-sm font-medium">
-            Job Title *
+  const errorText = (key: string) =>
+    errors[key] ? (
+      <p className="text-xs text-red-500 mt-1">{errors[key]}</p>
+    ) : null;
+
+  const isRequired = (field: string) =>
+    [
+      "jobTitle",
+      "companyName",
+      "location",
+      "jobType",
+      "applicationDate",
+    ].includes(field);
+
+  return (
+    <div className="rounded-2xl border bg-card shadow-sm p-6 space-y-5">
+      <div className="flex items-center gap-2 border-b pb-3">
+        <div className="p-2 rounded-xl bg-primary/10">
+          <Briefcase className="w-4 h-4 text-primary" />
+        </div>
+        <h2 className="text-lg font-semibold">Job Details</h2>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Job Title - Required */}
+        <div className={fieldWrapper}>
+          <Label htmlFor="jobTitle">
+            Job Title{" "}
+            {isRequired("jobTitle") && <span className="text-red-500">*</span>}
           </Label>
           <div className="relative">
-            <Briefcase className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Briefcase className={iconBase} />
             <Input
               id="jobTitle"
-              className={errors.jobTitle ? "border-destructive pl-9" : ""}
               value={formData.jobTitle || ""}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, jobTitle: e.target.value }))
+                setFormData((p) => ({ ...p, jobTitle: e.target.value }))
               }
-              placeholder="e.g. Full Stack Developer"
+              placeholder="Full Stack Developer"
+              className={cn(
+                inputBase,
+                errors.jobTitle && "border-red-500 focus-visible:ring-red-500",
+              )}
             />
           </div>
+          {errorText("jobTitle")}
         </div>
 
-        {/* Company Name */}
-        <div className="space-y-1.5">
-          <Label htmlFor="companyName" className="text-sm font-medium">
-            Company Name
+        {/* Company Name - Required */}
+        <div className={fieldWrapper}>
+          <Label>
+            Company Name{" "}
+            {isRequired("companyName") && (
+              <span className="text-red-500">*</span>
+            )}
           </Label>
           <div className="relative">
-            <Building2 className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Building2 className={iconBase} />
             <Input
-              id="companyName"
-              className={errors.companyName ? "border-destructive" : ""}
               value={formData.companyName || ""}
               onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  companyName: e.target.value,
-                }))
+                setFormData((p) => ({ ...p, companyName: e.target.value }))
               }
-              placeholder="e.g. Safaricom"
+              placeholder="Safaricom"
+              className={cn(
+                inputBase,
+                errors.companyName &&
+                  "border-red-500 focus-visible:ring-red-500",
+              )}
             />
           </div>
+          {errorText("companyName")}
         </div>
 
-        {/* Location */}
-        <div className="space-y-1.5">
-          <Label htmlFor="location" className="text-sm font-medium">
-            Location
+        {/* Location - Required */}
+        <div className={fieldWrapper}>
+          <Label>
+            Location{" "}
+            {isRequired("location") && <span className="text-red-500">*</span>}
           </Label>
           <div className="relative">
-            <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <MapPin className={iconBase} />
             <Input
-              id="location"
-              className="pl-9"
               value={formData.location || ""}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, location: e.target.value }))
+                setFormData((p) => ({ ...p, location: e.target.value }))
               }
-              placeholder="Remote, Nairobi, etc."
+              placeholder="Remote, Nairobi"
+              className={cn(
+                inputBase,
+                errors.location && "border-red-500 focus-visible:ring-red-500",
+              )}
             />
           </div>
+          {errorText("location")}
         </div>
 
-        {/* Salary Range */}
-        <div className="space-y-1.5">
-          <Label htmlFor="salaryRange" className="text-sm font-medium">
-            Salary Range
-          </Label>
+        {/* Salary Range - Optional */}
+        <div className={fieldWrapper}>
+          <Label>Salary Range</Label>
           <div className="relative">
-            <DollarSign className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <DollarSign className={iconBase} />
             <Input
-              id="salaryRange"
-              className="pl-9"
               value={formData.salaryRange || ""}
               onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  salaryRange: e.target.value,
-                }))
+                setFormData((p) => ({ ...p, salaryRange: e.target.value }))
               }
-              placeholder="e.g. Kshs 80k - Kshs 110k"
+              placeholder="Ksh 80k - 120k"
+              className={cn(inputBase, errors.salaryRange && "border-red-500")}
             />
           </div>
+          {errorText("salaryRange")}
         </div>
 
-        {/* Job Type */}
-        <div className="space-y-1.5">
-          <Label htmlFor="jobType" className="text-sm font-medium">
-            Job Type
+        {/* Job Type - Required */}
+        <div className={fieldWrapper}>
+          <Label>
+            Job Type{" "}
+            {isRequired("jobType") && <span className="text-red-500">*</span>}
           </Label>
           <div className="relative">
-            <Layers className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none z-10" />
+            <Layers className={iconBase} />
             <Select
               value={formData.jobType || ""}
-              onValueChange={(value) =>
-                setFormData((prev) => ({ ...prev, jobType: value }))
-              }
+              onValueChange={(v) => setFormData((p) => ({ ...p, jobType: v }))}
             >
               <SelectTrigger
-                id="jobType"
-                className="pl-9 w-full "
+                className={cn(
+                  "pl-9 h-10 rounded-xl",
+                  errors.jobType && "border-red-500 focus-visible:ring-red-500",
+                )}
               >
-                <SelectValue placeholder="Select job type" />
+                <SelectValue placeholder="Select type" />
               </SelectTrigger>
-              <SelectContent className="bg-sky-800">
-                {jobTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
+              <SelectContent>
+                {jobTypes.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+          {errorText("jobType")}
         </div>
 
-        {/* Application Status */}
-        <div className="space-y-1.5">
-          <Label htmlFor="applicationStatus" className="text-sm font-medium">
-            Application Status
-          </Label>
+        {/* Status - Optional */}
+        <div className={fieldWrapper}>
+          <Label>Status</Label>
           <div className="relative">
-            <CheckCircle2 className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none z-10" />
+            <CheckCircle2 className={iconBase} />
             <Select
               value={formData.applicationStatus || "applied"}
               onValueChange={handleStatusChange}
             >
               <SelectTrigger
-                id="applicationStatus"
-                className="pl-9 w-full bg-background"
+                className={cn(
+                  "pl-9 h-10 rounded-xl",
+                  errors.applicationStatus && "border-red-500",
+                )}
               >
-                <SelectValue placeholder="Applied" />
+                <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-sky-900">
-                {statuses.map((status) => (
-                  <SelectItem key={status.value} value={status.value}>
-                    {status.label}
+              <SelectContent>
+                {statuses.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+          {errorText("applicationStatus")}
         </div>
 
-        {/* Application Period Timeline - Takes up full width on desktop for visual balance */}
-        <div className="space-y-1.5 md:col-span-2">
-          <Label className="text-sm font-medium">Application Timeline</Label>
-          <Popover>
+        {/* Application Timeline - Required with 2 months always visible */}
+        <div className="md:col-span-2 space-y-1.5">
+          <Label>
+            Application Timeline <span className="text-red-500">*</span>
+          </Label>
+
+          <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 className={cn(
-                  "w-full justify-start text-left font-normal h-9 px-3 text-sm border-input",
-                  !dateRange && "text-muted-foreground",
+                  "w-full justify-start h-10 rounded-xl font-normal",
+                  errors.applicationDate &&
+                    "border-red-500 focus-visible:ring-red-500",
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                <CalendarIcon className="w-4 h-4 mr-2 text-muted-foreground" />
                 {dateRange?.from ? (
                   dateRange.to ? (
-                    <span className="text-foreground">
-                      {format(dateRange.from, "LLL dd, yyyy")} &rarr;{" "}
-                      {format(dateRange.to, "LLL dd, yyyy")}
-                    </span>
+                    <>
+                      {format(dateRange.from, "MMM dd, yyyy")} →{" "}
+                      {format(dateRange.to, "MMM dd, yyyy")}
+                    </>
                   ) : (
-                    <span className="text-foreground">
-                      {format(dateRange.from, "LLL dd, yyyy")}
-                    </span>
+                    format(dateRange.from, "MMM dd, yyyy")
                   )
                 ) : (
                   <span className="text-muted-foreground">
-                    Set application & deadline dates
+                    Select application period (start → deadline)
                   </span>
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+
+            <PopoverContent className="p-0 w-auto" align="start" sideOffset={5}>
               <Calendar
-                initialFocus
                 mode="range"
-                defaultMonth={dateRange?.from}
                 selected={dateRange}
                 onSelect={handleDateChange}
-                numberOfMonths={monthsToShow}
+                numberOfMonths={2}
+                className="rounded-xl pointer-events-auto flex flex-col"
+                classNames={{
+                  months: "flex flex-row space-x-4",
+                  month: "w-auto h-auto",
+                }}
+                modifiers={{
+                  disabled: { before: new Date() }, // Optional: disable past dates
+                }}
+               
               />
+              <div className="p-3 border-t flex justify-between text-xs text-muted-foreground">
+                <span>Click start date → end date</span>
+              </div>
             </PopoverContent>
           </Popover>
+
+          {errorText("applicationDate")}
+          {!errors.applicationDate && dateRange?.from && !dateRange?.to && (
+            <p className="text-xs text-blue-600 mt-1">
+              ✓ Start date selected. Now select the deadline date.
+            </p>
+          )}
+          {!errors.applicationDate && !dateRange?.from && (
+            <p className="text-xs text-muted-foreground">
+              Select application start date and deadline
+            </p>
+          )}
+          {!errors.applicationDate && dateRange?.from && dateRange?.to && (
+            <p className="text-xs text-green-600 mt-1">
+              ✓ Application period selected: {format(dateRange.from, "MMM dd")}{" "}
+              → {format(dateRange.to, "MMM dd, yyyy")}
+            </p>
+          )}
         </div>
       </div>
     </div>
