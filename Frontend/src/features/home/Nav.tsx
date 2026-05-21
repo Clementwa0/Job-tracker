@@ -7,7 +7,6 @@ import { navItems } from "@/constants";
 export default function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const location = useLocation();
 
   const isAuthenticated = false;
 
