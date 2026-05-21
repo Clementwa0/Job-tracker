@@ -1,38 +1,33 @@
-import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const CTASection = () => {
+export default function CTASection() {
   return (
-    <section className="py-20 px-4 bg-white">
-      <div className="max-w-5xl mx-auto">
-        <div className="bg-gradient-to-r from-blue-600 to-green-500 rounded-3xl p-1 shadow-2xl">
-          <div className="bg-white rounded-3xl px-8 py-10 md:px-12 md:py-14 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                Ready to transform your job search?
-              </h2>
+    <section className="py-24">
+      <div className="container mx-auto px-6">
+        <div className="relative mx-auto max-w-4xl overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-background to-muted p-12 text-center shadow-xl md:p-16">
 
-              <p className="text-gray-600 text-base md:text-lg">
-                Start tracking applications, interviews, and offers in one
-                place.
-              </p>
+          {/* subtle glow background */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,0,0,0.05),transparent_60%)] dark:bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_60%)]" />
+
+          <div className="relative">
+            <h2 className="text-3xl font-bold text-foreground md:text-5xl">
+              Your next role is closer than you think.
+            </h2>
+
+            <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
+              Join 12,000+ job seekers who turned chaos into clarity with JobTrail.
+            </p>
+
+            <div className="mt-8 flex justify-center">
+              <Button size="lg" className="gap-2">
+                Start tracking free
+                <ArrowRight className="h-4 w-4" />
+              </Button>
             </div>
-
-            <Button asChild size="lg" className="shrink-0">
-              <Link
-                to="/register"
-                className="flex items-center gap-2"
-              >
-                Start Free
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-            </Button>
           </div>
         </div>
       </div>
     </section>
   );
-};
-
-export default CTASection;
+}

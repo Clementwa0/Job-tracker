@@ -1,50 +1,36 @@
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
+import { useEffect, useState } from "react";
 
 interface TypingTextProps {
-  text: string;
+  words: string[];
+  className?: string;
 }
 
-const TypingText = ({ text }: TypingTextProps) => {
-  const typingRef = useRef<HTMLSpanElement | null>(null);
-  const cursorRef = useRef<HTMLSpanElement | null>(null);
+export default function TypingText({ words, className = "" }: TypingTextProps) {
+  const [wordIndex, setWordIndex] = useState(0);
+  const [text, setText] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    let i = 0;
-
-    const interval = setInterval(() => {
-      if (!typingRef.current) return;
-
-      typingRef.current.textContent += text.charAt(i);
-
-      i++;
-
-      if (i >= text.length) {
-        clearInterval(interval);
+    const current = words[wordIndex % words.length];
+    const speed = deleting ? 50 : 110;
+    const timeout = setTimeout(() => {
+      if (!deleting && text === current) {
+        setTimeout(() => setDeleting(true), 1400);
+        return;
       }
-    }, 80);
+      if (deleting && text === "") {
+        setDeleting(false);
+        setWordIndex((i) => i + 1);
+        return;
+      }
+      setText(
+        deleting
+          ? current.substring(0, text.length - 1)
+          : current.substring(0, text.length + 1),
+      );
+    }, speed);
+    return () => clearTimeout(timeout);
+  }, [text, deleting, wordIndex, words]);
 
-    if (cursorRef.current) {
-      gsap.to(cursorRef.current, {
-        opacity: 0,
-        repeat: -1,
-        yoyo: true,
-        duration: 0.6,
-      });
-    }
-
-    return () => clearInterval(interval);
-  }, [text]);
-
-  return (
-    <span className="block text-green-500 mt-2 text-2xl sm:text-3xl md:text-4xl">
-      <span ref={typingRef}></span>
-
-      <span ref={cursorRef} className="ml-1 inline-block">
-        |
-      </span>
-    </span>
-  );
-};
-
-export default TypingText;
+  return <span className={`caret text-gradient ${className}`}>{text}</span>;
+}
