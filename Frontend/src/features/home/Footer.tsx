@@ -1,49 +1,46 @@
-import { Link } from "react-router-dom";
-import { Linkedin, Twitter } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
-const Footer = () => {
+export default function Footer() {
   return (
-    <footer className="bg-black text-white py-10 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div>
-            <Link to="/" className="text-2xl font-bold">
-              JobTrail
-            </Link>
-
-            <p className="text-gray-400 mt-2">
-              Your career journey, organized.
+    <footer className="border-t border-border bg-background">
+      <div className="container mx-auto px-6 py-12">
+        <div className="grid gap-8 md:grid-cols-4">
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-2">
+              <div className="flex w-10 h-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <img src="./logo.png" alt="logo" width={45} height={45} />
+              </div>
+              <span className="text-lg font-semibold">Jobtrail</span>
+            </div>
+            <p className="mt-4 max-w-xs text-sm text-muted-foreground">
+              The calm, organized way to manage your job search - from first application to signed offer.
             </p>
           </div>
 
-          <div className="flex items-center gap-6 mt-6 md:mt-0">
-            <a href="https://linkedin.com">
-              <Linkedin className="h-5 w-5" />
-            </a>
+          <div>
+            <h4 className="mb-3 text-sm font-semibold">Product</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><a href="#" className="hover:text-foreground">Features</a></li>
+              <li><a href="#" className="hover:text-foreground">Pricing</a></li>
+              <li><a href="#" className="hover:text-foreground">Extension</a></li>
+              <li><a href="#" className="hover:text-foreground">Changelog</a></li>
+            </ul>
+          </div>
 
-            <a href="https://twitter.com">
-              <Twitter className="h-5 w-5" />
-            </a>
-
-            <Link to="/login">
-              Login
-            </Link>
-
-            <Button asChild variant="outline">
-              <Link to="/register">
-                Sign Up Free
-              </Link>
-            </Button>
+          <div>
+            <h4 className="mb-3 text-sm font-semibold">Company</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><a href="#" className="hover:text-foreground">About</a></li>
+              <li><a href="#" className="hover:text-foreground">Blog</a></li>
+              <li><a href="#" className="hover:text-foreground">Privacy</a></li>
+              <li><a href="#" className="hover:text-foreground">Contact</a></li>
+            </ul>
           </div>
         </div>
 
-        <div className="text-center text-gray-500 text-sm mt-10 border-t border-gray-800 pt-6">
-          © {new Date().getFullYear()} JobTrail. All rights reserved.
+        <div className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground md:flex-row md:items-center">
+          <p>© {new Date().getFullYear()} Jobtrail. All rights reserved.</p>
+          <p>Crafted for job seekers, everywhere.</p>
         </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

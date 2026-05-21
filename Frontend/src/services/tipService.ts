@@ -8,7 +8,7 @@ export interface Tip {
 
 export const tipService = {
   async getDailyTip(): Promise<Tip> {
-    const { data } = await axiosInstance.get<Tip>("/tip");
+    const { data } = await axiosInstance.get<Tip>("/tips");
     return data;
   },
 };

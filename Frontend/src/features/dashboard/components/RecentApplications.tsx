@@ -14,7 +14,7 @@ const RecentApplications = () => {
       .sort(
         (b, a) =>
           new Date(a.applicationDate).getTime() -
-          new Date(b.applicationDate).getTime(),
+          new Date(b.applicationDate).getTime()
       )
       .slice(0, 5);
   }, [jobs]);
@@ -27,52 +27,62 @@ const RecentApplications = () => {
   };
 
   return (
-    <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+    <Card className="p-4 sm:p-6 w-full">
+      {/* Header */}
+      <h2 className="text-lg sm:text-xl font-semibold mb-4 text-foreground">
         Recent Applications
       </h2>
 
-<ul className="space-y-2 max-h-[400px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">        {recent.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4">No activity yet</p>
+      <ul className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+        {recent.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-6 text-center">
+            No activity yet
+          </p>
         ) : (
           recent.map((job) => (
             <li
               key={job.id}
-              className="flex items-center gap-4 py-3 first:pt-0 last:pb-0"
+              className="
+                flex flex-col sm:flex-row sm:items-center
+                gap-3 sm:gap-4
+                py-3 border-b border-border last:border-none
+              "
             >
-              {/* Avatar */}
-              <Avatar className="h-10 w-10 rounded-lg">
-                <AvatarFallback className="rounded-lg bg-muted text-sm font-semibold">
-                  {job.companyName.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              {/* Top row on mobile */}
+              <div className="flex items-center gap-3 w-full">
+                <Avatar className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg">
+                  <AvatarFallback className="rounded-lg bg-muted text-xs sm:text-sm font-semibold">
+                    {job.companyName.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
 
-              {/* Main info */}
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-foreground">
-                  {job.jobTitle}
-                </p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm sm:text-base font-medium text-foreground">
+                    {job.jobTitle}
+                  </p>
 
-                <div className="mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Building2 className="h-3 w-3" />
-                    {job.companyName}
-                  </span>
+                  <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Building2 className="h-3 w-3" />
+                      {job.companyName}
+                    </span>
 
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {job.location}
-                  </span>
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {job.location}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Status + date */}
-              <div className="flex flex-col items-end gap-1">
+              {/* Bottom row on mobile / right side on desktop */}
+              <div className="flex sm:flex-col sm:items-end justify-between sm:justify-start gap-2 sm:gap-1 w-full sm:w-auto">
                 <Badge
-                  className={`${getStatusColor(job.applicationStatus)} px-2 py-1 text-xs`}
+                  className={`${getStatusColor(job.applicationStatus)} text-xs px-2 py-1`}
                 >
                   {job.applicationStatus}
                 </Badge>
+
                 <span className="text-xs text-muted-foreground">
                   {job.applicationDate
                     ? new Date(job.applicationDate).toLocaleDateString()

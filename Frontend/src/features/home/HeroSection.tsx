@@ -1,47 +1,37 @@
-import { Link } from "react-router-dom";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import  TypingText  from "./TypingText";
 import DashboardPreview from "./DashboardPreview";
-import TypingText from "./TypingText";
+import { Link } from "react-router-dom";
 
-const HeroSection = () => {
+export default function HeroSection() {
   return (
-    <section className="pt-20 pb-24 px-4 sm:px-6 lg:px-8 relative">
-      <div className="max-w-7xl mx-auto relative">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-100 text-green-600 text-sm font-medium mb-6">
-          <CheckCircle2 className="h-4 w-4" />
-          Trusted by 10,000+ job seekers
-        </div>
-
-        <div className="text-center max-w-3xl mx-auto relative z-20">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Track Every Application.
-            <TypingText text="Land More Interviews." />
+    <section className="relative overflow-hidden bg-background pt-20 pb-24">
+      <div className="container mx-auto px-6">
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="text-5xl font-bold leading-[1.05] md:text-7xl">
+            Track every job.<br />
+            Land your{" "}
+            <TypingText words={["dream role.", "next offer.", "perfect fit.", "career move."]} />
           </h1>
-
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Organize your job search, track applications, and get hired faster
-            with JobTrail.
+          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
+            Jobtrail is the calm, beautifully organized way to manage your job search -
+            from first application to signed offer.
           </p>
-
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Button asChild size="lg">
-              <Link to="/register" className="flex items-center gap-2">
-                Get Started
-                <ArrowRight className="h-5 w-5" />
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Button asChild size="lg" className="bg-primary text-primary-foreground shadow-md hover:bg-primary/90">
+              <Link to="/register" className="flex items-center">
+                Start tracking free
+                <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
-
-            <Button asChild variant="outline" size="lg">
-              <Link to="/dashboard">View Dashboard</Link>
-            </Button>
           </div>
+          <p className="mt-4 text-xs text-muted-foreground">Free forever · No credit card required</p>
         </div>
-
-        <DashboardPreview />
+        <div className="mt-20">
+          <DashboardPreview />
+        </div>
       </div>
     </section>
   );
-};
-
-export default HeroSection;
+}
