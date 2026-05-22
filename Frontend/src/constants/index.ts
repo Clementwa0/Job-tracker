@@ -1,4 +1,6 @@
 import type { ApplicationStatus } from "@/types/job";
+import type { LucideIcon } from "lucide-react";
+
 import {
   FileCheck,
   Calendar,
@@ -9,115 +11,166 @@ import {
   FileText,
 } from "lucide-react";
 
-export const features = [
+/* -------------------------------------------------------------------------- */
+/*                                   TYPES                                    */
+/* -------------------------------------------------------------------------- */
+
+type Feature = {
+  id: number;
+  icon: LucideIcon;
+  title: string;
+  description?: string;
+  desc?: string;
+  color?: string;
+};
+
+type NavLink = {
+  path: string;
+  name: string;
+  icon: LucideIcon;
+};
+
+type NavItem = {
+  id: string;
+  label: string;
+};
+
+type SelectOption<T = string> = {
+  label: string;
+  value: T;
+};
+
+type InterviewStatus = {
+  value: string;
+  label: string;
+  className: string;
+};
+
+/* -------------------------------------------------------------------------- */
+/*                                  FEATURES                                  */
+/* -------------------------------------------------------------------------- */
+
+export const features: Feature[] = [
   {
     id: 1,
     icon: FileCheck,
     title: "Application Tracking",
     description:
-      "Keep track of all your job applications in one place. Never lose track of where you applied.",
+      "Keep track of all your job applications in one place.",
+    color: "text-blue-500",
   },
   {
     id: 2,
     icon: Calendar,
     title: "Interview Scheduling",
     description:
-      "Manage your interview schedule and never miss an important meeting or follow-up.",
+      "Manage your interview schedule and never miss meetings.",
+    color: "text-green-500",
   },
   {
     id: 3,
     icon: LineChart,
     title: "Performance Analytics",
     description:
-      "Get insights into your job search with detailed analytics and visualization tools.",
+      "Get insights into your job search performance.",
+    color: "text-purple-500",
   },
 ];
 
-export const steps = [
+export const loginFeatures: Feature[] = [
   {
     id: 1,
-    title: "Create an account",
-    description:
-      "Sign up for a free account to get started. No credit card required.",
-    isContentLeft: true,
+    icon: FileCheck,
+    title: "Application Management",
+    desc: "Track all your applications and statuses",
   },
   {
     id: 2,
-    title: "Add your applications",
-    description:
-      "Log your job applications, including company, position, status, and notes.",
-    isContentLeft: false,
+    icon: Calendar,
+    title: "Job Alerts",
+    desc: "Receive smart notifications",
   },
   {
     id: 3,
-    title: "Track progress",
-    description:
-      "Update the status of your applications as you move through the interview process.",
-    isContentLeft: true,
-  },
-  {
-    id: 4,
-    title: "Get insights",
-    description:
-      "View analytics and reports to optimize your job search strategy.",
-    isContentLeft: false,
-  },
-];
-
-export const loginFeatures = [
-  {
-    icon: FileCheck,
-    title: "Application Management",
-    desc: "Keep track of your job applications and statuses",
-  },
-  {
-    icon: Calendar,
-    title: "Job Alerts",
-    desc: "Get notified about new opportunities matching your profile",
-  },
-  {
     icon: LineChart,
     title: "Progress Reports",
-    desc: "Visualize your job search journey and milestones",
+    desc: "Visualize your job search journey",
   },
 ];
 
-export const register = [
+export const registerFeatures: Feature[] = [
   {
+    id: 1,
     icon: FileCheck,
     title: "Track Progress",
     desc: "Visualize your job hunt journey",
   },
   {
+    id: 2,
     icon: Calendar,
     title: "Smart Alerts",
     desc: "Never miss deadlines or interviews",
   },
   {
+    id: 3,
     icon: FileText,
     title: "Centralized",
     desc: "All your job data in one hub",
   },
   {
+    id: 4,
     icon: LineChart,
     title: "Performance Insights",
     desc: "Understand your job search performance",
   },
 ];
 
-export const links = [
-  { path: "/dashboard", name: "Dashboard", icon: LayoutDashboard },
-  { path: "/jobs", name: "Jobs", icon: BriefcaseBusiness },
-  { path: "/add-job", name: "Add Job", icon: Plus },
-  { path: "/analytics", name: "Analytics", icon: LineChart },
-  { path: "/calendar", name: "Calendar", icon: Calendar },
-  { path: "/cv-review", name: "AI CV Review", icon: FileText },
+/* -------------------------------------------------------------------------- */
+/*                                NAVIGATION                                  */
+/* -------------------------------------------------------------------------- */
+
+export const links: NavLink[] = [
+  {
+    path: "/dashboard",
+    name: "Dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    path: "/jobs",
+    name: "Jobs",
+    icon: BriefcaseBusiness,
+  },
+  {
+    path: "/add-job",
+    name: "Add Job",
+    icon: Plus,
+  },
+  {
+    path: "/analytics",
+    name: "Analytics",
+    icon: LineChart,
+  },
+  {
+    path: "/calendar",
+    name: "Calendar",
+    icon: Calendar,
+  },
+  {
+    path: "/cv-review",
+    name: "AI CV Review",
+    icon: FileText,
+  },
 ];
-export const navItems = [
-    { id: "features", label: "Features" },
-    { id: "how", label: "How it works" },
-    { id: "pricing", label: "Contact" },
-  ];
+
+export const navItems: NavItem[] = [
+  { id: "features", label: "Features" },
+  { id: "how", label: "How it Works" },
+  { id: "pricing", label: "Contact" },
+];
+
+/* -------------------------------------------------------------------------- */
+/*                                 JOB DATA                                   */
+/* -------------------------------------------------------------------------- */
 
 export const jobTypes = [
   "Full-time",
@@ -125,7 +178,8 @@ export const jobTypes = [
   "Internship",
   "Contract",
   "Remote",
-];
+] as const;
+
 export const sources = [
   "LinkedIn",
   "Indeed",
@@ -134,35 +188,39 @@ export const sources = [
   "Glassdoor",
   "AngelList",
   "Other",
-];
+] as const;
 
-export const statuses: { value: ApplicationStatus; label: string }[] = [
+/* -------------------------------------------------------------------------- */
+/*                              APPLICATION STATUS                            */
+/* -------------------------------------------------------------------------- */
+
+export const applicationStatuses: SelectOption<ApplicationStatus>[] = [
   { label: "Applied", value: "applied" },
   { label: "Interviewing", value: "interviewing" },
   { label: "Offer", value: "offer" },
   { label: "Rejected", value: "rejected" },
-  { label: "Waiting Response", value: "waiting response" },
+  { label: "Waiting Response", value: "waiting_response" },
   { label: "Ghosted", value: "ghosted" },
   { label: "Completed", value: "completed" },
 ];
 
-export const statusOptions = [
+export const statuses = applicationStatuses;
+
+export const statusOptions: SelectOption[] = [
   { label: "All Statuses", value: "" },
-  { label: "Applied", value: "applied" },
-  { label: "Interviewing", value: "interviewing" },
-  { label: "Offer", value: "offer" },
-  { label: "Rejected", value: "rejected" },
-  { label: "Waiting Response", value: "waiting response" },
-  { label: "Ghosted", value: "ghosted" },
-  { label: "Completed", value: "completed" },
+  ...applicationStatuses,
 ];
+
+/* -------------------------------------------------------------------------- */
+/*                           RECENT APPLICATIONS                              */
+/* -------------------------------------------------------------------------- */
 
 export const recentApplications = [
   {
     id: 1,
     company: "Google",
     position: "Frontend Developer",
-    status: "interview",
+    status: "interviewing",
     date: "2 days ago",
   },
   {
@@ -181,16 +239,24 @@ export const recentApplications = [
   },
 ];
 
-export const joblabel = [
+/* -------------------------------------------------------------------------- */
+/*                                JOB LABELS                                  */
+/* -------------------------------------------------------------------------- */
+
+export const jobLabels = [
   { label: "Title", field: "jobTitle" },
   { label: "Company", field: "companyName" },
-  { label: "Location" },
-  { label: "Type" },
+  { label: "Location", field: "location" },
+  { label: "Type", field: "jobType" },
   { label: "Applied On", field: "applicationDate" },
-  { label: "Deadline" },
-  { label: "Salary" },
+  { label: "Deadline", field: "deadline" },
+  { label: "Salary", field: "salary" },
   { label: "Status", field: "applicationStatus" },
-];
+] as const;
+
+/* -------------------------------------------------------------------------- */
+/*                             INTERVIEW STAGES                               */
+/* -------------------------------------------------------------------------- */
 
 export const interviewStages = [
   { value: "applied", label: "Application Submitted" },
@@ -203,7 +269,11 @@ export const interviewStages = [
   { value: "hired", label: "Hired" },
 ] as const;
 
-export const interviewStatus = [
+/* -------------------------------------------------------------------------- */
+/*                            INTERVIEW STATUS                                */
+/* -------------------------------------------------------------------------- */
+
+export const interviewStatus: InterviewStatus[] = [
   {
     value: "scheduled",
     label: "Scheduled",
@@ -219,4 +289,4 @@ export const interviewStatus = [
     label: "Cancelled",
     className: "text-red-400 bg-red-500/10 border-red-500/30",
   },
-] as const;
+];

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ArrowDown, ArrowUp, Edit2, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { joblabel } from "@/constants";
+import { jobLabels } from "@/constants";
 import type { Job } from "@/types/job";
 
 export type { Job };
@@ -81,7 +81,7 @@ const JobsTable: React.FC<JobsTableProps> = ({
         <table className="w-full">
           <thead className="bg-muted/50">
             <tr className="border-b border-border dark:bg-gray-900">
-              {joblabel.map(({ label, field }) => (
+              {jobLabels.map(({ label, field }) => (
                 <th
                   key={label}
                   className="px-4 py-3 text-sm font-medium cursor-pointer"

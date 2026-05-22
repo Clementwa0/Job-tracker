@@ -34,7 +34,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-background border-b border-border h-16 flex items-center justify-between px-4 lg:px-6 dark:bg-gray-900">
+    <header className="bg-background h-10 flex items-center justify-between px-4 lg:px-4 dark:bg-gray-900">
       {/* LEFT: Greeting */}
       <div className="hidden md:flex flex-col leading-tight">
         <span className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -42,7 +42,7 @@ const Header = () => {
         </span>
 
         <div className="flex items-center gap-2">
-          <h2 className="text-base font-semibold text-gray-900 dark:text-white">
+          <h2 className="text-base font-semibold normal-case text-gray-900 dark:text-white">
             {user?.name}
           </h2>
         </div>

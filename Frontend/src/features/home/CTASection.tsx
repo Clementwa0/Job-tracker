@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export default function CTASection() {
   return (
-    <section className="py-24">
+    <section className="py-24 bg-background">
       <div className="container mx-auto px-6">
         <div className="relative mx-auto max-w-4xl overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-background to-muted p-12 text-center shadow-xl md:p-16">
 

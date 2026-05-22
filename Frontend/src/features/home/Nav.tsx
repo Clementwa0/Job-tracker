@@ -70,7 +70,7 @@ export default function Nav() {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md transition-all duration-300 ${
+        className={`sticky top-0 z-50 border-b border-border bg-background backdrop-blur-md transition-all duration-300 ${
           scrolled ? "h-14" : "h-16"
         }`}
       >
@@ -108,7 +108,7 @@ export default function Nav() {
                 <Button asChild
                   variant="ghost"
                   size="sm"
-                  className="hidden sm:inline-flex text-muted-foreground hover:text-foreground"
+                  className="hidden border sm:inline-flex text-muted-foreground hover:text-foreground"
                 >
                   <Link to="/login">
                   Sign in
@@ -118,7 +118,7 @@ export default function Nav() {
                 <Button
                 asChild
                   size="sm"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  className="text-primary-foreground hover:bg-primary/90"
                 >
                   <Link to="/register">
                   Get started

@@ -15,7 +15,7 @@ const DashboardMood = () => {
   return (
     <div
       className="p-4 rounded-xl
-      bg-white dark:bg-gray-900
+      bg-gray-100 dark:bg-gray-900
       border border-gray-200 dark:border-gray-800
       shadow-sm transition-colors"
     >
@@ -34,7 +34,7 @@ const DashboardMood = () => {
       <div
         className="mt-4 p-3 rounded-lg
         bg-gray-50 dark:bg-gray-800
-        border border-gray-100 dark:border-gray-700"
+        border border-gray-400 dark:border-gray-700"
       >
         <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
           Next Action

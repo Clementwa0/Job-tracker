@@ -51,10 +51,10 @@ export { default as DashboardMood } from '@/features/dashboard/components/Dashbo
 export { default as Dashboard} from '@/pages/Dashboard/Dashboard';
 
 // cv-review
-export {default as ActionsPanel } from '@/features/cvReview/ActionsPanel'
-export {default as FeedbackTabs} from '@/features/cvReview/FeedbackTabs'
-export {default as QuickTips } from '@/features/cvReview/QuickTips';
-export {default as ScoreOverview} from '@/features/cvReview/ScoreOverview';
-export {default as UploadSection} from '@/features/cvReview/UploadSection';
-export {default as RecommendedJobs} from '@/features/cvReview/RecommendedJobs';
+export {ActionsPanel } from '@/features/cvReview/ActionsPanel'
+export {FeedbackTabs} from '@/features/cvReview/FeedbackTabs'
+export {QuickTips } from '@/features/cvReview/QuickTips';
+export {ScoreOverview} from '@/features/cvReview/ScoreOverview';
+export {UploadSection} from '@/features/cvReview/UploadSection';
+export {RecommendedJobs} from '@/features/cvReview/RecommendedJobs';
 export {default as CvReview} from '@/pages/cvreview/cvReview';
