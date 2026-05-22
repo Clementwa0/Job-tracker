@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { register as registerConstants } from "@/constants";
+import { registerFeatures as registerConstants } from "@/constants";
 import gsap from "gsap";
 
 export function RegisterFeatures() {
