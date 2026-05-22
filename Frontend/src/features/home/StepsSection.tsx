@@ -7,7 +7,7 @@ const steps = [
 
 export default function StepsSection() {
   return (
-    <section className="bg-muted/10 py-24">
+    <section className="bg-background py-24">
       <div className="container mx-auto px-6">
         <div className="mx-auto mb-16 max-w-2xl text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">How it works</p>
