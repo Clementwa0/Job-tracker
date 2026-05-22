@@ -14,7 +14,7 @@ const tipRoute = require("./routes/ai/tips.route");
 const interviewRoutes = require("./routes/interviewRoutes");
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT;
 
 /* ---------------- DATABASE ---------------- */
 connectDB();
@@ -44,7 +44,7 @@ app.use("/api/interviews", interviewRoutes);
 // AI MODULES (clean namespace grouping)
 app.use("/api/cv", cvRoute);
 app.use("/api/analyze-job", analyzeJobRoute);
-app.use("/api/tip", tipRoute);
+app.use("/api/tips", tipRoute);
 
 /* ---------------- HEALTH CHECK ---------------- */
 app.get("/", (req, res) => {
@@ -62,7 +62,7 @@ app.get("/", (req, res) => {
       ai: {
         cv: "POST /api/cv",
         analyzeJob: "POST /api/analyze-job",
-        tip: "GET /api/tip",
+        tip: "GET /api/tips",
       },
     },
   });
@@ -90,7 +90,7 @@ app.use("*", (req, res) => {
   });
 });
 
-/* ---------------- START SERVER ---------------- */
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
