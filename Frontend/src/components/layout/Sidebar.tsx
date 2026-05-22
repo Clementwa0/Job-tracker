@@ -1,117 +1,174 @@
-import { useState } from "react";
+import React from "react";
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
+
 import { Link, useLocation } from "react-router-dom";
 import { links } from "@/constants";
-import { cn } from "../../lib/utils";
-import { LucideMenu, SidebarClose, SidebarOpen, X } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "../ui/button";
 
-
-const Sidebar = () => {
+const AppSidebar = () => {
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const isMobile = useIsMobile();
-  const toggleMenu = () => setMenuOpen((prev) => !prev);
+
+  const { state, setOpenMobile, isMobile } = useSidebar();
+
+  const collapsed = state === "collapsed";
+
+  // Close sidebar only on mobile after navigation
+  const handleLinkClick = React.useCallback(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [isMobile, setOpenMobile]);
 
   return (
-    <>
-      {/* Toggle Button (Mobile Only) */}
-      {isMobile && (
-        <div className="fixed left-4 z-50   md:hidden dark:bg-gray-900 p-2">
-          <Button onClick={toggleMenu} variant="default" className="flex h-10 w-10 text-gray-900 items-center shadow-md p-2 dark:text-white">
-            {menuOpen ? (
-              <X />
-            ) : (
-              <LucideMenu />
-            )}
-          </Button>
-        </div>
-      )}
-
-      {/* Mobile Sidebar Drawer */}
-      {menuOpen && (
+    <Sidebar
+      collapsible="icon"
+      className="
+        border-r
+        bg-background
+        backdrop-blur
+        dark:border-gray-800
+        dark:bg-gray-900
+      "
+    >
+      {/* Header */}
+      <SidebarHeader className="border-b h-19 dark:border-gray-800 dark:bg-gray-900">
         <div
-          className="fixed inset-0 z-30 bg-opacity-30"
-          onClick={() => setMenuOpen(false)}
-        />
-      )}
-
-      {isMobile && menuOpen && (
-        <div className="fixed inset-0 z-40 bg-white opacity-90 shadow-lg mt-15 w-50 h-screen p-3 dark:bg-gray-900">
-          <nav>
-            <ul className="space-y-2 text-md text-brown-900 flex flex-col">
-              {links.map((link) => (
-                <li key={link.path}>
-                  <Link
-                    to={link.path}
-                    className={cn(
-                      "flex items-center gap-2 px-2 py-2 hover:bg-blue-700 hover:text-white rounded-md transition-colors",
-                      location.pathname === link.path
-                        ? "bg-blue-700 text-white"
-                        : "text-gray-800 dark:text-white",
-                      collapsed && "justify-center px-2"
-                    )}
-
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <link.icon className="w-5 h-5" />
-                    <span>{link.name}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
-      )}
-
-      <div className="hidden md:block dark:bg-gray-900">
-        <div
-          className={cn(
-            "h-screen transition-all duration-300 border-sky-500 border-r shadow-lg flex flex-col bg-wheat",
-            collapsed ? "w-14" : "w-40"
-          )}
+          className={`
+            flex items-center gap-3 px-3 py-4
+            ${collapsed ? "justify-center" : ""}
+          `}
         >
-          <div className="p-3 border-b flex text-sky-900 items-center justify-between dark:text-white">
-            {!collapsed && (
-              <span className="text-lg font-bold tracking-tight">JTrail</span>
-            )}
-            <Button
-              aria-label="Toggle Sidebar"
-              aria-expanded={!collapsed}
-              onClick={() => setCollapsed(!collapsed)}
-              className="p-1 rounded-md text-gray hover:bg-blue-700 hover:text-white dark:text-white"
-            >
-              {collapsed ? <SidebarOpen /> : <SidebarClose />}
-            </Button>
+          {/* Logo */}
+          <div
+            className="
+              flex h-11 w-11 shrink-0 items-center justify-center
+              
+            "
+          >
+            <img
+              src="/logo.png"
+              alt="JTrail Logo"
+              className="h-10 w-10 object-contain"
+            />
           </div>
 
-          <nav className="flex-1 py-4 px-2 dark:bg-gray-900">
-            <ul className="space-y-2 text-md text-brown-700 flex flex-col">
-              {links.map((link) => (
-                <li key={link.path}>
-                  <Link
-                    to={link.path}
-                    className={cn(
-                      "flex items-center gap-2 px-2 py-2 hover:bg-blue-700 hover:text-white rounded-md transition-colors",
-                      location.pathname === link.path
-                        ? "bg-blue-700 text-white"
-                        : "text-gray-800 dark:text-white",
-                      collapsed && "justify-center px-2"
-                    )}
+          {/* Brand */}
+          {!collapsed && (
+            <div className="flex flex-col overflow-hidden dark:bg-gray-900">
+              <span
+                className="
+                  truncate text-lg font-bold tracking-tight
+                  text-gray-900 dark:text-white
+                "
+              >
+                JTrail
+              </span>
 
-                  >
-                    <link.icon className="w-5 h-5" />
-                    {!collapsed && <span>{link.name}</span>}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+              <span
+                className="
+                  text-xs text-muted-foreground
+                "
+              >
+                Job Tracking Dashboard
+              </span>
+            </div>
+          )}
         </div>
-      </div>
-    </>
+      </SidebarHeader>
+
+      {/* Navigation */}
+      <SidebarContent className="px-2 py-4 dark:bg-gray-900">
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-2">
+              {links.map((item) => {
+                const Icon = item.icon;
+
+                const isActive = location.pathname === item.path;
+
+                return (
+                  <SidebarMenuItem key={item.path}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      className="
+                        h-11 rounded-xl
+                        transition-all duration-200
+                        hover:bg-sky-900
+                        hover:text-primary
+                        data-[active=true]:bg-sky-900
+                        data-[active=true]:text-white
+                        data-[active=true]:shadow-md
+                      "
+                    >
+                      <Link
+                        to={item.path}
+                        onClick={handleLinkClick}
+                        className={`
+                          flex items-center
+                          ${collapsed ? "justify-center" : "gap-3 px-3"}
+                        `}
+                      >
+                        <Icon
+                          className={`
+                            h-5 w-5 shrink-0
+                            transition-transform duration-200
+                            group-hover:scale-110
+                          `}
+                        />
+
+                        {!collapsed && (
+                          <span className="text-sm font-medium">
+                            {item.name}
+                          </span>
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      {/* Footer */}
+      {!collapsed && (
+        <SidebarFooter className="border-t dark:border-gray-800 dark:bg-gray-900">
+          <div className="px-3 py-4">
+            <div
+              className="
+                rounded-xl border
+                bg-muted/40
+                p-3
+                dark:border-gray-800
+                dark:bg-gray-800/40
+              "
+            >
+              <p className="text-xs font-semibold text-foreground">
+                © 2026 JTrail
+              </p>
+
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                Manage your job applications efficiently
+              </p>
+            </div>
+          </div>
+        </SidebarFooter>
+      )}
+    </Sidebar>
   );
 };
 
-export default Sidebar;
+export default AppSidebar;
