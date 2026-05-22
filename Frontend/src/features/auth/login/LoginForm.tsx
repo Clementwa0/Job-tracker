@@ -51,11 +51,6 @@ export function LoginForm() {
 
   return (
     <div className="flex-1 flex items-center justify-center p-4 lg:p-6  relative overflow-hidden">
-      {/* Animated background shapes */}
-      {/* <div className="absolute top-0 left-0 w-72 h-72 bg-green-400/20 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl pointer-events-none animate-pulse"></div>
-      <div className="absolute top-40 left-40 w-72 h-72 bg-teal-400/20 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl pointer-events-none animate-pulse delay-1000"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-400/20 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl pointer-events-none animate-pulse delay-2000"></div> */}
-
       <div
         ref={formRef}
         className="w-full max-w-sm  backdrop-blur-md border border-gray-200 rounded-2xl p-6 shadow-xl 
