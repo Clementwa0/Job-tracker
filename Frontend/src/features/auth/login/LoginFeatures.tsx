@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { loginFeatures } from "@/constants";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 export function LoginFeatures() {
   const leftPanelRef = useRef<HTMLDivElement>(null);
