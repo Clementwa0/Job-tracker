@@ -25,7 +25,6 @@ export { ProtectedRoute } from './ProtectedRoute';
 
 // Pages
 export { default as Terms } from './pages/Terms'
-export { default as Calendar } from './pages/Calendar/Calendar';
 export { default as Analytics } from './pages/Analytics/Analytics';
 export { default as Profile } from '@/components/pages/Profile';
 
@@ -58,3 +57,9 @@ export {ScoreOverview} from '@/features/cvReview/ScoreOverview';
 export {UploadSection} from '@/features/cvReview/UploadSection';
 export {RecommendedJobs} from '@/features/cvReview/RecommendedJobs';
 export {default as CvReview} from '@/pages/cvreview/cvReview';
+
+// Calendar
+export { default as CalendarLegend } from '@/features/calendar/CalendarLegend';
+export { default as AgendaSidebar } from '@/features/calendar/AgendaSidebar';
+export { default as EventDetailsDrawer } from '@/features/calendar/EventDetailsDrawer';
+export { default as Calendar } from '@/pages/calendar/Calendar';

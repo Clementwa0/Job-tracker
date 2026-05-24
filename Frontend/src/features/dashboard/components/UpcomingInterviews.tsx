@@ -1,11 +1,105 @@
+import { useMemo, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  Clock,
+  Video,
+  ChevronRight,
+} from "lucide-react";
+
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+
 import { useInterviews } from "@/hooks/useInterviews";
 import { isPopulatedJobId } from "@/types/interview";
-import { Clock, Video } from "lucide-react";
-import { useMemo } from "react";
-import { Link } from "react-router-dom";
 import { interviewStatus } from "@/constants";
+
+const useCountdown = (target: Date) => {
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTick((n) => n + 1);
+    }, 60_000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const ms = target.getTime() - Date.now();
+
+  if (ms <= 0) return "Now";
+
+  const mins = Math.floor(ms / 60000);
+
+  if (mins < 60) return `in ${mins}m`;
+
+  const hrs = Math.floor(mins / 60);
+
+  if (hrs < 24) return `in ${hrs}h`;
+
+  const days = Math.floor(hrs / 24);
+
+  return `in ${days}d`;
+};
+
+const InterviewItem = ({
+  i,
+  statusCfg,
+}: {
+  i: any;
+  statusCfg: any;
+}) => {
+  const countdown = useCountdown(i.date);
+
+  return (
+    <li className="rounded-xl border border-border/60 bg-background/60 p-4 transition-all hover:bg-muted/40 hover:shadow-sm">
+      <Link to="/interviews" className="block space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-foreground">
+              {i.stage.charAt(0).toUpperCase() +
+                i.stage.slice(1).toLowerCase()}{" "}
+              Interview
+            </p>
+
+            <p className="mt-1 text-xs text-muted-foreground truncate">
+              {isPopulatedJobId(i.jobId)
+                ? `${i.jobId.companyName} — ${i.jobId.jobTitle}`
+                : "Job details unavailable"}
+            </p>
+          </div>
+
+          <Badge
+            variant="outline"
+            className={`rounded-full text-[10px] uppercase tracking-wide ${
+              statusCfg?.className || ""
+            }`}
+          >
+            {statusCfg?.label || i.status}
+          </Badge>
+        </div>
+
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5" />
+            {i.date.toLocaleString()}
+          </span>
+
+          <span className="font-medium text-primary">
+            {countdown}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-end">
+          <span className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80">
+            <Video className="h-3.5 w-3.5" />
+            Join interview
+          </span>
+        </div>
+      </Link>
+    </li>
+  );
+};
 
 const UpcomingInterviews = () => {
   const { interviews, loading } = useInterviews();
@@ -22,93 +116,67 @@ const UpcomingInterviews = () => {
           i.status !== "completed" &&
           i.status !== "cancelled"
       )
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
+      .sort(
+        (a, b) => a.date.getTime() - b.date.getTime()
+      );
   }, [interviews]);
 
-  const toSentenceCase = (str: string) =>
-    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-
   return (
-    <Card className="p-4">
-      <h2 className="text-xl font-semibold mb-4 text-foreground">
-        Upcoming Interviews
-      </h2>
+    <Card className="border-border/60 bg-card/60 p-5 backdrop-blur-xl">
+      <div className="mb-5 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight">
+            Upcoming interviews
+          </h2>
+
+          <p className="text-xs text-muted-foreground mt-1">
+            Stay prepared for your next opportunity
+          </p>
+        </div>
+
+        <Link
+          to="/interviews"
+          className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+        >
+          View all
+          <ChevronRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton
+              key={i}
+              className="h-24 w-full rounded-xl"
+            />
+          ))}
+        </div>
+      ) : sorted.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border py-10 text-center">
+          <p className="text-sm font-medium text-foreground">
+            No interviews scheduled
+          </p>
+
+          <p className="mt-1 text-xs text-muted-foreground">
+            Your upcoming interviews will appear here
+          </p>
+        </div>
       ) : (
-<ul className="space-y-2 max-h-[260px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">          {sorted.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No interviews scheduled
-            </p>
-          ) : (
-            sorted.map((i) => {
-              const statusConfig = interviewStatus.find(
-                (status) => status.value === i.status
-              );
+        <ul className="space-y-3 max-h-[320px] overflow-y-auto pr-1">
+          {sorted.map((i) => {
+            const cfg = interviewStatus.find(
+              (s) => s.value === i.status
+            );
 
-              return (
-                <li
-                  key={i._id}
-                  className="
-                    rounded-xl
-                    border
-                    border-border
-                    bg-background/50
-                    p-3
-                    transition-all
-                    hover:bg-muted/50
-                    hover:shadow-sm
-                  "
-                >
-                  <Link to="/interviews" className="block space-y-3">
-                    {/* Header */}
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-foreground">
-                        {toSentenceCase(i.stage)} Interview
-                      </p>
-
-                      <Badge
-                        variant="outline"
-                        className={`
-                          text-[10px]
-                          uppercase
-                          tracking-wide
-                          font-medium
-                          border
-                          rounded-full
-                          px-2 py-0.5
-                          ${statusConfig?.className}
-                        `}
-                      >
-                        {statusConfig?.label || i.status}
-                      </Badge>
-                    </div>
-
-                    {/* Job info */}
-                    <p className="text-xs text-muted-foreground">
-                      {isPopulatedJobId(i.jobId)
-                        ? `${i.jobId.companyName} — ${i.jobId.jobTitle}`
-                        : "Job details unavailable"}
-                    </p>
-
-                    {/* Footer */}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5" />
-                        {i.date.toLocaleString()}
-                      </span>
-
-                      <span className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer">
-                        <Video className="h-3.5 w-3.5" />
-                        Join
-                      </span>
-                    </div>
-                  </Link>
-                </li>
-              );
-            })
-          )}
+            return (
+              <InterviewItem
+                key={i._id}
+                i={i}
+                statusCfg={cfg}
+              />
+            );
+          })}
         </ul>
       )}
     </Card>

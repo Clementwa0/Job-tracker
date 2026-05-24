@@ -24,6 +24,7 @@ import {
   Building,
 } from "lucide-react";
 import StatCard from "./StatCard";
+import WeeklyChart from "./WeeklyChart";
 
 const Analytics = () => {
   const { jobs } = useJobs();
@@ -271,21 +272,7 @@ const Analytics = () => {
                 <CardTitle>Application Timeline</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <AreaChart data={timelineChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Area
-                      type="monotone"
-                      dataKey="applications"
-                      stroke="#8884d8"
-                      fill="#8884d8"
-                      fillOpacity={0.3}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                <WeeklyChart/>
               </CardContent>
             </Card>
           </TabsContent>
