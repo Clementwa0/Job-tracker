@@ -11,9 +11,7 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell,
-  Area,
-  AreaChart,
+  Cell
 } from "recharts";
 import {
   CalendarDays,
@@ -85,27 +83,7 @@ const Analytics = () => {
       count,
     }));
 
-  // Timeline data - applications per month
-  const timelineData = jobs.reduce((acc, job) => {
-    if (job.applicationDate) {
-      const date = new Date(job.applicationDate);
-      const monthKey = `${date.getFullYear()}-${String(
-        date.getMonth() + 1
-      ).padStart(2, "0")}`;
-      acc[monthKey] = (acc[monthKey] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<string, number>);
 
-  const timelineChartData = Object.entries(timelineData)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([month, count]) => ({
-      month: new Date(month + "-01").toLocaleDateString("en-US", {
-        month: "short",
-        year: "numeric",
-      }),
-      applications: count,
-    }));
 
   const COLORS = [
     "#0088FE",

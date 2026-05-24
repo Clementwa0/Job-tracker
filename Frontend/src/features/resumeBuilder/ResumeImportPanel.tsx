@@ -116,7 +116,6 @@ async function extractPdf(file: File): Promise<string> {
   });
   // worker
   try {
-    // @ts-expect-error vite asset import — works when pdfjs-dist is installed
     const workerUrl = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
     pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
   } catch {
