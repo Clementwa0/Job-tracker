@@ -9,6 +9,7 @@ import {
   Plus,
   BriefcaseBusiness,
   FileText,
+  FilePlus2,
 } from "lucide-react";
 
 /* -------------------------------------------------------------------------- */
@@ -156,9 +157,9 @@ export const links: NavLink[] = [
     icon: Calendar,
   },
   {
-    path: "/cv-review",
-    name: "AI CV Review",
-    icon: FileText,
+    path: "/resume-builder",
+    name: "Resume Builder",
+    icon: FilePlus2,
   },
 ];
 

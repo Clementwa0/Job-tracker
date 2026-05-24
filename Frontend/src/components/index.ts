@@ -49,14 +49,12 @@ export { default as StatCard } from '@/features/dashboard/components/StatCard';
 export { default as DashboardMood } from '@/features/dashboard/components/DashboardMood';
 export { default as Dashboard} from '@/pages/Dashboard/Dashboard';
 
-// cv-review
-export {ActionsPanel } from '@/features/cvReview/ActionsPanel'
-export {FeedbackTabs} from '@/features/cvReview/FeedbackTabs'
-export {QuickTips } from '@/features/cvReview/QuickTips';
-export {ScoreOverview} from '@/features/cvReview/ScoreOverview';
-export {UploadSection} from '@/features/cvReview/UploadSection';
-export {RecommendedJobs} from '@/features/cvReview/RecommendedJobs';
-export {default as CvReview} from '@/pages/cvreview/cvReview';
+//resumes
+export { default as ResumeBuilder } from '@/pages/resumeBuilder/ResumeBuilder';
+export { default as ResumePreview } from '@/features/resumeBuilder/ResumePreview';
+export { default as ResumeToolbar } from '@/features/resumeBuilder/ResumeToolbar';
+export { default as ExperienceEditor } from '@/features/resumeBuilder/ExperienceEditor';
+export { default as SectionCard } from '@/features/resumeBuilder/SectionCard';
 
 // Calendar
 export { default as CalendarLegend } from '@/features/calendar/CalendarLegend';
