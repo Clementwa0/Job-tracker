@@ -1,96 +1,63 @@
-import { Plus } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-
+import { Suspense } from "react";
 import {
   DashboardMood,
   DashboardStats,
   RecentApplications,
-  TipCard,
   UpcomingInterviews,
-} from "@/components";
+  TipCard,
+  DashboardSkeleton,
+} from "@/features/dashboard";
+
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   return (
-    <div className="min-h-screen">
-      <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-        {/* HEADER */}
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <Suspense fallback={<DashboardSkeleton />}>
+      <div className="max-w-7xl mx-auto  md:p- space-y-6">
+
+        {/* Top Actions */}
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Track your job search progress and stay organized.
+            <h1 className="text-2xl font-bold tracking-tight">
+              Dashboard
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Track your applications and upcoming interviews.
             </p>
           </div>
-          <Button size="lg" className="gap-2">
-            <Plus className="h-4 w-4" />
-            <Link to="/add-job">Add New Job</Link>
-          </Button>
-        </header>
 
-        {/* MOOD */}
+          <Button asChild size="sm">
+            <Link to="/add-job">
+              <Plus className="h-4 w-4 mr-1" />
+              Add Job
+            </Link>
+          </Button>
+        </div>
+
+        {/* Mood Section */}
         <DashboardMood />
 
-        {/* STATS */}
-        <section className="space-y-3">
-          <div>
-            <h2 className="text-lg font-semibold tracking-tight">Overview</h2>
-            <p className="text-sm text-muted-foreground">
-              Your job search performance at a glance.
-            </p>
+        {/* Stats */}
+        <DashboardStats />
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Left Content */}
+          <div className="lg:col-span-2 space-y-4">
+            <RecentApplications />
           </div>
-          <DashboardStats />
-        </section>
 
-        {/* MAIN GRID */}
-        <div className="grid gap-2 lg:grid-cols-3">
-          {/* LEFT - Takes 2 columns */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Recent Applications</CardTitle>
-              <CardDescription>Latest job activity updates</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RecentApplications />
-            </CardContent>
-          </Card>
-
-          {/* RIGHT SIDEBAR - Takes 1 column */}
-          <div className="space-y-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Upcoming Interviews</CardTitle>
-                <CardDescription>
-                  Don't miss your scheduled interviews
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <UpcomingInterviews />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Tip of the Day</CardTitle>
-                <CardDescription>Improve your job search strategy</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <TipCard />
-              </CardContent>
-            </Card>
+          {/* Right Sidebar */}
+          <div className="space-y-4">
+            <UpcomingInterviews />
+            <TipCard />
           </div>
         </div>
       </div>
-    </div>
+    </Suspense>
   );
-}
+};
 
 export default Dashboard;

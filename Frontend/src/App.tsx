@@ -15,14 +15,15 @@ import {
   Terms,
   Login,
   Register,
-  CvReview,
   Interviews,
+  ResumeBuilder,
 } from "@/components/index";
 
 import { JobProvider } from "@/hooks/JobContext";
 import { AuthProvider } from "@/hooks/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ThemeProvider } from "./constants/theme-provider";
+import ResumesDashboard from "./pages/resumeBuilder/ResumesDashboard";
 
 const App = () => {
   return (
@@ -60,9 +61,10 @@ const App = () => {
                 {/* Productivity Modules */}
                 <Route path="/calendar" element={<Calendar />} />
                 <Route path="/analytics" element={<Analytics />} />
-                <Route path="/cv-review" element={<CvReview />} />
                 <Route path="/profile" element={<Profile />} />
-
+                   <Route path="/resumes" element={<ResumesDashboard />} />
+                    <Route path="/resume-builder" element={<ResumeBuilder />} />
+                    <Route path="/resume-builder/:id" element={<ResumeBuilder />} />
                 {/* Interviews (GLOBAL VIEW) */}
                 <Route path="/interviews" element={<Interviews />} />
 
