@@ -200,7 +200,7 @@ const Calendar = () => {
             }}
             buttonText={{ today: "Today" }}
             eventDisplay="block"
-            dayHeaderClassNames="text-[10px] md:text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+            dayHeaderClassNames="text-[10px] md:text-xs font-semibold uppercase tracking-wide text-gray-500 dark:bg-gray-900 dark:text-gray-400"
             eventClassNames="cursor-pointer rounded-md px-0.5 py-0.5 text-[10px] md:text-xs font-medium shadow-sm hover:opacity-90 transition"
             dayCellClassNames="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors"
             noEventsContent={() => (
@@ -234,18 +234,18 @@ const Calendar = () => {
         }
         .fc-themed .fc-button {
           background: transparent;
-          border: 1px solid rgb(229 231 235);
+          border: 1px solid rgb(255, 255, 255);
           color: inherit;
           text-transform: capitalize;
           box-shadow: none;
           padding: 0.3rem 0.55rem;
           font-size: 0.75rem;
         }
-        .fc-themed .fc-button:hover { background: rgb(243 244 246); }
+        .fc-themed .fc-button:hover { background: rgb(231, 231, 231); }
         .fc-themed .fc-button-primary:not(:disabled).fc-button-active,
         .fc-themed .fc-button-primary:not(:disabled):active {
           background: ${EVENT_COLORS.applied.bg};
-          color: #fff;
+          color: #ececec;
           border-color: ${EVENT_COLORS.applied.bg};
         }
         .dark .fc-themed .fc-button { border-color: rgb(55 65 81); }
@@ -256,7 +256,7 @@ const Calendar = () => {
           padding: 2px 4px;
         }
         .fc-themed .fc-day-today { background: rgba(59,130,246,0.06) !important; }
-        .dark .fc-themed { color: rgb(229 231 235); }
+        .dark .fc-themed { color: rgb(242, 242, 243); }
         .dark .fc-themed .fc-scrollgrid,
         .dark .fc-themed td,
         .dark .fc-themed th { border-color: rgb(31 41 55); }

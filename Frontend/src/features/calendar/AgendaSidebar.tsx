@@ -19,7 +19,7 @@ function formatWhen(iso: string) {
   eventDate.setHours(0, 0, 0, 0);
 
   const diffDays = Math.round(
-    (eventDate.getTime() - today.getTime()) / 86_400_000
+    (eventDate.getTime() - today.getTime()) / 86_400_000,
   );
 
   const date = d.toLocaleDateString(undefined, {
@@ -37,31 +37,21 @@ function formatWhen(iso: string) {
     diffDays === 0
       ? "Today"
       : diffDays === 1
-      ? "Tomorrow"
-      : diffDays < 0
-      ? `${-diffDays}d ago`
-      : `in ${diffDays}d`;
+        ? "Tomorrow"
+        : diffDays < 0
+          ? `${-diffDays}d ago`
+          : `in ${diffDays}d`;
 
   return { date, time, rel };
 }
 
-export default function AgendaSidebar({
-  events,
-  onSelect,
-  limit = 8,
-}: Props) {
+export default function AgendaSidebar({ events, onSelect, limit = 8 }: Props) {
   const upcoming = useMemo(() => {
     const now = Date.now();
 
     return [...events]
-      .filter(
-        (e) => new Date(e.start).getTime() >= now - 24 * 3600 * 1000
-      )
-      .sort(
-        (a, b) =>
-          new Date(a.start).getTime() -
-          new Date(b.start).getTime()
-      )
+      .filter((e) => new Date(e.start).getTime() >= now - 24 * 3600 * 1000)
+      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
       .slice(0, limit);
   }, [events, limit]);
 
@@ -70,8 +60,9 @@ export default function AgendaSidebar({
       className="
         rounded-2xl border border-gray-200 dark:border-gray-800
         bg-white dark:bg-gray-900
-        p-3 sm:p-4
-        w-full
+        p-2 sm:p-2
+        w-full sm:w-80
+        transition-colors
       "
     >
       {/* Header */}
@@ -140,7 +131,9 @@ export default function AgendaSidebar({
                           text-gray-900 dark:text-gray-100
                         "
                       >
-                        {e.title}
+                        {e.title.length > 40
+                          ? `${e.title.slice(0, 40)}...`
+                          : e.title}
                       </p>
 
                       <div
@@ -154,9 +147,7 @@ export default function AgendaSidebar({
                         <span>•</span>
                         <span>{w.time}</span>
 
-                        <span className="opacity-70">
-                          ({w.rel})
-                        </span>
+                        <span className="opacity-70">({w.rel})</span>
                       </div>
                     </div>
                   </div>
