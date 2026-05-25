@@ -49,6 +49,15 @@ export { default as StatCard } from '@/features/dashboard/components/StatCard';
 export { default as DashboardMood } from '@/features/dashboard/components/DashboardMood';
 export { default as Dashboard} from '@/pages/Dashboard/Dashboard';
 
+// cvreview
+export {ActionsPanel } from '@/features/cvReview/ActionsPanel'
+export {FeedbackTabs} from '@/features/cvReview/FeedbackTabs'
+export {QuickTips } from '@/features/cvReview/QuickTips';
+export {ScoreOverview} from '@/features/cvReview/ScoreOverview';
+export {UploadSection} from '@/features/cvReview/UploadSection';
+export {RecommendedJobs} from '@/features/cvReview/RecommendedJobs';
+export {default as CvReview} from '@/pages/cvReview/cvReview';
+
 //resumes
 export { default as ResumeBuilder } from '@/pages/resumeBuilder/ResumeBuilder';
 export { default as ResumePreview } from '@/features/resumeBuilder/ResumePreview';
