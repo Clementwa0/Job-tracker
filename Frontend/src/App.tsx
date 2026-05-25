@@ -15,7 +15,7 @@ import {
   Terms,
   Login,
   Register,
-  Interviews,
+  Interviews,CvReview,
   ResumeBuilder,
 } from "@/components/index";
 
@@ -62,9 +62,10 @@ const App = () => {
                 <Route path="/calendar" element={<Calendar />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/profile" element={<Profile />} />
-                   <Route path="/resumes" element={<ResumesDashboard />} />
-                    <Route path="/resume-builder" element={<ResumeBuilder />} />
-                    <Route path="/resume-builder/:id" element={<ResumeBuilder />} />
+                <Route path="/cv-review" element={<CvReview />} />
+                <Route path="/resumes" element={<ResumesDashboard />} />
+                <Route path="/resume-builder" element={<ResumeBuilder />} />
+                <Route path="/resume-builder/:id" element={<ResumeBuilder />} />
                 {/* Interviews (GLOBAL VIEW) */}
                 <Route path="/interviews" element={<Interviews />} />
 
