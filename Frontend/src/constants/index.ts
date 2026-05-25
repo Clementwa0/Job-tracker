@@ -156,6 +156,11 @@ export const links: NavLink[] = [
     name: "Calendar",
     icon: Calendar,
   },
+   {
+    path: "/cv-review",
+    name: "AI CV Review",
+    icon: FileText,
+  },
   {
     path: "/resume-builder",
     name: "Resume Builder",
