@@ -7,7 +7,6 @@ export type ApplicationStatus =
   | "rejected"
   | "waiting_response"
   | "ghosted"
-  | "accepted"
   | "completed";
 
 export const applicationStatusColors: Record<ApplicationStatus, string> = {
@@ -17,7 +16,6 @@ export const applicationStatusColors: Record<ApplicationStatus, string> = {
   rejected: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
   "waiting_response": "bg-orange-500/10 text-orange-600 dark:text-orange-400",
   ghosted: "bg-stone-500/10 text-stone-600 dark:text-stone-400",
-  accepted: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
   completed: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-400",
 };
 

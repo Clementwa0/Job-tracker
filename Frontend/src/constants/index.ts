@@ -291,3 +291,63 @@ export const interviewStatus: InterviewStatus[] = [
     className: "text-red-400 bg-red-500/10 border-red-500/30",
   },
 ];
+
+
+export const STATUS_META: Record<
+  ApplicationStatus,
+  { label: string; color: string }
+> = {
+  applied: {
+    label: "Applied",
+    color: "#3b82f6",
+  },
+
+  interviewing: {
+    label: "Interviewing",
+    color: "#8b5cf6",
+  },
+
+  offer: {
+    label: "Offer",
+    color: "#22c55e",
+  },
+
+  rejected: {
+    label: "Rejected",
+    color: "#ef4444",
+  },
+
+  ghosted: {
+    label: "Ghosted",
+    color: "#64748b",
+  },
+
+  completed: {
+    label: "Completed",
+    color: "#06b6d4",
+  },
+
+  waiting_response: {
+    label: "Waiting Response",
+    color: "#f59e0b",
+  },
+
+};
+
+export const FUNNEL_ORDER: ApplicationStatus[] = ["applied", "interviewing", "offer", "rejected", "waiting_response", "ghosted", "completed"];
+
+export const tooltipStyle = {
+  background: "var(--color-popover)",
+  border: "1px solid var(--color-border)",
+  borderRadius: 12,
+  color: "var(--color-foreground)",
+  fontSize: 12,
+};
+
+export const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+export const daysAgo = (iso: string) => {
+  const diff = (Date.now() - new Date(iso).getTime()) / 86400000;
+  return Math.max(0, Math.round(diff));
+};
