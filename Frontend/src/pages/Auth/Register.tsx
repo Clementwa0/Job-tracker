@@ -10,15 +10,16 @@ const Register = () => {
       <RegisterFeatures />
 
       {/* Right Panel */}
-      <div className="absolute flex flex-end top-4 right-4 ">
-        <Button asChild variant="default" size="sm" className="px-2 py-1 text-gray-100 mb-4">
-          <Link to="/" className="flex items-center gap-1  ">
-          <ArrowLeft className="w-3 h-3" />
+        <div className="absolute top-4 right-4 z-10">
+        <Button asChild size="sm">
+          <Link to="/" className="flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
         </Button>
       </div>
-      <div className="flex-1 flex items-center justify-center p-4 lg:p-6 bg-animated relative overflow-hidden">
+      
+      <div className="flex-1 flex items-center justify-center p-4 lg:p-6 relative overflow-hidden">
         <RegisterForm />
       </div>
     </div>

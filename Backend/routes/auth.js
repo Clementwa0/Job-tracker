@@ -1,31 +1,26 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const ctrl = require("../controllers/authController");
+const auth = require("../middleware/auth");
+const { authLimiter, passwordResetLimiter } = require("../middleware/rateLimit");
 const {
-  register,
-  login,
-  getCurrentUser,
+  registerValidation, loginValidation,
+  forgotPasswordValidation, resetPasswordValidation,
+  changePasswordValidation,
+} = require("../middleware/validation");
 
-} = require('../controllers/authController');
-const {
-  registerValidation,
-  loginValidation,
-  // forgotPasswordValidation,
-  // resetPasswordValidation
-} = require('../middleware/validation');
-const auth = require('../middleware/auth');
+router.post("/register", authLimiter, registerValidation, ctrl.register);
+router.post("/login", authLimiter, loginValidation, ctrl.login);
+router.post("/refresh", ctrl.refresh);
+router.post("/logout", ctrl.logout);
+router.get("/me", auth, ctrl.getCurrentUser);
 
-// Auth routes
-router.post('/register', registerValidation, register);
-router.post('/login', loginValidation, login);
-router.get('/me', auth, getCurrentUser);
+router.get("/verify-email/:token", ctrl.verifyEmail);
+router.post("/forgot-password", passwordResetLimiter, forgotPasswordValidation, ctrl.forgotPassword);
+router.post("/reset-password/:token", passwordResetLimiter, resetPasswordValidation, ctrl.resetPassword);
+router.post("/change-password", auth, changePasswordValidation, ctrl.changePassword);
 
-// Password reset
-// router.post('/forgot-password', forgotPasswordValidation, forgotPassword);
-// router.post('/reset-password/:token', resetPasswordValidation, resetPassword);
-
-// Logout (if you handle token revocation/blacklist)
-router.post('/logout', auth, (req, res) => {
-  res.json({ success: true, message: 'Logged out successfully' });
-});
+router.get("/sessions", auth, ctrl.listSessions);
+router.delete("/sessions/:id", auth, ctrl.revokeSession);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import { memo, type ReactNode, useCallback, useState } from "react";
 import { ChevronDown, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +12,7 @@ interface Props {
   actions?: ReactNode;
 }
 
-export default function SectionCard({
+function SectionCard({
   title,
   description,
   children,
@@ -22,24 +22,33 @@ export default function SectionCard({
   actions,
 }: Props) {
   const [open, setOpen] = useState(defaultOpen);
+  const toggle = useCallback(() => setOpen((o) => !o), []);
+  const panelId = `section-${title.replace(/\s+/g, "-").toLowerCase()}`;
+
   return (
-    <section className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+    <section className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
       <header className="flex items-center justify-between gap-3 p-4">
         <button
           type="button"
-          onClick={() => setOpen((o) => !o)}
-          className="flex items-center gap-2 text-left flex-1 min-w-0"
+          onClick={toggle}
           aria-expanded={open}
+          aria-controls={panelId}
+          className="flex min-w-0 flex-1 items-center gap-2 rounded text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
           <ChevronDown
             className={cn(
-              "h-4 w-4 text-gray-500 transition-transform shrink-0",
+              "h-4 w-4 shrink-0 text-gray-500 transition-transform",
               !open && "-rotate-90",
             )}
+            aria-hidden
           />
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{title}</h3>
-            {description && <p className="text-xs text-gray-500 truncate">{description}</p>}
+            <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+              {title}
+            </h3>
+            {description && (
+              <p className="truncate text-xs text-gray-500">{description}</p>
+            )}
           </div>
         </button>
         {actions}
@@ -47,18 +56,28 @@ export default function SectionCard({
           <button
             type="button"
             onClick={onAdd}
-            className="inline-flex items-center gap-1 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
           >
-            <Plus className="h-3.5 w-3.5" /> {addLabel}
+            <Plus className="h-3.5 w-3.5" aria-hidden /> {addLabel}
           </button>
         )}
       </header>
-      {open && <div className="border-t border-gray-100 dark:border-gray-800 p-4 space-y-4">{children}</div>}
+      {open && (
+        <div
+          id={panelId}
+          className="space-y-4 border-t border-gray-100 p-4 dark:border-gray-800"
+        >
+          {children}
+        </div>
+      )}
     </section>
   );
 }
 
-export function Field({
+export default memo(SectionCard);
+
+/** Form field wrapper. Memoized — children are still re-rendered as needed. */
+export const Field = memo(function Field({
   label,
   children,
   className,
@@ -75,7 +94,7 @@ export function Field({
       {children}
     </label>
   );
-}
+});
 
 export const inputCls =
-  "w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2.5 py-1.5 text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition";
+  "w-full rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100";

@@ -1,6 +1,7 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useState, useContext, useEffect, useCallback } from "react";
 import type { Job, JobPayload } from "@/types/job";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/AuthContext";
 import { jobService } from "@/services/jobService";
 import { getApiErrorMessage } from "@/lib/apiError";
 
@@ -22,9 +23,11 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
-  const refetchJobs = async () => {
+  const refetchJobs = useCallback(async () => {
     try {
+      setIsLoading(true);
       const nextJobs = await jobService.getJobs();
       setJobs(nextJobs);
     } catch (error) {
@@ -32,18 +35,22 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
         title: "Error loading jobs",
         description: getApiErrorMessage(error),
       });
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
-    const loadJobs = async () => {
-      setIsLoading(true);
-      await refetchJobs();
-      setIsLoading(false);
-    };
+    if (authLoading) return;
 
-    loadJobs();
-  }, []);
+    if (!isAuthenticated) {
+      setJobs([]);
+      setIsLoading(false);
+      return;
+    }
+
+    refetchJobs();
+  }, [authLoading, isAuthenticated, refetchJobs]);
 
   const addJob = async (job: JobPayload) => {
     try {

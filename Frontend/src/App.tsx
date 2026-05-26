@@ -15,7 +15,8 @@ import {
   Terms,
   Login,
   Register,
-  Interviews,CvReview,
+  Interviews,
+  CvReview,
   ResumeBuilder,
 } from "@/components/index";
 
@@ -32,14 +33,16 @@ const App = () => {
         <Router>
           <JobProvider>
             <Routes>
-
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forget-password" element={<ForgotPassword />} />
-              <Route path="/reset-password/:token" element={<ResetPassword />} />
+              <Route
+                path="/reset-password/:token"
+                element={<ResetPassword />}
+              />
 
               {/* Protected App Shell */}
               <Route
@@ -49,7 +52,6 @@ const App = () => {
                   </ProtectedRoute>
                 }
               >
-
                 {/* Core Dashboard */}
                 <Route path="/dashboard" element={<Dashboard />} />
 
@@ -62,15 +64,12 @@ const App = () => {
                 <Route path="/calendar" element={<Calendar />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/cv-review" element={<CvReview />} />
                 <Route path="/resumes" element={<ResumesDashboard />} />
+                <Route path="/cv-review" element={<CvReview />} />
                 <Route path="/resume-builder" element={<ResumeBuilder />} />
                 <Route path="/resume-builder/:id" element={<ResumeBuilder />} />
-                {/* Interviews (GLOBAL VIEW) */}
                 <Route path="/interviews" element={<Interviews />} />
-
               </Route>
-
             </Routes>
           </JobProvider>
         </Router>

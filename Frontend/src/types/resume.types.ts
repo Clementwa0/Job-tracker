@@ -13,3 +13,8 @@ export interface UploadedFile {
   size: number;
   type: string;
 }
+
+export interface ReviewCvDto {
+  cvText: string;
+  jobDescription?: string;
+}

@@ -1,35 +1,86 @@
 const mongoose = require("mongoose");
 
-const jobSchema = new mongoose.Schema({
-  jobTitle: String,
-  companyName: String,
-  location: String,
-  jobType: String,
-  applicationDate: String,
-  applicationDeadline: String,
-  source: String,
-  applicationStatus: String,
-  contactPerson: String,
-  contactEmail: String,
-  contactPhone: String,
-  resumeFile: String,
-  coverLetterFile: String,
-  jobPostingUrl: String,
-  salaryRange: String,
-  notes: String,
-
-  interviews: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Interview",
-    },
-  ],
-
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const activitySchema = new mongoose.Schema(
+  {
+    type: { type: String, default: "note" }, // note | status | reminder | system
+    message: String,
+    meta: mongoose.Schema.Types.Mixed,
+    createdAt: { type: Date, default: Date.now },
   },
-});
+  { _id: true }
+);
+
+const attachmentSchema = new mongoose.Schema(
+  {
+    name: String,
+    url: String,
+    type: String,
+    size: Number,
+    uploadedAt: { type: Date, default: Date.now },
+  },
+  { _id: true }
+);
+
+const reminderSchema = new mongoose.Schema(
+  {
+    title: String,
+    dueAt: Date,
+    done: { type: Boolean, default: false },
+  },
+  { _id: true }
+);
+
+const jobSchema = new mongoose.Schema(
+  {
+    jobTitle: String,
+    companyName: String,
+    companyLogo: String,
+    location: String,
+    jobType: String, // Full-time | Part-time | Contract | Internship
+    workMode: { type: String, enum: ["remote", "onsite", "hybrid", ""], default: "" },
+    applicationDate: Date,
+    applicationDeadline: Date,
+    source: String,
+    applicationStatus: { type: String, default: "applied" },
+    priority: { type: String, enum: ["low", "medium", "high", "urgent"], default: "medium" },
+    tags: { type: [String], default: [] },
+
+    salaryMin: Number,
+    salaryMax: Number,
+    salaryCurrency: { type: String, default: "USD" },
+    salaryRange: String, // legacy display string (kept for backward compat)
+
+    contactPerson: String,
+    contactEmail: String,
+    contactPhone: String,
+    recruiterLinkedIn: String,
+
+    resumeFile: String,
+    coverLetterFile: String,
+    attachments: { type: [attachmentSchema], default: [] },
+
+    jobPostingUrl: String,
+    jobDescription: String,
+    matchScore: { type: Number, min: 0, max: 100, default: null },
+    matchAnalysis: mongoose.Schema.Types.Mixed, // { strengths, gaps, keywords, suggestions }
+
+    notes: String,
+    activity: { type: [activitySchema], default: [] },
+    reminders: { type: [reminderSchema], default: [] },
+
+    isArchived: { type: Boolean, default: false },
+    archivedAt: Date,
+
+    interviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Interview" }],
+
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  },
+  { timestamps: true }
+);
+
+jobSchema.index({ userId: 1, applicationStatus: 1 });
+jobSchema.index({ userId: 1, isArchived: 1 });
+jobSchema.index({ userId: 1, companyName: 1 });
+jobSchema.index({ jobTitle: "text", companyName: "text", notes: "text", tags: "text" });
 
 module.exports = mongoose.model("Job", jobSchema);

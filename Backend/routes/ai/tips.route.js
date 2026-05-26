@@ -1,27 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const { chat } = require("./groq.service");
-
-const models = [
-  "groq/compound-mini",
-    "groq/llama-3.1-70b-versatile",
-  "groq/llama-3.2-90b-vision-preview"
-];
+const { MODEL_FALLBACKS, TEMPERATURE } = require("./models.config");
 
 router.get("/", async (req, res) => {
   try {
-    let result = null;
-    let usedModel = null;
-
-    for (const model of models) {
-      try {
-        result = await chat({
-          model,
-          temperature: 0.7,
-          messages: [
-            {
-              role: "system",
-              content: `
+    const result = await chat({
+      model: MODEL_FALLBACKS.generation,
+      temperature: TEMPERATURE.TIPS,
+      useFallback: true,
+      messages: [
+        {
+          role: "system",
+          content: `
 You are a senior career coach.
 
 Return ONLY valid JSON:
@@ -31,34 +22,19 @@ Return ONLY valid JSON:
   "description": "one clear practical job application tip (1 sentence)",
   "category": "interview | CV | networking | application | career growth"
 }
-              `.trim(),
-            },
-            {
-              role: "user",
-              content: "Give me a unique job application tip.",
-            },
-          ],
-        });
-
-        usedModel = model;
-        break;
-      } catch (err) {
-        console.error(`Model failed: ${model}`);
-      }
-    }
-
-    if (!result) {
-      return res.status(500).json({
-        success: false,
-        title: "Error",
-        description: "Failed to generate a career tip.",
-      });
-    }
+          `.trim(),
+        },
+        {
+          role: "user",
+          content: "Give me a unique job application tip.",
+        },
+      ],
+    });
 
     return res.status(200).json({
       success: true,
       ...result,
-      model: usedModel,
+      model: "groq/llama-3.1-70b-versatile",
     });
 
   } catch (err) {

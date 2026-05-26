@@ -1,12 +1,24 @@
-const express = require('express'); // Import express
-const { addJob, getJobs, getJobById, updateJob, deleteJob } = require('../controllers/jobControllers'); // Import job controllers
-const router = express.Router(); // Initialize router
-const auth = require('../middleware/auth'); // Import auth middleware
+const express = require("express");
+const router = express.Router();
+const auth = require("../middleware/auth");
+const {
+  addJob, getJobs, getJobById, updateJob, deleteJob,
+  duplicateJob, archiveJob, bulkUpdate, bulkDelete, addActivity, getStats,
+} = require("../controllers/jobControllers");
 
-router.post("/", auth, addJob); // Create job
-router.get('/', auth, getJobs); // Get all jobs
-router.get('/:id', auth, getJobById); // Get job by ID
-router.put('/:id', auth, updateJob); // Update job by ID
-router.delete('/:id', auth, deleteJob); // Delete job by ID
+router.get("/stats", auth, getStats);
 
-module.exports = router; // Export router
+router.post("/bulk/update", auth, bulkUpdate);
+router.post("/bulk/delete", auth, bulkDelete);
+
+router.post("/", auth, addJob);
+router.get("/", auth, getJobs);
+router.get("/:id", auth, getJobById);
+router.put("/:id", auth, updateJob);
+router.delete("/:id", auth, deleteJob);
+
+router.post("/:id/duplicate", auth, duplicateJob);
+router.post("/:id/archive", auth, archiveJob);
+router.post("/:id/activity", auth, addActivity);
+
+module.exports = router;

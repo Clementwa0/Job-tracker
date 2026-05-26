@@ -57,7 +57,7 @@ export default function ResumeBuilder() {
   if (!id) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 dark:bg-gray-950 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 dark:bg-gray-900 md:p-6 lg:p-8">
       <div className="mx-auto max-w-[1500px] space-y-4">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">

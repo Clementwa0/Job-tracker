@@ -125,7 +125,7 @@ export const UploadSection: React.FC<UploadSectionProps> = ({
                 value={cvText}
                 onChange={(e) => setCvText(e.target.value)}
                 placeholder="Paste your CV content here..."
-                className="min-h-[200px] resize-y font-mono"
+                className="min-h-[200px] overflow-hidden font-mono"
                 disabled={parsingFile}
               />
             </div>

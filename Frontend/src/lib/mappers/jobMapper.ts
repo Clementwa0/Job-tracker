@@ -6,36 +6,52 @@ import type { BackendJob, Job } from "@/types/job";
  */
 export function mapBackendJobToFrontend(job: BackendJob): Job {
   return {
-    id: job._id,
+  id: job._id,
 
-    jobTitle: job.jobTitle ?? "",
-    companyName: job.companyName ?? "",
-    location: job.location ?? "",
-    jobType: job.jobType ?? "",
-    salaryRange: job.salaryRange ?? "",
+  jobTitle: job.jobTitle ?? "",
+  companyName: job.companyName ?? "",
+  companyLogo: job.companyLogo ?? "",
+  location: job.location ?? "",
+  jobType: job.jobType ?? "",
+  salaryRange: job.salaryRange ?? "",
 
-    applicationDate: job.applicationDate
-      ? new Date(job.applicationDate).toISOString()
-      : "",
+  applicationDate: job.applicationDate
+    ? new Date(job.applicationDate).toISOString()
+    : "",
 
-    applicationDeadline: job.applicationDeadline
-      ? new Date(job.applicationDeadline).toISOString()
-      : "",
+  applicationDeadline: job.applicationDeadline
+    ? new Date(job.applicationDeadline).toISOString()
+    : "",
 
-    applicationStatus: (job.applicationStatus ?? "applied").toLowerCase(),
+  applicationStatus: (job.applicationStatus ?? "applied").toLowerCase(),
 
-    resumeFile: job.resumeFile ?? null,
+  resumeFile: job.resumeFile ?? null,
 
-    contactEmail: job.contactEmail ?? "",
-    contactPhone: job.contactPhone ?? "",
-    jobPostingUrl: job.jobPostingUrl ?? "",
+  contactEmail: job.contactEmail ?? "",
+  contactPhone: job.contactPhone ?? "",
+  jobPostingUrl: job.jobPostingUrl ?? "",
 
-    notes: job.notes ?? "",
-    contactPerson: job.contactPerson ?? "",
-    source: job.source ?? "",
+  notes: job.notes ?? "",
+  contactPerson: job.contactPerson ?? "",
+  source: job.source ?? "",
 
-    interviews: job.interviews ?? [],
-  };
+  interviews: job.interviews ?? [],
+  workMode: "",
+  salaryMin: null,
+  salaryMax: null,
+  salaryCurrency: "",
+  priority: "low",
+  tags: [],
+  coverLetterFile: null,
+  attachments: [],
+  recruiterLinkedIn: "",
+  jobDescription: "",
+  matchScore: null,
+  matchAnalysis: null,
+  activity: [],
+  reminders: [],
+  isArchived: false,
+};
 }
 
 /**

@@ -61,7 +61,7 @@ export function RegisterForm() {
       
       <div
         ref={formRef}
-        className="w-full max-w-sm bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl p-6 shadow-xl 
+        className="w-full max-w-sm bg-card/80 backdrop-blur-md border border-gray-600 rounded-2xl p-6 shadow-xl 
           hover:shadow-2xl transition-shadow duration-300 relative z-10"
       >
         <div className="text-center mb-5">
@@ -83,7 +83,7 @@ export function RegisterForm() {
 
           {/* Name Field */}
           <div className="space-y-1.5">
-            <Label htmlFor="name" className="text-xs font-semibold text-gray-700">
+            <Label htmlFor="name" className="text-xs font-semibold text-gray-700 dark:text-white">
               Full Name
             </Label>
             <Input
@@ -107,7 +107,7 @@ export function RegisterForm() {
 
           {/* Email Field */}
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-xs font-semibold text-gray-700">
+            <Label htmlFor="email" className="text-xs font-semibold text-gray-700 dark:text-white">
               Email Address
             </Label>
             <Input
@@ -131,7 +131,7 @@ export function RegisterForm() {
 
           {/* Password Field */}
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-xs font-semibold text-gray-700">
+            <Label htmlFor="password" className="text-xs font-semibold text-gray-700 dark:text-white  ">
               Password
             </Label>
             <div className="relative">
@@ -179,7 +179,7 @@ export function RegisterForm() {
 
           {/* Confirm Password Field */}
           <div className="space-y-1.5">
-            <Label htmlFor="confirmPassword" className="text-xs font-semibold text-gray-700">
+            <Label htmlFor="confirmPassword" className="text-xs font-semibold text-gray-700 dark:text-white">
               Confirm Password
             </Label>
             <div className="relative">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { Trash2, Sparkles, Plus, X, Loader2 } from "lucide-react";
 import { Field, inputCls } from "./SectionCard";
 import type { ResumeExperience } from "@/types/resume-builder";
@@ -11,9 +11,13 @@ interface Props {
   remove: (id: string) => void;
 }
 
-export default function ExperienceEditor({ items, update, remove }: Props) {
+function ExperienceEditor({ items, update, remove }: Props) {
   if (items.length === 0) {
-    return <p className="text-sm text-gray-500">No experience yet. Add your first role.</p>;
+    return (
+      <p className="text-sm text-gray-500">
+        No experience yet. Add your first role.
+      </p>
+    );
   }
   return (
     <div className="space-y-4">
@@ -24,39 +28,57 @@ export default function ExperienceEditor({ items, update, remove }: Props) {
   );
 }
 
-function ExperienceItem({
-  item,
-  update,
-  remove,
-}: {
+export default memo(ExperienceEditor);
+
+/* ------------------------------------------------------------------ *
+ * Per-item memoization: editing one role does NOT re-render others.   *
+ * ------------------------------------------------------------------ */
+
+interface ItemProps {
   item: ResumeExperience;
   update: (id: string, patch: Partial<ResumeExperience>) => void;
   remove: (id: string) => void;
-}) {
-  const setBullet = (i: number, v: string) => {
-    const next = [...item.bullets];
-    next[i] = v;
-    update(item.id, { bullets: next });
-  };
-  const addBullet = () => update(item.id, { bullets: [...item.bullets, ""] });
-  const removeBullet = (i: number) =>
-    update(item.id, { bullets: item.bullets.filter((_, idx) => idx !== i) });
+}
+
+const ExperienceItem = memo(function ExperienceItem({ item, update, remove }: ItemProps) {
+  const setBullet = useCallback(
+    (i: number, v: string) => {
+      const next = [...item.bullets];
+      next[i] = v;
+      update(item.id, { bullets: next });
+    },
+    [item.bullets, item.id, update],
+  );
+
+  const addBullet = useCallback(
+    () => update(item.id, { bullets: [...item.bullets, ""] }),
+    [item.bullets, item.id, update],
+  );
+
+  const removeBullet = useCallback(
+    (i: number) =>
+      update(item.id, { bullets: item.bullets.filter((_, idx) => idx !== i) }),
+    [item.bullets, item.id, update],
+  );
 
   return (
-    <div className="rounded-lg border border-gray-100 dark:border-gray-800 p-3">
-      <div className="flex items-start justify-between gap-2 mb-3">
+    <article className="rounded-lg border border-gray-100 p-3 dark:border-gray-800">
+      <header className="mb-3 flex items-start justify-between gap-2">
         <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
-          {item.role || "New role"} {item.company && <span className="text-gray-500">· {item.company}</span>}
+          {item.role || "New role"}{" "}
+          {item.company && (
+            <span className="text-gray-500">· {item.company}</span>
+          )}
         </p>
         <button
           type="button"
           onClick={() => remove(item.id)}
-          className="rounded p-1 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30"
-          aria-label="Remove experience"
+          className="rounded p-1 text-gray-400 hover:bg-rose-50 hover:text-rose-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 dark:hover:bg-rose-950/30"
+          aria-label={`Remove ${item.role || "experience"}`}
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-4 w-4" aria-hidden />
         </button>
-      </div>
+      </header>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Role">
@@ -108,7 +130,12 @@ function ExperienceItem({
         <input
           type="checkbox"
           checked={item.current}
-          onChange={(e) => update(item.id, { current: e.target.checked, endDate: e.target.checked ? "" : item.endDate })}
+          onChange={(e) =>
+            update(item.id, {
+              current: e.target.checked,
+              endDate: e.target.checked ? "" : item.endDate,
+            })
+          }
         />
         I currently work here
       </label>
@@ -121,9 +148,9 @@ function ExperienceItem({
           <button
             type="button"
             onClick={addBullet}
-            className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
+            className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
-            <Plus className="h-3 w-3" /> Add bullet
+            <Plus className="h-3 w-3" aria-hidden /> Add bullet
           </button>
         </div>
         <ul className="space-y-2">
@@ -138,39 +165,41 @@ function ExperienceItem({
           ))}
         </ul>
       </div>
-    </div>
+    </article>
   );
-}
+});
 
-function BulletRow({
-  value,
-  onChange,
-  onRemove,
-  context,
-}: {
+interface BulletProps {
   value: string;
   onChange: (v: string) => void;
   onRemove: () => void;
   context: string;
-}) {
+}
+
+const BulletRow = memo(function BulletRow({ value, onChange, onRemove, context }: BulletProps) {
   const [busy, setBusy] = useState(false);
   const [variants, setVariants] = useState<string[]>([]);
 
-  const rewrite = async () => {
+  const rewrite = useCallback(async () => {
     if (!value.trim()) {
-      toast({ title: "Write something first", description: "Enter a bullet to rewrite." });
+      toast({
+        title: "Write something first",
+        description: "Enter a bullet to rewrite.",
+      });
       return;
     }
     setBusy(true);
     try {
-      const { variants } = await aiService.rewriteBullet(value, context);
-      setVariants(variants ?? []);
-    } catch (err: any) {
-      toast({ title: "Rewrite failed", description: err?.response?.data?.error ?? "Try again." });
+      const { variants: v } = await aiService.rewriteBullet(value, context);
+      setVariants(v ?? []);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Try again in a moment.";
+      toast({ title: "Rewrite failed", description: message });
     } finally {
       setBusy(false);
     }
-  };
+  }, [value, context]);
 
   return (
     <li>
@@ -180,39 +209,53 @@ function BulletRow({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Shipped feature X that reduced load time by 35%…"
-          className={inputCls + " resize-y"}
+          aria-label="Bullet"
+          className={`${inputCls} resize-y`}
         />
         <button
           type="button"
           onClick={rewrite}
           disabled={busy}
-          className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300"
+          className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300"
           title="Rewrite with AI"
+          aria-label="Rewrite bullet with AI"
         >
-          {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+          {busy ? (
+            <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
+          ) : (
+            <Sparkles className="h-3 w-3" aria-hidden />
+          )}
           AI
         </button>
         <button
           type="button"
           onClick={onRemove}
-          className="rounded p-1 text-gray-400 hover:text-rose-500"
+          className="rounded p-1 text-gray-400 hover:text-rose-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
           aria-label="Remove bullet"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4" aria-hidden />
         </button>
       </div>
       {variants.length > 0 && (
-        <div className="mt-2 ml-1 space-y-1 rounded-md border border-dashed border-blue-200 dark:border-blue-900 p-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-blue-600">AI suggestions</p>
+        <div
+          className="ml-1 mt-2 space-y-1 rounded-md border border-dashed border-blue-200 p-2 dark:border-blue-900"
+          role="listbox"
+          aria-label="AI suggestions"
+        >
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-blue-600">
+            AI suggestions
+          </p>
           {variants.map((v, i) => (
             <button
               key={i}
               type="button"
+              role="option"
+              aria-selected={false}
               onClick={() => {
                 onChange(v);
                 setVariants([]);
               }}
-              className="block w-full text-left text-xs rounded px-2 py-1 hover:bg-blue-50 dark:hover:bg-blue-950/30 text-gray-700 dark:text-gray-200"
+              className="block w-full rounded px-2 py-1 text-left text-xs text-gray-700 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-gray-200 dark:hover:bg-blue-950/30"
             >
               {v}
             </button>
@@ -221,4 +264,4 @@ function BulletRow({
       )}
     </li>
   );
-}
+});

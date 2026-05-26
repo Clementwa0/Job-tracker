@@ -36,6 +36,22 @@ const AddJob = () => {
     interviews: [] as Interview[], // 👈 Explicit type assertion fixes 'never[]' warning
     resumeFile: null,
     salaryRange: "",
+    companyLogo: "",
+  workMode: "",
+  salaryMin: null,
+  salaryMax: null,
+  salaryCurrency: "",
+  priority: "low",
+  tags: [],
+  coverLetterFile: null,
+  attachments: [],
+  recruiterLinkedIn: "",
+  jobDescription: "",
+  matchScore: null,
+  matchAnalysis: null,
+  activity: [],
+  reminders: [],
+  isArchived: false
   });
 
   const handleSubmit = async (e: React.FormEvent) => {

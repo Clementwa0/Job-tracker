@@ -36,6 +36,22 @@ const emptyJob: Job = {
   notes: "",
   interviews: [],
   resumeFile: null,
+  companyLogo: "",
+  workMode: "",
+  salaryMin: null,
+  salaryMax: null,
+  salaryCurrency: "",
+  priority: "low",
+  tags: [],
+  coverLetterFile: null,
+  attachments: [],
+  recruiterLinkedIn: "",
+  jobDescription: "",
+  matchScore: null,
+  matchAnalysis: null,
+  activity: [],
+  reminders: [],
+  isArchived: false
 };
 
 type JobStringFields = Extract<

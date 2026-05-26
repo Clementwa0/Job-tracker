@@ -15,11 +15,12 @@ import {
 
 import { Link, useLocation } from "react-router-dom";
 import { links } from "@/constants";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const AppSidebar = () => {
   const location = useLocation();
 
-  const { state, setOpenMobile, isMobile } = useSidebar();
+  const { state, setOpenMobile, isMobile, toggleSidebar } = useSidebar();
 
   const collapsed = state === "collapsed";
 
@@ -39,8 +40,35 @@ const AppSidebar = () => {
         backdrop-blur
         dark:border-gray-800
         dark:bg-gray-900
+        relative
       "
     >
+      {/* Toggle Button - Fixed position */}
+      <button
+        onClick={toggleSidebar}
+        className="
+          absolute -right-3 top-20 z-50
+          flex h-6 w-6 items-center justify-center
+          rounded-full border
+          bg-background
+          shadow-md
+          transition-all duration-200
+          hover:scale-110
+          hover:bg-gray-100
+          dark:border-gray-700
+          dark:bg-gray-900
+          dark:hover:bg-gray-800
+          focus:outline-none focus:ring-2 focus:ring-primary
+        "
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {collapsed ? (
+          <ChevronRight className="h-3 w-3 text-gray-600 dark:text-gray-400" />
+        ) : (
+          <ChevronLeft className="h-3 w-3 text-gray-600 dark:text-gray-400" />
+        )}
+      </button>
+
       {/* Header */}
       <SidebarHeader className="border-b h-19 dark:border-gray-800 dark:bg-gray-900">
         <div
@@ -53,7 +81,6 @@ const AppSidebar = () => {
           <div
             className="
               flex h-11 w-11 shrink-0 items-center justify-center
-              
             "
           >
             <img

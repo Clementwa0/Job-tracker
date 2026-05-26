@@ -1,53 +1,54 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
+/**
+ * Verifies the short-lived access token and loads the user.
+ * Refresh-token rotation is handled by /api/auth/refresh.
+ */
 const auth = async (req, res, next) => {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
+    const header = req.header("Authorization") || "";
+    const token = header.startsWith("Bearer ") ? header.slice(7) : null;
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Access denied. No token provided.'
-      });
+      return res.status(401).json({ success: false, message: "No token provided", code: "NO_TOKEN" });
     }
 
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-    
-    // Check if user still exists
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    } catch (e) {
+      const code = e.name === "TokenExpiredError" ? "TOKEN_EXPIRED" : "INVALID_TOKEN";
+      return res.status(401).json({ success: false, message: "Invalid or expired token", code });
+    }
+
     const user = await User.findById(decoded.userId);
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Token is valid but user no longer exists.'
-      });
+      return res.status(401).json({ success: false, message: "User no longer exists", code: "USER_GONE" });
     }
 
-    req.userId = decoded.userId;
+    // Session invalidation after password change
+    if (user.passwordChangedAt && decoded.iat * 1000 < user.passwordChangedAt.getTime()) {
+      return res.status(401).json({ success: false, message: "Session expired", code: "SESSION_INVALID" });
+    }
+
+    if (!user.emailVerified && process.env.REQUIRE_EMAIL_VERIFICATION === "true") {
+      return res.status(403).json({ success: false, message: "Email not verified", code: "EMAIL_UNVERIFIED" });
+    }
+
+    req.userId = user._id;
+    req.user = user;
     next();
-
-  } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid token.'
-      });
-    }
-    
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({
-        success: false,
-        message: 'Token expired.'
-      });
-    }
-
-    console.error('Auth middleware error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error.'
-    });
+  } catch (err) {
+    next(err);
   }
 };
 
-module.exports = auth; 
+const requireRole = (...roles) => (req, res, next) => {
+  if (!req.user || !roles.includes(req.user.role)) {
+    return res.status(403).json({ success: false, message: "Forbidden" });
+  }
+  next();
+};
+
+module.exports = auth;
+module.exports.requireRole = requireRole;

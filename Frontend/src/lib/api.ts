@@ -27,7 +27,7 @@ class ApiService {
     return authService.getCurrentUser();
   }
 
-  updateUserProfile(userData: { name?: string; email?: string }): Promise<AuthResponse> {
+  updateUserProfile(userData: { name?: string; email?: string; token?: string }): ReturnType<typeof authService.updateProfile> {
     return authService.updateProfile(userData);
   }
 

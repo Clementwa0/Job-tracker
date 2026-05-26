@@ -1,9 +1,25 @@
-import React, { useState } from "react";
-import { ArrowDown, ArrowUp, Edit2, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import React, { useMemo, useState } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronsUpDown,
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+  ExternalLink,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { jobLabels } from "@/constants";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import type { Job } from "@/types/job";
+import JobStatusBadge from "./JobStatusBadge";
+import CompanyLogo from "./CompanyLogo";
 
 export type { Job };
 
@@ -14,10 +30,31 @@ interface JobsTableProps {
   onSelect?: (job: Job) => void;
 }
 
-type SortField = keyof Pick<
-  Job,
-  "jobTitle" | "companyName" | "applicationDate" | "applicationStatus"
->;
+type SortField =
+  | "jobTitle"
+  | "companyName"
+  | "applicationDate"
+  | "applicationDeadline"
+  | "applicationStatus";
+
+const columns: { key: SortField | "actions" | "salary"; label: string; sortable?: boolean; align?: "right" }[] = [
+  { key: "jobTitle", label: "Role", sortable: true },
+  { key: "applicationStatus", label: "Status", sortable: true },
+  { key: "applicationDate", label: "Applied", sortable: true },
+  { key: "applicationDeadline", label: "Deadline", sortable: true },
+  { key: "salary", label: "Salary" },
+  { key: "actions", label: "", align: "right" },
+];
+
+const formatDate = (d?: string) => {
+  if (!d) return "—";
+  const date = new Date(d);
+  if (Number.isNaN(date.getTime())) return d;
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+};
 
 const JobsTable: React.FC<JobsTableProps> = ({
   jobs,
@@ -33,113 +70,158 @@ const JobsTable: React.FC<JobsTableProps> = ({
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortDirection("asc");
+      setSortDirection("desc");
     }
   };
 
-  const sortedJobs = [...jobs].sort((a, b) => {
-    const aValue = a[sortField] ?? "";
-    const bValue = b[sortField] ?? "";
-    return sortDirection === "asc"
-      ? String(aValue).localeCompare(String(bValue))
-      : String(bValue).localeCompare(String(aValue));
-  });
+  const sortedJobs = useMemo(() => {
+    return [...jobs].sort((a, b) => {
+      const aValue = (a[sortField] ?? "") as string;
+      const bValue = (b[sortField] ?? "") as string;
+      const cmp = String(aValue).localeCompare(String(bValue), undefined, {
+        numeric: true,
+      });
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+  }, [jobs, sortField, sortDirection]);
 
   const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) return null;
+    if (sortField !== field)
+      return <ChevronsUpDown className="h-3.5 w-3.5 opacity-40" />;
     return sortDirection === "asc" ? (
-      <ArrowUp className="h-4 w-4" />
+      <ArrowUp className="h-3.5 w-3.5" />
     ) : (
-      <ArrowDown className="h-4 w-4" />
+      <ArrowDown className="h-3.5 w-3.5" />
     );
   };
-
-  const statusVariant = (status: string) => {
-    switch (status) {
-      case "applied":
-        return "default" as const;
-      case "interviewing":
-        return "secondary" as const;
-      case "rejected":
-        return "destructive" as const;
-      default:
-        return "outline" as const;
-    }
-  };
-
-  if (jobs.length === 0) {
-    return (
-      <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-        No jobs to display.
-      </div>
-    );
-  }
 
   return (
-    <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden dark:bg-gray-900">
+    <div className="rounded-xl border border-border/70 bg-card shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-muted/50">
-            <tr className="border-b border-border dark:bg-gray-900">
-              {jobLabels.map(({ label, field }) => (
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border/70 bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
+              {columns.map((col) => (
                 <th
-                  key={label}
-                  className="px-4 py-3 text-sm font-medium cursor-pointer"
-                  onClick={
-                    field ? () => handleSort(field as SortField) : undefined
-                  }
+                  key={col.key}
+                  scope="col"
+                  className={cn(
+                    "px-4 py-3 font-medium whitespace-nowrap",
+                    col.align === "right" && "text-right",
+                  )}
                 >
-                  <div className="flex items-center gap-1">
-                    {label} {field && <SortIcon field={field as SortField} />}
-                  </div>
+                  {col.sortable ? (
+                    <button
+                      type="button"
+                      onClick={() => handleSort(col.key as SortField)}
+                      className="inline-flex items-center gap-1.5 hover:text-foreground transition"
+                      aria-sort={
+                        sortField === col.key
+                          ? sortDirection === "asc"
+                            ? "ascending"
+                            : "descending"
+                          : "none"
+                      }
+                    >
+                      {col.label}
+                      <SortIcon field={col.key as SortField} />
+                    </button>
+                  ) : (
+                    <span>{col.label}</span>
+                  )}
                 </th>
               ))}
-              <th className="px-4 py-3 text-sm font-medium text-right">
-                Actions
-              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody className="divide-y divide-border/60">
             {sortedJobs.map((job) => (
               <tr
                 key={job.id}
-                className="group hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
                 onClick={() => onSelect?.(job)}
+                className="group hover:bg-muted/40 transition-colors cursor-pointer"
               >
-                <td className="px-4 py-3 text-sm">{job.jobTitle}</td>
-                <td className="px-4 py-3 text-sm">{job.companyName}</td>
-                <td className="px-4 py-3 text-sm">{job.location}</td>
-                <td className="px-4 py-3 text-sm">{job.jobType}</td>
-                <td className="px-4 py-3 text-sm">{job.applicationDate}</td>
-                <td className="px-4 py-3 text-sm">{job.applicationDeadline}</td>
-                <td className="px-4 py-3 text-sm">
-                  {job.salaryRange ? `KES ${job.salaryRange}` : "—"}
+                <td className="px-4 py-3 max-w-[280px]">
+                  <div className="flex items-center gap-3">
+                    <CompanyLogo
+                      name={job.companyName}
+                      logo={job.companyLogo}
+                      size="sm"
+                    />
+                    <div className="min-w-0">
+                      <div className="font-medium text-foreground truncate">
+                        {job.jobTitle || "Untitled role"}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {job.companyName}
+                        {job.location ? ` · ${job.location}` : ""}
+                      </div>
+                    </div>
+                  </div>
                 </td>
-                <td className="px-4 py-3 text-sm">
-                  <Badge variant={statusVariant(job.applicationStatus)}>
-                    {job.applicationStatus}
-                  </Badge>
+                <td className="px-4 py-3">
+                  <JobStatusBadge status={job.applicationStatus} />
+                </td>
+                <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                  {formatDate(job.applicationDate)}
+                </td>
+                <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                  {formatDate(job.applicationDeadline)}
+                </td>
+                <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                  {job.salaryRange || "—"}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <div className="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div
+                    className="inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(job.id);
-                      }}
-                      className="p-1 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Edit ${job.jobTitle}`}
+                      onClick={() => onEdit(job.id)}
+                      className="h-8 w-8"
                     >
-                      <Edit2 className="h-4 w-4" />
+                      <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(job.id);
-                      }}
-                      className="p-1 rounded-md hover:bg-destructive/10 text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="More actions"
+                          className="h-8 w-8"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {job.jobPostingUrl && (
+                          <DropdownMenuItem asChild>
+                            <a
+                              href={job.jobPostingUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              Open posting
+                            </a>
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => onSelect?.(job)}>
+                          View details
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => onDelete(job.id)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </td>
               </tr>

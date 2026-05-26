@@ -22,7 +22,7 @@ export default function ResumesDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 dark:bg-gray-950 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 dark:bg-gray-900 md:p-6 lg:p-8">
       <div className="mx-auto max-w-6xl space-y-6">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>

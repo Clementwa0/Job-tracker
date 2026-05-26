@@ -53,16 +53,6 @@ const Profile: React.FC = () => {
         phone: user.phone || "",
         avatarUrl: user.avatarUrl || ""
       });
-
-      setNotificationSettings({
-        jobUpdates: user.notifications?.jobUpdates ?? true,
-        interviewReminders: user.notifications?.interviewReminders ?? true,
-        weeklySummary: user.notifications?.weeklySummary ?? false
-      });
-
-      setSecuritySettings({
-        twoFactorEnabled: user.security?.twoFactorEnabled ?? false
-      });
     }
   }, [user]);
 

@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { chat } = require("./groq.service");
+const { MODEL_FALLBACKS, TEMPERATURE } = require("./models.config");
 
 router.post("/", async (req, res) => {
   try {
@@ -11,8 +12,9 @@ router.post("/", async (req, res) => {
     }
 
     const result = await chat({
-      model: "groq/compound-mini",
-      temperature: 0.2,
+      model: MODEL_FALLBACKS.extraction,
+      temperature: TEMPERATURE.EXTRACTION,
+      useFallback: true,
       messages: [
         {
           role: "system",

@@ -156,3 +156,41 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+/* ============================================================
+ * Print / PDF rules for the resume preview.
+ * Import once at the app root: `import "./styles/print.css";`
+ * ============================================================ */
+
+@media print {
+  /* Hide everything except the resume itself. */
+  body * { visibility: hidden; }
+  #resume-print-area, #resume-print-area * { visibility: visible; }
+
+  #resume-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0.55in 0.6in !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Prevent splits mid-entry. */
+  .resume-section { break-inside: avoid; page-break-inside: avoid; }
+  .resume-entry   { break-inside: avoid; page-break-inside: avoid; }
+  h1, h2, h3      { break-after: avoid; page-break-after: avoid; }
+
+  /* Hide form controls that bleed through. */
+  input, textarea, button, [role="dialog"] { display: none !important; }
+
+  @page { size: Letter; margin: 0; }
+}
+
+/* Screen container: keep proportions stable so PDF export = preview. */
+.resume-paper {
+  background: #fff;
+  color: #111827;
+}

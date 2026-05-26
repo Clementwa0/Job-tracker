@@ -1,49 +1,35 @@
-const { body } = require('express-validator');
+const { body } = require("express-validator");
 
 const registerValidation = [
-  body('name')
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage('Name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage('Name can only contain letters and spaces'),
-  
-  body('email')
-    .isEmail()
-    .withMessage('Please enter a valid email address')
-    .normalizeEmail(),
-  
-  body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
+  body("name").trim().notEmpty().isLength({ max: 80 }),
+  body("email").isEmail().normalizeEmail(),
+  body("password")
+    .isLength({ min: 8 })
+    .matches(/[A-Z]/).withMessage("Password must contain an uppercase letter")
+    .matches(/[a-z]/).withMessage("Password must contain a lowercase letter")
+    .matches(/[0-9]/).withMessage("Password must contain a number"),
 ];
 
 const loginValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Please enter a valid email address')
-    .normalizeEmail(),
-  
-  body('password')
-    .notEmpty()
-    .withMessage('Password is required')
+  body("email").isEmail().normalizeEmail(),
+  body("password").notEmpty(),
 ];
 
-const forgotPasswordValidation = [
-  body('email').isEmail().withMessage('Valid email is required')
-];
+const forgotPasswordValidation = [body("email").isEmail().normalizeEmail()];
 
 const resetPasswordValidation = [
-  body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters')
+  body("password").isLength({ min: 8 }),
+];
+
+const changePasswordValidation = [
+  body("currentPassword").notEmpty(),
+  body("newPassword").isLength({ min: 8 }),
 ];
 
 module.exports = {
   registerValidation,
   loginValidation,
   forgotPasswordValidation,
-  resetPasswordValidation
-}; 
+  resetPasswordValidation,
+  changePasswordValidation,
+};
