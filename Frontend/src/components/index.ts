@@ -25,7 +25,6 @@ export { ProtectedRoute } from './ProtectedRoute';
 
 // Pages
 export { default as Terms } from './pages/Terms'
-export { default as Analytics } from './pages/Analytics/Analytics';
 export { default as Profile } from '@/components/pages/Profile';
 
 // Jobs
@@ -70,3 +69,16 @@ export { default as CalendarLegend } from '@/features/calendar/CalendarLegend';
 export { default as AgendaSidebar } from '@/features/calendar/AgendaSidebar';
 export { default as EventDetailsDrawer } from '@/features/calendar/EventDetailsDrawer';
 export { default as Calendar } from '@/pages/calendar/Calendar';
+
+// Analytics
+export { default as AnalyticsHeader } from '@/features/analytics/AnalyticsHeader';
+export { default as OverviewCharts } from '@/features/analytics/OverviewCharts';
+export { default as TimelineChart } from '@/features/analytics/TimelineChart';
+export { default as MetricsGrid } from '@/features/analytics/MetricsGrid';
+export {default as CompaniesChart} from '@/features/analytics/CompaniesChart';
+export {default as LocationsChart} from '@/features/analytics/LocationsChart';
+
+export { default as TopCompaniesChart } from '@/features/analytics/charts/TopCompaniesChart';
+export { default as TopLocationsChart } from '@/features/analytics/charts/TopLocationsChart';
+
+export {default as Analytics } from "@/pages/analytics/Analytics"

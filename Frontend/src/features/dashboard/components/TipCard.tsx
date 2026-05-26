@@ -7,8 +7,7 @@ import {
 } from "lucide-react";
 
 import {
-  Card,
-  CardContent,
+  Card
 } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
@@ -70,16 +69,13 @@ const TipCard = () => {
   };
 
   return (
-    <Card className="relative overflow-hidden border-border/60 bg-card/60 backdrop-blur-xl">
+    <Card className="relative overflow-hidden border-border/60 bg-card/60 backdrop-blur-xl p-5">
       <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-pink-500/10 pointer-events-none" />
-
-      <CardContent className="relative ">
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-2 text-xs font-medium text-amber-600 dark:text-amber-400">
             <Sparkles className="h-3.5 w-3.5" />
             AI Career Tip
           </div>
-
           <Button
             variant="ghost"
             size="icon"
@@ -124,7 +120,6 @@ const TipCard = () => {
             Save
           </Button>
         </div>
-      </CardContent>
     </Card>
   );
 };
