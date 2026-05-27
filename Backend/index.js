@@ -25,7 +25,6 @@ const aiMatchRoute = require("./routes/ai/match.route");
 const aiParseRoute = require("./routes/ai/parse.route");
 const aiImproveRoute = require("./routes/ai/improve.route");
 
-
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -39,6 +38,7 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ extended: true, limit: "20mb" }));
 app.use(cookieParser());

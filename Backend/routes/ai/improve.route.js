@@ -4,6 +4,7 @@ const { chat } = require("./groq.service");
 const { MODEL_FALLBACKS, TEMPERATURE } = require("./models.config");
 
 const PROMPTS = {
+  title: `Rewrite the candidate's job title so it is concise, confident, and ATS-friendly. Preserve the candidate's real experience. Return JSON: {"variants": ["..."]} with 3 distinct variants.`,
   summary: `Rewrite the candidate's professional summary so it is concise (3-4 sentences), confident, and ATS-friendly. Preserve the candidate's real experience. Return JSON: {"variants": ["..."]} with 3 distinct variants.`,
   bullet: `Rewrite the resume bullet so it leads with a strong action verb, includes a measurable result when possible, and stays under 28 words. Return JSON: {"variants": ["..."]} with 3 distinct variants.`,
   achievement: `Turn the input into 3 high-impact achievement bullets (action + scope + measurable outcome). Return JSON: {"variants": ["..."]}.`,
