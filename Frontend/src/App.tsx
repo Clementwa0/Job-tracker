@@ -1,4 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from "react-router-dom";
 
 import {
   Calendar,
@@ -17,14 +21,15 @@ import {
   Register,
   Interviews,
   CvReview,
-  ResumeBuilder,
+  ResumesDashboard,
 } from "@/components/index";
+import ResumeBuilder from "@/pages/resumeBuilder/ResumeBuilder";
 
 import { JobProvider } from "@/hooks/JobContext";
 import { AuthProvider } from "@/hooks/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ThemeProvider } from "./constants/theme-provider";
-import ResumesDashboard from "./pages/resumeBuilder/ResumesDashboard";
+
 
 const App = () => {
   return (
@@ -44,7 +49,7 @@ const App = () => {
                 element={<ResetPassword />}
               />
 
-              {/* Protected App Shell */}
+              {/* Protected Routes */}
               <Route
                 element={
                   <ProtectedRoute>
@@ -52,22 +57,19 @@ const App = () => {
                   </ProtectedRoute>
                 }
               >
-                {/* Core Dashboard */}
                 <Route path="/dashboard" element={<Dashboard />} />
-
-                {/* Jobs Flow */}
                 <Route path="/jobs" element={<Jobs />} />
                 <Route path="/add-job" element={<AddJob />} />
                 <Route path="/edit-job/:id" element={<EditJob />} />
-
-                {/* Productivity Modules */}
                 <Route path="/calendar" element={<Calendar />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/resumes" element={<ResumesDashboard />} />
                 <Route path="/cv-review" element={<CvReview />} />
+                <Route path="/interviews" element={<Interviews />} />
+                <Route path="/resumes" element={<ResumesDashboard />} />
                 <Route path="/resume-builder" element={<ResumeBuilder />} />
                 <Route path="/resume-builder/:id" element={<ResumeBuilder />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/interviews" element={<Interviews />} />
               </Route>
             </Routes>

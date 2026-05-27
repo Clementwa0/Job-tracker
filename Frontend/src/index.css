@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@source "../src";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -156,41 +157,54 @@
     @apply bg-background text-foreground antialiased;
   }
 }
-/* ============================================================
- * Print / PDF rules for the resume preview.
- * Import once at the app root: `import "./styles/print.css";`
- * ============================================================ */
-
 @media print {
-  /* Hide everything except the resume itself. */
-  body * { visibility: hidden; }
-  #resume-print-area, #resume-print-area * { visibility: visible; }
-
-  #resume-print-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0.55in 0.6in !important;
-    box-shadow: none !important;
-    background: #fff !important;
-    color: #000 !important;
-  }
-
-  /* Prevent splits mid-entry. */
-  .resume-section { break-inside: avoid; page-break-inside: avoid; }
-  .resume-entry   { break-inside: avoid; page-break-inside: avoid; }
-  h1, h2, h3      { break-after: avoid; page-break-after: avoid; }
-
-  /* Hide form controls that bleed through. */
-  input, textarea, button, [role="dialog"] { display: none !important; }
-
   @page { size: Letter; margin: 0; }
+  body * { visibility: hidden !important; }
+  #resume-print, #resume-print * { visibility: visible !important; }
+  #resume-print {
+    position: absolute !important;
+    inset: 0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
 }
 
-/* Screen container: keep proportions stable so PDF export = preview. */
-.resume-paper {
-  background: #fff;
-  color: #111827;
+.resume-page {
+  background: #ffffff;
+  color: #111111;
+  width: 8.5in;
+  min-height: 11in;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 40px -8px rgba(15,23,42,0.18);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.resume-page.a4 {
+  width: 210mm;
+  min-height: 297mm;
+}
+/* Print: strip everything except the resume page */
+@media print {
+  @page {
+    size: Letter;
+    margin: 0;
+  }
+  html, body {
+    background: #ffffff !important;
+  }
+  body * { visibility: hidden !important; }
+  .print-root, .print-root * { visibility: visible !important; }
+  .print-root {
+    position: absolute !important;
+    inset: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .resume-page {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+  }
+  .no-print { display: none !important; }
 }

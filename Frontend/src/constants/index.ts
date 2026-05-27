@@ -56,24 +56,21 @@ export const features: Feature[] = [
     id: 1,
     icon: FileCheck,
     title: "Application Tracking",
-    description:
-      "Keep track of all your job applications in one place.",
+    description: "Keep track of all your job applications in one place.",
     color: "text-blue-500",
   },
   {
     id: 2,
     icon: Calendar,
     title: "Interview Scheduling",
-    description:
-      "Manage your interview schedule and never miss meetings.",
+    description: "Manage your interview schedule and never miss meetings.",
     color: "text-green-500",
   },
   {
     id: 3,
     icon: LineChart,
     title: "Performance Analytics",
-    description:
-      "Get insights into your job search performance.",
+    description: "Get insights into your job search performance.",
     color: "text-purple-500",
   },
 ];
@@ -156,13 +153,13 @@ export const links: NavLink[] = [
     name: "Calendar",
     icon: Calendar,
   },
-   {
+  {
     path: "/cv-review",
     name: "AI CV Review",
     icon: FileText,
   },
   {
-    path: "/resume-builder",
+    path: "/resumes",
     name: "Resume Builder",
     icon: FilePlus2,
   },
@@ -297,7 +294,6 @@ export const interviewStatus: InterviewStatus[] = [
   },
 ];
 
-
 export const STATUS_META: Record<
   ApplicationStatus,
   { label: string; color: string }
@@ -336,10 +332,17 @@ export const STATUS_META: Record<
     label: "Waiting Response",
     color: "#f59e0b",
   },
-
 };
 
-export const FUNNEL_ORDER: ApplicationStatus[] = ["applied", "interviewing", "offer", "rejected", "waiting_response", "ghosted", "completed"];
+export const FUNNEL_ORDER: ApplicationStatus[] = [
+  "applied",
+  "interviewing",
+  "offer",
+  "rejected",
+  "waiting_response",
+  "ghosted",
+  "completed",
+];
 
 export const tooltipStyle = {
   background: "var(--color-popover)",
@@ -356,3 +359,195 @@ export const daysAgo = (iso: string) => {
   const diff = (Date.now() - new Date(iso).getTime()) / 86400000;
   return Math.max(0, Math.round(diff));
 };
+
+export const TEMPLATE_STYLES = {
+  modern: {
+    padding: "0.8in 0.85in",
+
+    fontFamily:
+      "'Inter', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif",
+
+    fontSize: "11px",
+    lineHeight: 1.65,
+
+    nameSize: "32px",
+    nameWeight: 800,
+    nameSpacing: "-0.03em",
+    nameTransform: "uppercase",
+
+    roleSize: "13px",
+    roleWeight: 500,
+
+    headerAlign: "left",
+    headerBorder: "accent",
+
+    sectionGap: "22px",
+
+    headingStyle: "accent",
+    headingSize: "11px",
+    headingWeight: 700,
+    headingTracking: "0.18em",
+
+    itemGap: "14px",
+
+    bulletStyle: "disc",
+    bulletIndent: "18px",
+
+    dividerOpacity: 0.12,
+
+    contactGap: "14px",
+
+    cardStyle: "soft",
+  },
+
+  classic: {
+    padding: "0.9in 0.95in",
+
+    fontFamily: "'Source Serif 4', Georgia, 'Times New Roman', serif",
+
+    fontSize: "11.5px",
+    lineHeight: 1.75,
+
+    nameSize: "34px",
+    nameWeight: 600,
+    nameSpacing: "-0.01em",
+    nameTransform: "none",
+
+    roleSize: "13px",
+    roleWeight: 500,
+
+    headerAlign: "center",
+    headerBorder: "thin",
+
+    sectionGap: "20px",
+
+    headingStyle: "rule",
+    headingSize: "11px",
+    headingWeight: 700,
+    headingTracking: "0.28em",
+
+    itemGap: "15px",
+
+    bulletStyle: "disc",
+    bulletIndent: "18px",
+
+    dividerOpacity: 0.18,
+
+    contactGap: "12px",
+
+    cardStyle: "clean",
+  },
+
+  compact: {
+    padding: "0.45in 0.55in",
+
+    fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
+
+    fontSize: "9.8px",
+    lineHeight: 1.45,
+
+    nameSize: "23px",
+    nameWeight: 800,
+    nameSpacing: "-0.04em",
+    nameTransform: "none",
+    roleSize: "11px",
+    roleWeight: 600,
+
+    headerAlign: "left",
+    headerBorder: "thin",
+
+    sectionGap: "12px",
+
+    headingStyle: "muted",
+    headingSize: "10px",
+    headingWeight: 700,
+    headingTracking: "0.14em",
+
+    itemGap: "10px",
+
+    bulletStyle: "dash",
+    bulletIndent: "14px",
+
+    dividerOpacity: 0.1,
+
+    contactGap: "10px",
+
+    cardStyle: "minimal",
+  },
+
+  executive: {
+    padding: "0.75in 0.2in",
+
+    fontFamily: "'Cormorant Garamond', 'Libre Baskerville', Georgia, serif",
+
+    fontSize: "11.8px",
+    lineHeight: 1.5,
+
+    nameSize: "38px",
+    nameWeight: 500,
+    nameTransform: "uppercase",
+    nameSpacing: "0",
+
+    roleSize: "15px",
+    roleWeight: 500,
+
+    headerAlign: "center",
+    headerBorder: "double",
+
+    sectionGap: "24px",
+
+    headingStyle: "executive",
+    headingSize: "11px",
+    headingWeight: 700,
+    headingTracking: "0.38em",
+
+    itemGap: "16px",
+
+    bulletStyle: "square",
+    bulletIndent: "20px",
+
+    dividerOpacity: 0.22,
+
+    contactGap: "16px",
+
+    cardStyle: "luxury",
+  },
+
+  minimal: {
+    padding: "0.75in 0.8in",
+
+    fontFamily: "'Inter', 'Manrope', ui-sans-serif, system-ui, sans-serif",
+
+    fontSize: "10.8px",
+    lineHeight: 1.6,
+
+    nameSize: "24px",
+    nameWeight: 600,
+    nameSpacing: "-0.02em",
+    nameTransform: "none",
+
+    roleSize: "12px",
+    roleWeight: 500,
+
+    headerAlign: "left",
+    headerBorder: "none",
+
+    sectionGap: "18px",
+
+    headingStyle: "muted",
+    headingSize: "10px",
+    headingWeight: 700,
+    headingTracking: "0.24em",
+
+    itemGap: "12px",
+
+    bulletStyle: "dash",
+    bulletIndent: "16px",
+
+    dividerOpacity: 0.08,
+
+    contactGap: "12px",
+
+    cardStyle: "flat",
+  },
+} as const;

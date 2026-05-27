@@ -58,11 +58,12 @@ export {RecommendedJobs} from '@/features/cvReview/RecommendedJobs';
 export {default as CvReview} from '@/pages/cvreview/cvReview';
 
 //resumes
+export { default as ResumesDashboard } from '@/pages/resumeBuilder/ResumesDashboard';
 export { default as ResumeBuilder } from '@/pages/resumeBuilder/ResumeBuilder';
-export { default as ResumePreview } from '@/features/resumeBuilder/ResumePreview';
-export { default as ResumeToolbar } from '@/features/resumeBuilder/ResumeToolbar';
-export { default as ExperienceEditor } from '@/features/resumeBuilder/ExperienceEditor';
-export { default as SectionCard } from '@/features/resumeBuilder/SectionCard';
+export { default as ResumePreview } from '@/features/resume/ResumePreview';
+export { default as ResumeToolbar } from '@/features/resume/ResumeToolbar';
+export { default as ExperienceEditor } from '@/features/resume/ExperienceEditor';
+export { default as SectionCard } from '@/features/resume/SectionCard';
 
 // Calendar
 export { default as CalendarLegend } from '@/features/calendar/CalendarLegend';

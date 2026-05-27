@@ -14,7 +14,3 @@ export interface UploadedFile {
   type: string;
 }
 
-export interface ReviewCvDto {
-  cvText: string;
-  jobDescription?: string;
-}

@@ -3,17 +3,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 import { useResumeEditor, useResumesIndex } from "@/hooks/useResumes";
-import { uid, type ResumeData } from "@/types/resume-builder";
+import { uid, type ResumeData, type ResumeExperience, type ResumeProject } from "@/types/resume-builder";
+import { ExperienceEditor, ResumePreview, ResumeToolbar, SectionCard } from "@/components";
+import { Field, inputCls } from "@/features/resume/SectionCard";
+import AIImproveButton from "@/features/resume/AIImproveButton";
+import ATSScorePanel from "@/features/resume/ATSScorePanel";
+import JobMatchPanel from "@/features/resume/JobMatchPanel";
+import { CertificationsEditor, LanguagesEditor } from "@/features/resume/MoreEditors";
+import { ProjectsEditor, EducationEditor, SkillsEditor } from "@/features/resume/SimpleEditors";
 
-import SectionCard, { Field, inputCls } from "@/features/resumeBuilder/SectionCard";
-import ExperienceEditor from "@/features/resumeBuilder/ExperienceEditor";
-import { EducationEditor, ProjectsEditor, SkillsEditor } from "@/features/resumeBuilder/SimpleEditors";
-import { CertificationsEditor, LanguagesEditor } from "@/features/resumeBuilder/MoreEditors";
-import ResumePreview from "@/features/resumeBuilder/ResumePreview";
-import ResumeToolbar from "@/features/resumeBuilder/ResumeToolbar";
-import ATSScorePanel from "@/features/resumeBuilder/ATSScorePanel";
-import JobMatchPanel from "@/features/resumeBuilder/JobMatchPanel";
-import AIImproveButton from "@/features/resumeBuilder/AIImproveButton";
 
 export default function ResumeBuilder() {
   const { id } = useParams<{ id: string }>();
@@ -57,7 +55,7 @@ export default function ResumeBuilder() {
   if (!id) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 dark:bg-gray-900 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 dark:bg-gray-950 md:p-6 lg:p-8">
       <div className="mx-auto max-w-[1500px] space-y-4">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
@@ -78,7 +76,7 @@ export default function ResumeBuilder() {
         <ResumeToolbar
           data={data}
           onChangeTemplate={(t) => editor.patch("template", t)}
-          onChangeAccent={(a) => editor.patch("accent", a)}
+          onChangeAccent={(a: string) => editor.patch("accent", a)}
           onReset={() => editor.replaceAll({})}
           onImport={(d: ResumeData) => editor.replaceAll(d)}
           onUndo={editor.undo}
@@ -143,16 +141,16 @@ export default function ResumeBuilder() {
             <SectionCard title="Experience" onAdd={addExperience} addLabel="Add role">
               <ExperienceEditor
                 items={data.experience}
-                update={(id, p) => editor.updateItem("experience", id, p)}
-                remove={(id) => editor.removeItem("experience", id)}
+                update={(id: string, p: Partial<ResumeExperience>) => editor.updateItem("experience", id, p)}
+                remove={(id: string) => editor.removeItem("experience", id)}
               />
             </SectionCard>
 
             <SectionCard title="Projects" onAdd={addProject} addLabel="Add project">
               <ProjectsEditor
                 items={data.projects}
-                update={(id, p) => editor.updateItem("projects", id, p)}
-                remove={(id) => editor.removeItem("projects", id)}
+                update={(id: string, p: Partial<ResumeProject>) => editor.updateItem("projects", id, p)}
+                remove={(id: string) => editor.removeItem("projects", id)}
               />
             </SectionCard>
 
