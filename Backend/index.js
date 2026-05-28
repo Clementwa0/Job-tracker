@@ -5,11 +5,11 @@ const hpp = require("hpp");
 const cookieParser = require("cookie-parser");
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
-const passport = require("passport");
+const { ExpressAuth } = require("@auth/express");
 require("dotenv").config();
 
 const connectDB = require("./config/database");
-require("./config/passport"); // registers strategies
+const { authConfig } = require("./config/auth");
 
 const { apiLimiter } = require("./middleware/rateLimit");
 const errorHandler = require("./middleware/errorHandler");
@@ -28,6 +28,9 @@ const aiImproveRoute = require("./routes/ai/improve.route");
 const app = express();
 const port = process.env.PORT || 5000;
 
+// Behind a proxy (Render, Vercel, etc.) — required for secure cookies + req.ip
+app.set("trust proxy", 1);
+
 connectDB();
 
 /* -------- Security middleware -------- */
@@ -45,14 +48,23 @@ app.use(cookieParser());
 app.use(mongoSanitize());
 app.use(xss());
 app.use(hpp());
-app.use(passport.initialize());
+
+/* -------- Auth.js (social login) --------
+ * Mount BEFORE rate-limit / body parsers don't interfere here since
+ * Auth.js reads its own body. Exposed routes:
+ *   GET  /auth/signin/:provider
+ *   GET  /auth/callback/:provider
+ *   GET  /auth/session
+ *   POST /auth/signout
+ */
+app.use("/auth", ExpressAuth(authConfig));
 
 /* -------- Rate limiting (global API) -------- */
 app.use("/api", apiLimiter);
 
 /* -------- Routes -------- */
 app.use("/api/auth", authRoute);
-app.use("/api/auth", oauthRoute);
+app.use("/api/auth", oauthRoute); // social-login bridge: /api/auth/social/*
 app.use("/api/jobs", jobRoute);
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/cv", cvRoute);
@@ -61,7 +73,6 @@ app.use("/api/tips", tipRoute);
 app.use("/api/ai", aiMatchRoute);
 app.use("/api/ai/parse", aiParseRoute);
 app.use("/api/ai/improve", aiImproveRoute);
-
 
 app.get("/", (req, res) => {
   res.json({ message: "Job Tracker API v2", status: "ok" });

@@ -1,8 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import {
   Calendar,
@@ -22,6 +18,7 @@ import {
   Interviews,
   CvReview,
   ResumesDashboard,
+  OAuthCallback,
 } from "@/components/index";
 import ResumeBuilder from "@/pages/resumeBuilder/ResumeBuilder";
 
@@ -29,7 +26,6 @@ import { JobProvider } from "@/hooks/JobContext";
 import { AuthProvider } from "@/hooks/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ThemeProvider } from "./constants/theme-provider";
-
 
 const App = () => {
   return (
@@ -44,6 +40,8 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forget-password" element={<ForgotPassword />} />
+              <Route path="/oauth/callback" element={<OAuthCallback />} />
+
               <Route
                 path="/reset-password/:token"
                 element={<ResetPassword />}

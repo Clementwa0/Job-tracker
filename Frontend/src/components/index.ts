@@ -83,3 +83,4 @@ export { default as TopCompaniesChart } from '@/features/analytics/charts/TopCom
 export { default as TopLocationsChart } from '@/features/analytics/charts/TopLocationsChart';
 
 export {default as Analytics } from "@/pages/analytics/Analytics"
+export { default as OAuthCallback } from '@/pages/Auth/OAuthCallback';

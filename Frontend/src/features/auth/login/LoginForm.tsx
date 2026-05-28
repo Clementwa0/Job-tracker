@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API = import.meta.env.VITE_API_DB_URL || "http://localhost:5000/api";
 
 export function LoginForm() {
   const [loading, setLoading] = useState(false);
@@ -51,7 +51,7 @@ export function LoginForm() {
 
       {/* OAuth */}
       <div className="grid grid-cols-2 gap-2 mb-5">
-        <a href={`${API}/auth/google`} className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-background hover:bg-muted/60 text-sm font-medium transition-colors">
+        <a href={`${API}/auth/signin/google`} className="flex items-center justify-center gap-2 h-10 rounded-lg border border-border bg-background hover:bg-muted/60 text-sm font-medium transition-colors">
           <svg viewBox="0 0 24 24" className="h-4 w-4"><path fill="currentColor" d="M21.35 11.1h-9.18v2.92h5.27c-.23 1.4-1.65 4.12-5.27 4.12-3.18 0-5.77-2.62-5.77-5.85s2.59-5.85 5.77-5.85c1.81 0 3.02.77 3.72 1.43l2.53-2.45C16.83 3.83 14.7 3 12.18 3 6.99 3 2.8 7.18 2.8 12.4s4.19 9.4 9.38 9.4c5.42 0 9-3.81 9-9.18 0-.62-.07-1.1-.18-1.52z"/></svg>
           Google
         </a>

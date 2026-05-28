@@ -1,21 +1,69 @@
 const express = require("express");
-const passport = require("passport");
-const { signAccessToken } = require("../utils/tokens");
+const crypto = require("crypto");
+const { getSession } = require("@auth/express");
+const { authConfig } = require("../config/auth");
+const User = require("../models/User");
+const {
+  signAccessToken,
+  signRefreshToken,
+  hashToken,
+  refreshCookieOptions,
+} = require("../utils/tokens");
+
 const router = express.Router();
 
-const callback = (provider) => [
-  passport.authenticate(provider, { session: false, failureRedirect: `${process.env.CLIENT_URL}/login?error=oauth` }),
-  async (req, res) => {
-    // Issue access token + redirect with token (frontend handles storage)
-    const token = signAccessToken(req.user._id);
-    res.redirect(`${process.env.CLIENT_URL}/oauth/callback?token=${token}`);
-  },
-];
+// Convenience entry points so the frontend can keep linking to /api/auth/...
+router.get("/social/:provider", (req, res) => {
+  const { provider } = req.params;
+  if (!["google", "github"].includes(provider)) {
+    return res.status(404).json({ success: false, message: "Unknown provider" });
+  }
+  const callbackUrl = "/api/auth/social/complete";
+  res.redirect(
+    `/auth/signin/${provider}?callbackUrl=${encodeURIComponent(callbackUrl)}`
+  );
+});
 
-router.get("/google", passport.authenticate("google", { session: false, scope: ["profile", "email"] }));
-router.get("/google/callback", ...callback("google"));
+router.get("/social/complete", async (req, res, next) => {
+  try {
+    const session = await getSession(req, authConfig);
+    if (!session?.userId) {
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=oauth`);
+    }
 
-router.get("/github", passport.authenticate("github", { session: false, scope: ["user:email"] }));
-router.get("/github/callback", ...callback("github"));
+    const user = await User.findById(session.userId).select("+sessions");
+    if (!user) {
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=oauth`);
+    }
+
+    // Create a refresh-token session (same shape as password login).
+    const sessionDoc = user.sessions.create({
+      refreshTokenHash: "pending",
+      userAgent: req.get("user-agent") || "",
+      ip: req.ip,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+    user.sessions.push(sessionDoc);
+
+    const refreshToken = signRefreshToken(user._id, sessionDoc._id);
+    sessionDoc.refreshTokenHash = hashToken(refreshToken);
+
+    user.lastLoginAt = new Date();
+    user.loginHistory.push({
+      ip: req.ip,
+      userAgent: req.get("user-agent") || "",
+      success: true,
+    });
+    await user.save();
+
+    const accessToken = signAccessToken(user._id);
+    res.cookie("refreshToken", refreshToken, refreshCookieOptions());
+    res.redirect(
+      `${process.env.CLIENT_URL}/oauth/callback?token=${accessToken}`
+    );
+  } catch (err) {
+    next(err);
+  }
+});
 
 module.exports = router;
