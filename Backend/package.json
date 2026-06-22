@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "db:indexes": "node scripts/ensureIndexes.js",
+    "db:seed-public": "node scripts/seedPublicJobs.js",
+    "db:migrate-apply": "node scripts/migrateRemoveApplications.js",
+    "db:seed-admin": "node scripts/seedAdmin.js"
   },
   "dependencies": {
     "@auth/express": "^0.12.2",
@@ -31,8 +35,6 @@
     "node-fetch": "^3.3.2",
     "nodemailer": "^8.0.7",
     "pdf-parse": "^2.4.5",
-    "puppeteer": "^25.1.0",
-    "resend": "^6.12.3",
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {

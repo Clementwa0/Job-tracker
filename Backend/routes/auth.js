@@ -6,7 +6,7 @@ const { authLimiter, passwordResetLimiter } = require("../middleware/rateLimit")
 const {
   registerValidation, loginValidation,
   forgotPasswordValidation, resetPasswordValidation,
-  changePasswordValidation,
+  changePasswordValidation, updateProfileValidation,
 } = require("../middleware/validation");
 
 router.post("/register", authLimiter, registerValidation, ctrl.register);
@@ -14,6 +14,7 @@ router.post("/login", authLimiter, loginValidation, ctrl.login);
 router.post("/refresh", ctrl.refresh);
 router.post("/logout", ctrl.logout);
 router.get("/me", auth, ctrl.getCurrentUser);
+router.patch("/me", auth, updateProfileValidation, ctrl.updateProfile);
 
 router.get("/verify-email/:token", ctrl.verifyEmail);
 router.post("/forgot-password", passwordResetLimiter, forgotPasswordValidation, ctrl.forgotPassword);

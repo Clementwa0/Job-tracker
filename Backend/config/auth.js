@@ -1,7 +1,3 @@
-// Auth.js (@auth/express) configuration for social login.
-// We use JWT session strategy and bridge to our existing JWT/refresh-token
-// system via routes/oauth.js after sign-in.
-
 const Google = require("@auth/express/providers/google").default;
 const GitHub = require("@auth/express/providers/github").default;
 const User = require("../models/User");
@@ -54,7 +50,6 @@ const authConfig = {
   trustHost: true,
   session: { strategy: "jwt" },
   pages: {
-    // Bridge route that mints our JWTs and redirects to CLIENT_URL/oauth/callback
     signIn: "/api/auth/social/start",
     error: `${process.env.CLIENT_URL}/login`,
   },
@@ -72,7 +67,6 @@ const authConfig = {
           name: user?.name || profile?.name || profile?.login,
           avatarUrl: user?.image || profile?.avatar_url || profile?.picture,
         });
-        // Stash the local DB id on the user object for the jwt callback.
         user.dbId = String(dbUser._id);
         return true;
       } catch (err) {
@@ -89,8 +83,6 @@ const authConfig = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // After successful sign-in, send the browser to our bridge endpoint
-      // which exchanges the Auth.js session for our app JWT + refresh cookie.
       return `${baseUrl}/api/auth/social/complete`;
     },
   },

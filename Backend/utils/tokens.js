@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-const signAccessToken = (userId) =>
-  jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET, {
+const signAccessToken = (userId, role = "user") =>
+  jwt.sign({ userId, role }, process.env.JWT_ACCESS_SECRET, {
     expiresIn: process.env.JWT_ACCESS_EXPIRES || "15m",
   });
 

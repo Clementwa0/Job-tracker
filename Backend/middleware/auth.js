@@ -35,6 +35,22 @@ const auth = async (req, res, next) => {
       return res.status(403).json({ success: false, message: "Email not verified", code: "EMAIL_UNVERIFIED" });
     }
 
+    if (user.accountStatus === "suspended") {
+      return res.status(403).json({
+        success: false,
+        message: "Account suspended",
+        code: "ACCOUNT_SUSPENDED",
+      });
+    }
+
+    if (decoded.role && decoded.role !== user.role) {
+      return res.status(401).json({
+        success: false,
+        message: "Session expired",
+        code: "ROLE_CHANGED",
+      });
+    }
+
     req.userId = user._id;
     req.user = user;
     next();
@@ -43,12 +59,28 @@ const auth = async (req, res, next) => {
   }
 };
 
-const requireRole = (...roles) => (req, res, next) => {
-  if (!req.user || !roles.includes(req.user.role)) {
-    return res.status(403).json({ success: false, message: "Forbidden" });
+const requireActiveAccount = (req, res, next) => {
+  if (req.user?.accountStatus === "suspended") {
+    return res.status(403).json({
+      success: false,
+      message: "Account suspended",
+      code: "ACCOUNT_SUSPENDED",
+    });
   }
   next();
 };
 
+const requireRole = (...roles) => (req, res, next) => {
+  if (!req.user || !roles.includes(req.user.role)) {
+    return res.status(403).json({ success: false, message: "Forbidden", code: "FORBIDDEN" });
+  }
+  next();
+};
+
+/** Composed guard: auth → active account → optional role check */
+const requireAuth = auth;
+
 module.exports = auth;
+module.exports.requireAuth = requireAuth;
+module.exports.requireActiveAccount = requireActiveAccount;
 module.exports.requireRole = requireRole;

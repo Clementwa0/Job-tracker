@@ -73,14 +73,22 @@ const jobSchema = new mongoose.Schema(
 
     interviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Interview" }],
 
+    // Optional link to public job board listing (Phase 2)
+    jobPostingId: { type: mongoose.Schema.Types.ObjectId, ref: "JobPosting" },
+
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
 );
 
+jobSchema.index({ userId: 1 });
 jobSchema.index({ userId: 1, applicationStatus: 1 });
 jobSchema.index({ userId: 1, isArchived: 1 });
 jobSchema.index({ userId: 1, companyName: 1 });
+jobSchema.index({ userId: 1, createdAt: -1 });
+jobSchema.index({ userId: 1, priority: 1 });
+jobSchema.index({ userId: 1, applicationDate: -1 });
 jobSchema.index({ jobTitle: "text", companyName: "text", notes: "text", tags: "text" });
+jobSchema.index({ userId: 1, jobPostingId: 1 });
 
 module.exports = mongoose.model("Job", jobSchema);

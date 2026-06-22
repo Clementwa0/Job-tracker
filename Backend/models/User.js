@@ -19,7 +19,9 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
     password: { type: String, select: false, minlength: 8 },
 
-    role: { type: String, enum: ["user", "admin"], default: "user" },
+    role: { type: String, enum: ["user", "admin", "employer"], default: "user" },
+    accountStatus: { type: String, enum: ["active", "suspended"], default: "active" },
+    employerCompanyId: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
     avatarUrl: String,
     jobTitle: String,
     location: String,
@@ -59,6 +61,9 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.index({ createdAt: -1 });
+userSchema.index({ role: 1, createdAt: -1 });
 
 userSchema.pre("save", async function (next) {
   if (this.isModified("password") && this.password) {

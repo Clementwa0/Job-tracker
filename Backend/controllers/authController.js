@@ -35,7 +35,7 @@ async function issueSession(user, req, res) {
 
   await user.save();
 
-  const accessToken = signAccessToken(user._id);
+  const accessToken = signAccessToken(user._id, user.role);
   res.cookie("refreshToken", refreshToken, refreshCookieOptions());
   return { accessToken, refreshToken };
 }
@@ -66,6 +66,38 @@ exports.register = async (req, res, next) => {
       data: { user: user.toJSON(), token: accessToken },
     });
   } catch (err) { next(err); }
+};
+
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+
+    const ALLOWED = ["name", "jobTitle", "location", "phone", "avatarUrl"];
+    const updates = {};
+    for (const key of ALLOWED) {
+      if (req.body[key] !== undefined) updates[key] = req.body[key];
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ success: false, message: "No valid fields to update" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.json({ success: true, data: { user: user.toJSON() } });
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.login = async (req, res, next) => {
@@ -124,7 +156,7 @@ exports.refresh = async (req, res, next) => {
     session.expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     await user.save();
 
-    const accessToken = signAccessToken(user._id);
+    const accessToken = signAccessToken(user._id, user.role);
     res.cookie("refreshToken", newRefresh, refreshCookieOptions());
     res.json({ success: true, data: { token: accessToken, user: user.toJSON() } });
   } catch (err) { next(err); }
@@ -177,12 +209,14 @@ exports.forgotPassword = async (req, res, next) => {
     if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
 
     const { email } = req.body;
+    const resetPath = req.body.resetPath || "/reset-password";
     const user = await User.findOne({ email });
     // Always respond success to prevent enumeration
     if (user) {
       const token = user.createPasswordResetToken();
       await user.save();
-      const url = `${process.env.CLIENT_URL}/reset-password/${token}`;
+      const safePath = resetPath.startsWith("/") ? resetPath : "/reset-password";
+      const url = `${process.env.CLIENT_URL}${safePath}/${token}`;
       const tpl = templates.resetPassword(user.name, url);
       await sendMail({ to: user.email, ...tpl });
     }
@@ -248,3 +282,5 @@ exports.revokeSession = async (req, res) => {
   await user.save();
   res.json({ success: true });
 };
+
+exports.issueSession = issueSession;
