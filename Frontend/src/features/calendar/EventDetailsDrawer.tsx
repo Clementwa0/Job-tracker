@@ -139,7 +139,7 @@ export default function EventDetailsDrawer({ event, onClose }: Props) {
           {job && (
             <footer className="border-t border-gray-100 dark:border-gray-800 p-4">
               <Link
-                to={`/edit-job/${job.id}`}
+                to={`/applications/edit/${job.id}`}
                 onClick={onClose}
                 className="block w-full rounded-md bg-gray-900 dark:bg-white dark:text-gray-900 px-4 py-2 text-center text-sm font-medium text-white hover:opacity-90 transition"
               >

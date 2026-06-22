@@ -134,13 +134,13 @@ export const links: NavLink[] = [
     icon: LayoutDashboard,
   },
   {
-    path: "/jobs",
-    name: "Jobs",
+    path: "/applications",
+    name: "My Applications",
     icon: BriefcaseBusiness,
   },
   {
-    path: "/add-job",
-    name: "Add Job",
+    path: "/applications/add",
+    name: "Add Application",
     icon: Plus,
   },
   {
@@ -262,14 +262,12 @@ export const jobLabels = [
 /* -------------------------------------------------------------------------- */
 
 export const interviewStages = [
-  { value: "applied", label: "Application Submitted" },
-  { value: "screening", label: "HR Screening" },
-  { value: "phone_interview", label: "Phone Interview" },
+  { value: "phone", label: "Phone Interview" },
+  { value: "hr", label: "HR Screening" },
   { value: "technical", label: "Technical Interview" },
-  { value: "onsite", label: "Onsite / In-person Interview" },
+  { value: "behavioral", label: "Behavioral Interview" },
+  { value: "onsite", label: "Onsite / In-person" },
   { value: "final", label: "Final Interview" },
-  { value: "offer", label: "Offer Stage" },
-  { value: "hired", label: "Hired" },
 ] as const;
 
 /* -------------------------------------------------------------------------- */
@@ -288,8 +286,23 @@ export const interviewStatus: InterviewStatus[] = [
     className: "text-green-400 bg-green-500/10 border-green-500/30",
   },
   {
-    value: "cancelled",
-    label: "Cancelled",
+    value: "passed",
+    label: "Passed",
+    className: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
+  },
+  {
+    value: "failed",
+    label: "Failed",
+    className: "text-rose-400 bg-rose-500/10 border-rose-500/30",
+  },
+  {
+    value: "rescheduled",
+    label: "Rescheduled",
+    className: "text-amber-400 bg-amber-500/10 border-amber-500/30",
+  },
+  {
+    value: "canceled",
+    label: "Canceled",
     className: "text-red-400 bg-red-500/10 border-red-500/30",
   },
 ];
@@ -362,12 +375,12 @@ export const daysAgo = (iso: string) => {
 
 export const TEMPLATE_STYLES = {
   modern: {
-    padding: "0.8in 0.85in",
+    padding: "0.75in 0.75in",
 
     fontFamily:
       "'Inter', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif",
 
-    fontSize: "11px",
+    fontSize: "12px",
     lineHeight: 1.65,
 
     nameSize: "32px",
@@ -401,12 +414,12 @@ export const TEMPLATE_STYLES = {
   },
 
   classic: {
-    padding: "0.9in 0.95in",
+    padding: "0.75in 0.75in",
 
     fontFamily: "'Source Serif 4', Georgia, 'Times New Roman', serif",
 
-    fontSize: "11.5px",
-    lineHeight: 1.75,
+    fontSize: "12px",
+    lineHeight: 1.5,
 
     nameSize: "34px",
     nameWeight: 600,
@@ -419,14 +432,14 @@ export const TEMPLATE_STYLES = {
     headerAlign: "center",
     headerBorder: "thin",
 
-    sectionGap: "20px",
+    sectionGap: "15px",
 
     headingStyle: "rule",
-    headingSize: "11px",
-    headingWeight: 700,
+    headingSize: "12px",
+    headingWeight: 900,
     headingTracking: "0.28em",
 
-    itemGap: "15px",
+    itemGap: "12px",
 
     bulletStyle: "disc",
     bulletIndent: "18px",

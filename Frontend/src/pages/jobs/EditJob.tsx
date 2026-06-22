@@ -83,7 +83,7 @@ const EditJob = () => {
 
         if (!job) {
           toast.error("Job not found");
-          navigate("/jobs");
+          navigate("/applications");
           return;
         }
 
@@ -163,7 +163,7 @@ const EditJob = () => {
 
       await Promise.all([ ...interviewOps]);
 
-      navigate("/jobs");
+      navigate("/applications");
     } catch (err: any) {
       console.error(err);
       toast.error("Update failed");

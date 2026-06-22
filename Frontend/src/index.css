@@ -157,54 +157,288 @@
     @apply bg-background text-foreground antialiased;
   }
 }
-@media print {
-  @page { size: Letter; margin: 0; }
-  body * { visibility: hidden !important; }
-  #resume-print, #resume-print * { visibility: visible !important; }
-  #resume-print {
-    position: absolute !important;
-    inset: 0 !important;
-    box-shadow: none !important;
-    transform: none !important;
-  }
+/* =========================================
+   RESUME PAGE SYSTEM
+========================================= */
+
+.resume-preview-container {
+  overflow-y: auto;
+  padding: 24px;
 }
 
 .resume-page {
-  background: #ffffff;
-  color: #111111;
   width: 8.5in;
   min-height: 11in;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 40px -8px rgba(15,23,42,0.18);
-  border-radius: 6px;
+  background: white;
+  margin: 0 auto 24px auto;
+  position: relative;
   overflow: hidden;
+
+  box-shadow:
+    0 4px 8px rgb(0 0 0 / 0.08),
+    0 12px 24px rgb(0 0 0 / 0.12);
+
+  transition: all 0.3s ease;
 }
-.resume-page.a4 {
-  width: 210mm;
-  min-height: 297mm;
+
+.resume-page:last-child {
+  margin-bottom: 0;
 }
-/* Print: strip everything except the resume page */
+
+/* Legacy support */
+.resume-paper {
+  width: 8.5in;
+  min-height: 11in;
+  background: white;
+  margin: 0 auto;
+}
+
+/* Prevent ugly breaks */
+
+.resume-section,
+.section-content,
+.resume-item,
+.experience-item,
+.education-item,
+.project-item,
+.skill-group {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Headings should stay with content */
+
+.resume-section h1,
+.resume-section h2,
+.resume-section h3,
+.resume-section h4,
+.resume-section h5,
+.resume-section h6 {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+/* Lists */
+
+.resume-section ul,
+.resume-section ol {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.resume-section li {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Tables */
+
+.resume-section table {
+  width: 100%;
+  border-collapse: collapse;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Images */
+
+.resume-section img {
+  max-width: 100%;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Links */
+
+.resume-paper a,
+.resume-page a {
+  word-break: break-word;
+}
+
+/* =========================================
+   PRINT STYLES
+========================================= */
+
 @media print {
   @page {
     size: Letter;
+    margin: 0.5in;
+  }
+
+  html,
+  body {
     margin: 0;
+    padding: 0;
+    background: white !important;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
-  html, body {
-    background: #ffffff !important;
+
+  .resume-preview-container {
+    padding: 0 !important;
+    overflow: visible !important;
   }
-  body * { visibility: hidden !important; }
-  .print-root, .print-root * { visibility: visible !important; }
-  .print-root {
-    position: absolute !important;
-    inset: 0 !important;
+
+  .resume-page,
+  .resume-paper {
+    width: 100% !important;
+    min-height: auto !important;
+
     margin: 0 !important;
     padding: 0 !important;
-  }
-  .resume-page {
+
     box-shadow: none !important;
-    border-radius: 0 !important;
-    width: 100% !important;
-    min-height: 100vh !important;
-    margin: 0 !important;
+    border: none !important;
+
+    page-break-after: always;
+    break-after: page;
+
+    overflow: visible !important;
   }
-  .no-print { display: none !important; }
+
+  .resume-page:last-child,
+  .resume-paper:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  .resume-section,
+  .experience-item,
+  .education-item,
+  .project-item,
+  .skill-group,
+  .section-content {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.7em;
+    color: #666;
+  }
+
+  a[href^="mailto:"]::after,
+  a[href^="tel:"]::after {
+    content: "";
+  }
+}
+
+/* =========================================
+   RESPONSIVE PREVIEW
+========================================= */
+
+@media screen and (max-width: 1200px) {
+  .resume-page,
+  .resume-paper {
+    transform: scale(0.95);
+    transform-origin: top center;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .resume-page,
+  .resume-paper {
+    transform: scale(0.85);
+    transform-origin: top center;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .resume-page,
+  .resume-paper {
+    transform: scale(0.75);
+    transform-origin: top center;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .resume-page,
+  .resume-paper {
+    transform: scale(0.65);
+    transform-origin: top center;
+  }
+}
+
+@media print {
+  #resume-print {
+    width: 100% !important;
+    min-height: auto !important;
+  }
+
+  section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+.resume-page,
+.resume-paper {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.resume-page .section-content,
+.resume-paper .section-content {
+  animation: fadeInUp 0.25s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
+   ACCESSIBILITY
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .resume-page,
+  .resume-paper,
+  .resume-page *,
+  .resume-paper * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.resume-page a:focus-visible,
+.resume-page button:focus-visible,
+.resume-paper a:focus-visible,
+.resume-paper button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* =========================================
+   CUSTOM SCROLLBAR
+========================================= */
+
+.resume-preview-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.resume-preview-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.resume-preview-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 999px;
+}
+
+.resume-preview-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

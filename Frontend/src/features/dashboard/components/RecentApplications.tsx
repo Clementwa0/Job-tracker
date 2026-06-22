@@ -31,7 +31,7 @@ const RecentApplications = () => {
     <Card className="p-5 md:p-6 border-border/60 bg-card/60 backdrop-blur-xl">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold tracking-tight">Recent applications</h2>
-        <Link to="/jobs" className="text-xs font-medium text-primary hover:underline flex items-center gap-0.5">
+        <Link to="/applications" className="text-xs font-medium text-primary hover:underline flex items-center gap-0.5">
           View all <ChevronRight className="h-3 w-3" />
         </Link>
       </div>
@@ -39,7 +39,7 @@ const RecentApplications = () => {
       {recent.length === 0 ? (
         <div className="text-center py-10 border border-dashed border-border rounded-xl">
           <p className="text-sm text-muted-foreground">No applications yet</p>
-          <Link to="/add-job" className="mt-2 inline-block text-sm text-primary font-medium hover:underline">
+          <Link to="/applications/add" className="mt-2 inline-block text-sm text-primary font-medium hover:underline">
             Add your first one →
           </Link>
         </div>

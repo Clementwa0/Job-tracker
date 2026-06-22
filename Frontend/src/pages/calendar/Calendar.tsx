@@ -8,8 +8,10 @@ import type { EventClickArg } from "@fullcalendar/core";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { useJobs } from "@/hooks/JobContext";
+import { useInterviews } from "@/hooks/useInterviews";
 import {
   buildCalendarEvents,
+  buildInterviewEventsFromList,
   EVENT_COLORS,
   type CalendarEvent,
   type CalendarEventType,
@@ -32,6 +34,7 @@ const ALL_TYPES: CalendarEventType[] = ["applied", "deadline", "interview"];
 
 const Calendar = () => {
   const { jobs } = useJobs();
+  const { interviews } = useInterviews();
   const calendarRef = useRef<FullCalendar | null>(null);
 
   const [view, setView] = useState<View>("dayGridMonth");
@@ -39,7 +42,16 @@ const Calendar = () => {
   const [selected, setSelected] = useState<CalendarEvent | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const allEvents = useMemo(() => buildCalendarEvents(jobs), [jobs]);
+  const allEvents = useMemo(() => {
+    const fromJobs = buildCalendarEvents(jobs).filter((e) => e.extendedProps.type !== "interview");
+    const fromInterviews = buildInterviewEventsFromList(interviews);
+    const seen = new Set<string>();
+    return [...fromJobs, ...fromInterviews].filter((e) => {
+      if (seen.has(e.id)) return false;
+      seen.add(e.id);
+      return true;
+    });
+  }, [jobs, interviews]);
 
   const counts = useMemo(() => {
     const c: Partial<Record<CalendarEventType, number>> = {};

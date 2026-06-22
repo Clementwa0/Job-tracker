@@ -122,7 +122,11 @@ const AppSidebar = () => {
               {links.map((item) => {
                 const Icon = item.icon;
 
-                const isActive = location.pathname === item.path;
+                const isActive =
+                  item.path === "/applications"
+                    ? location.pathname === "/applications" ||
+                      location.pathname.startsWith("/applications/edit/")
+                    : location.pathname === item.path;
 
                 return (
                   <SidebarMenuItem key={item.path}>

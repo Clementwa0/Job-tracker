@@ -11,6 +11,20 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("pdfjs-dist")) return "pdfjs";
+          if (id.includes("mammoth")) return "mammoth";
+          if (id.includes("recharts") || id.includes("d3-")) return "charts";
+          if (id.includes("jspdf") || id.includes("html2canvas")) return "pdf-export";
+          if (id.includes("@fullcalendar")) return "calendar";
+        },
+      },
+    },
+  },
   optimizeDeps: {
   include: [
     "luxon",

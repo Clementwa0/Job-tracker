@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 const AddJob = () => {
-  const navigate = useNavigate(); // 2. Initialized navigation instance
+  const navigate = useNavigate(); 
   const { createJob, isLoading: isCreating } = useCreateJob();
 
   const [formData, setFormData] = useState<Job>({
@@ -54,13 +54,20 @@ const AddJob = () => {
   isArchived: false
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.jobTitle || !formData.companyName) {
-      toast.error("Missing required fields", {
-        description: "Job Title and Company Name are required",
-      });
+    const nextErrors: Record<string, string> = {};
+    if (!formData.jobTitle?.trim()) nextErrors.jobTitle = "Job title is required";
+    if (!formData.companyName?.trim()) nextErrors.companyName = "Company name is required";
+    if (formData.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
+      nextErrors.contactEmail = "Enter a valid email address";
+    }
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      toast.error("Please fix the highlighted fields");
       return;
     }
 
@@ -73,7 +80,7 @@ const AddJob = () => {
       });
       
       // 3. Navigate away immediately after triggering toast success alert
-      navigate("/jobs"); 
+      navigate("/applications"); 
     }
   };
 
@@ -105,6 +112,7 @@ const AddJob = () => {
               <JobDetailsSection
                 formData={formData}
                 setFormData={setFormData}
+                errors={errors}
               />
             </div>
 

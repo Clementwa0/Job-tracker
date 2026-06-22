@@ -1,10 +1,6 @@
-import { useMemo, useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import {
-  Clock,
-  Video,
-  ChevronRight,
-} from "lucide-react";
+import { Clock, Video, ChevronRight } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,61 +10,29 @@ import { useInterviews } from "@/hooks/useInterviews";
 import { isPopulatedJobId } from "@/types/interview";
 import { interviewStatus } from "@/constants";
 
-const useCountdown = (target: Date) => {
-  const [, setTick] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTick((n) => n + 1);
-    }, 60_000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const ms = target.getTime() - Date.now();
-
-  if (ms <= 0) return "Now";
-
-  const mins = Math.floor(ms / 60000);
-
-  if (mins < 60) return `in ${mins}m`;
-
-  const hrs = Math.floor(mins / 60);
-
-  if (hrs < 24) return `in ${hrs}h`;
-
-  const days = Math.floor(hrs / 24);
-
-  return `in ${days}d`;
-};
-
-const InterviewItem = ({
-  i,
-  statusCfg,
-}: {
-  i: any;
-  statusCfg: any;
-}) => {
-  const countdown = useCountdown(i.date);
-
+const InterviewItem = ({ i, statusCfg }: { i: any; statusCfg: any }) => {
   return (
     <li className="rounded-xl border border-border/60 bg-background/60 p-4 transition-all hover:bg-muted/40 hover:shadow-sm">
       <Link to="/interviews" className="block space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-sm font-semibold text-foreground">
-              {i.stage.charAt(0).toUpperCase() +
-                i.stage.slice(1).toLowerCase()}{" "}
+              {i.stage.charAt(0).toUpperCase() + i.stage.slice(1).toLowerCase()}{" "}
               Interview
             </p>
 
             <p className="mt-1 text-xs text-muted-foreground truncate">
               {isPopulatedJobId(i.jobId)
-                ? `${i.jobId.companyName} — ${i.jobId.jobTitle}`
+                ? `${i.jobId.companyName} · ${i.jobId.jobTitle}`
                 : "Job details unavailable"}
             </p>
           </div>
-
+        </div>
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5" />
+            {i.date.toLocaleString()}
+          </span>
           <Badge
             variant="outline"
             className={`rounded-full text-[10px] uppercase tracking-wide ${
@@ -78,18 +42,6 @@ const InterviewItem = ({
             {statusCfg?.label || i.status}
           </Badge>
         </div>
-
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5" />
-            {i.date.toLocaleString()}
-          </span>
-
-          <span className="font-medium text-primary">
-            {countdown}
-          </span>
-        </div>
-
         <div className="flex items-center justify-end">
           <span className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary/80">
             <Video className="h-3.5 w-3.5" />
@@ -114,16 +66,14 @@ const UpcomingInterviews = () => {
         (i) =>
           !isNaN(i.date.getTime()) &&
           i.status !== "completed" &&
-          i.status !== "cancelled"
+          i.status !== "canceled",
       )
-      .sort(
-        (a, b) => a.date.getTime() - b.date.getTime()
-      );
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [interviews]);
 
   return (
     <Card className="border-border/60 bg-card/60 p-5 backdrop-blur-xl">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">
             Upcoming interviews
@@ -146,10 +96,7 @@ const UpcomingInterviews = () => {
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton
-              key={i}
-              className="h-24 w-full rounded-xl"
-            />
+            <Skeleton key={i} className="h-24 w-full rounded-xl" />
           ))}
         </div>
       ) : sorted.length === 0 ? (
@@ -165,17 +112,9 @@ const UpcomingInterviews = () => {
       ) : (
         <ul className="space-y-3 max-h-[320px] overflow-y-auto pr-1">
           {sorted.map((i) => {
-            const cfg = interviewStatus.find(
-              (s) => s.value === i.status
-            );
+            const cfg = interviewStatus.find((s) => s.value === i.status);
 
-            return (
-              <InterviewItem
-                key={i._id}
-                i={i}
-                statusCfg={cfg}
-              />
-            );
+            return <InterviewItem key={i._id} i={i} statusCfg={cfg} />;
           })}
         </ul>
       )}

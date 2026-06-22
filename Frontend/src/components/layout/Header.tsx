@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { ModeToggle } from "@/constants/mode-toggle";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,7 +54,8 @@ const Header = () => {
       </div>
 
       {/* RIGHT: Actions */}
-      <div className="flex items-center gap-4 ml-auto">
+      <div className="flex items-center gap-2 ml-auto">
+        <NotificationBell />
         <ModeToggle />
 
         <DropdownMenu>

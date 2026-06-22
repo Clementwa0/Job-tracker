@@ -29,7 +29,7 @@ const Dashboard = () => {
           </div>
 
           <Button asChild size="sm">
-            <Link to="/add-job">
+            <Link to="/applications/add">
               <Plus className="h-4 w-4 mr-1" />
               Add Job
             </Link>
