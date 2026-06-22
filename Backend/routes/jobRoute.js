@@ -4,9 +4,11 @@ const auth = require("../middleware/auth");
 const {
   addJob, getJobs, getJobById, updateJob, deleteJob,
   duplicateJob, archiveJob, bulkUpdate, bulkDelete, addActivity, getStats,
+  getAnalyticsSummary,
 } = require("../controllers/jobControllers");
 
 router.get("/stats", auth, getStats);
+router.get("/analytics/summary", auth, getAnalyticsSummary);
 
 router.post("/bulk/update", auth, bulkUpdate);
 router.post("/bulk/delete", auth, bulkDelete);

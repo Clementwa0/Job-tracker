@@ -9,6 +9,7 @@ const ALLOWED_FIELDS = [
   "contactPerson", "contactEmail", "contactPhone", "recruiterLinkedIn",
   "resumeFile", "coverLetterFile", "attachments",
   "jobPostingUrl", "jobDescription", "matchScore", "matchAnalysis",
+  "jobPostingId",
   "notes", "reminders", "isArchived",
 ];
 
@@ -18,6 +19,23 @@ function pickFields(body) {
     if (body[k] !== undefined) out[k] = body[k];
   }
   return out;
+}
+
+const NO_RESPONSE_STATUSES = ["applied", "waiting_response", "ghosted"];
+
+const SORT_MAP = {
+  createdAt: "createdAt",
+  "-createdAt": "-createdAt",
+  priority: "priority",
+  "-priority": "-priority",
+  status: "applicationStatus",
+  "-status": "-applicationStatus",
+  applicationDate: "applicationDate",
+  "-applicationDate": "-applicationDate",
+};
+
+function resolveSort(sortParam) {
+  return SORT_MAP[sortParam] || SORT_MAP["-applicationDate"];
 }
 
 const addJob = async (req, res) => {
@@ -51,10 +69,12 @@ const getJobs = async (req, res) => {
       minSalary,
       maxSalary,
       archived,
-      sort = "-applicationDate",
+      sort: sortParam = "-applicationDate",
       page = 1,
-      limit = 200,
+      limit = 50,
     } = req.query;
+
+    const sort = resolveSort(sortParam);
 
     const filter = { userId: req.userId };
     if (archived === "true") filter.isArchived = true;
@@ -67,6 +87,7 @@ const getJobs = async (req, res) => {
     if (workMode) filter.workMode = { $in: String(workMode).split(",") };
     if (priority) filter.priority = { $in: String(priority).split(",") };
     if (tag) filter.tags = { $in: String(tag).split(",") };
+    if (req.query.jobPostingId) filter.jobPostingId = req.query.jobPostingId;
     if (from || to) {
       filter.applicationDate = {};
       if (from) filter.applicationDate.$gte = new Date(from);
@@ -212,15 +233,30 @@ const addActivity = async (req, res) => {
 
 const getStats = async (req, res) => {
   try {
-    const userJobs = await Job.find({ userId: req.userId, isArchived: { $ne: true } });
-    const total = userJobs.length;
+    const baseFilter = { userId: req.userId, isArchived: { $ne: true } };
+
+    const [statusAgg, total] = await Promise.all([
+      Job.aggregate([
+        { $match: baseFilter },
+        {
+          $group: {
+            _id: { $toLower: { $ifNull: ["$applicationStatus", "applied"] } },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+      Job.countDocuments(baseFilter),
+    ]);
+
     const statusCounts = {};
-    let responseCount = 0;
-    for (const j of userJobs) {
-      const s = (j.applicationStatus || "applied").toLowerCase();
-      statusCounts[s] = (statusCounts[s] || 0) + 1;
-      if (s !== "applied" && s !== "waiting_response" && s !== "ghosted") responseCount++;
+    for (const row of statusAgg) {
+      statusCounts[row._id] = row.count;
     }
+
+    const responseCount = statusAgg
+      .filter((row) => !NO_RESPONSE_STATUSES.includes(row._id))
+      .reduce((sum, row) => sum + row.count, 0);
+
     res.json({
       success: true,
       data: {
@@ -237,7 +273,137 @@ const getStats = async (req, res) => {
   }
 };
 
+const getAnalyticsSummary = async (req, res) => {
+  try {
+    const baseFilter = { userId: req.userId, isArchived: { $ne: true } };
+    const now = new Date();
+    const weekAgo = new Date(now);
+    weekAgo.setDate(weekAgo.getDate() - 6);
+    weekAgo.setHours(0, 0, 0, 0);
+
+    const [
+      statusAgg,
+      companyAgg,
+      locationAgg,
+      jobTypeAgg,
+      timelineAgg,
+      total,
+    ] = await Promise.all([
+      Job.aggregate([
+        { $match: baseFilter },
+        {
+          $group: {
+            _id: { $ifNull: ["$applicationStatus", "applied"] },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+      Job.aggregate([
+        { $match: baseFilter },
+        { $group: { _id: "$companyName", count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 10 },
+      ]),
+      Job.aggregate([
+        { $match: baseFilter },
+        { $group: { _id: "$location", count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 8 },
+      ]),
+      Job.aggregate([
+        { $match: baseFilter },
+        { $group: { _id: "$jobType", count: { $sum: 1 } } },
+      ]),
+      Job.aggregate([
+        {
+          $match: {
+            ...baseFilter,
+            applicationDate: { $gte: weekAgo },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%Y-%m-%d", date: "$applicationDate" },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
+      Job.countDocuments(baseFilter),
+    ]);
+
+    const statusCounts = {};
+    for (const row of statusAgg) {
+      const key = (row._id || "applied").toLowerCase();
+      statusCounts[key] = row.count;
+    }
+
+    const responseCount = Object.entries(statusCounts)
+      .filter(([s]) => !NO_RESPONSE_STATUSES.includes(s))
+      .reduce((sum, [, c]) => sum + c, 0);
+
+    const interviewRate = total
+      ? Number((((statusCounts.interviewing || 0) / total) * 100).toFixed(1))
+      : 0;
+    const offerRate = total
+      ? Number((((statusCounts.offer || 0) / total) * 100).toFixed(1))
+      : 0;
+
+    // Cache-friendly shape: version + generatedAt for ETag/If-None-Match later
+    res.json({
+      success: true,
+      data: {
+        version: 1,
+        generatedAt: now.toISOString(),
+        metrics: {
+          totalJobs: total,
+          statusCounts,
+          responseRate: total ? Math.round((responseCount / total) * 100) : 0,
+          interviewRate,
+          offerRate,
+          activeApplications: statusCounts.applied || 0,
+          interviewCount: statusCounts.interviewing || 0,
+          offerCount: statusCounts.offer || 0,
+          rejectedCount: statusCounts.rejected || 0,
+        },
+        charts: {
+          status: Object.entries(statusCounts).map(([status, count]) => ({
+            key: status,
+            status: status.charAt(0).toUpperCase() + status.slice(1),
+            count,
+          })),
+          companies: companyAgg.map((r) => ({
+            company: r._id || "Unknown",
+            count: r.count,
+          })),
+          locations: locationAgg.map((r) => ({
+            location: r._id || "Unknown",
+            count: r.count,
+          })),
+          jobTypes: jobTypeAgg.map((r) => ({
+            type: r._id || "Unknown",
+            count: r.count,
+          })),
+          timeline: timelineAgg.map((r) => ({
+            date: r._id,
+            count: r.count,
+          })),
+        },
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to load analytics",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   addJob, getJobs, getJobById, updateJob, deleteJob,
   duplicateJob, archiveJob, bulkUpdate, bulkDelete, addActivity, getStats,
+  getAnalyticsSummary, resolveSort,
 };
