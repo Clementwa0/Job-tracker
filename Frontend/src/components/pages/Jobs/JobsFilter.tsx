@@ -1,18 +1,41 @@
 import React from "react";
-import { Search, X, SlidersHorizontal, LayoutGrid, Rows3 } from "lucide-react";
+import { Search, X, LayoutGrid, Rows3, Loader2 } from "lucide-react";
 import { statusOptions } from "@/constants";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+const priorityOptions = [
+  { label: "All priorities", value: "" },
+  { label: "Urgent", value: "urgent" },
+  { label: "High", value: "high" },
+  { label: "Medium", value: "medium" },
+  { label: "Low", value: "low" },
+];
+
+const sortOptions = [
+  { label: "Newest first", value: "-createdAt" },
+  { label: "Oldest first", value: "createdAt" },
+  { label: "Priority (high → low)", value: "-priority" },
+  { label: "Priority (low → high)", value: "priority" },
+  { label: "Status A–Z", value: "status" },
+  { label: "Status Z–A", value: "-status" },
+  { label: "Applied date", value: "-applicationDate" },
+];
 
 interface JobsFilterProps {
   searchTerm: string;
   onSearchChange: (term: string) => void;
   statusFilter: string;
   onStatusFilterChange: (status: string) => void;
+  priorityFilter: string;
+  onPriorityFilterChange: (priority: string) => void;
+  sort: string;
+  onSortChange: (sort: string) => void;
   viewMode: "table" | "grid";
   onViewModeChange: (mode: "table" | "grid") => void;
   totalCount: number;
   filteredCount: number;
+  isFetching?: boolean;
 }
 
 const JobsFilter: React.FC<JobsFilterProps> = ({
@@ -20,12 +43,17 @@ const JobsFilter: React.FC<JobsFilterProps> = ({
   onSearchChange,
   statusFilter,
   onStatusFilterChange,
+  priorityFilter,
+  onPriorityFilterChange,
+  sort,
+  onSortChange,
   viewMode,
   onViewModeChange,
   totalCount,
   filteredCount,
+  isFetching,
 }) => {
-  const hasFilters = !!searchTerm || !!statusFilter;
+  const hasFilters = !!searchTerm || !!statusFilter || !!priorityFilter;
 
   return (
     <section
@@ -38,7 +66,6 @@ const JobsFilter: React.FC<JobsFilterProps> = ({
 
       <div className="flex flex-col gap-3">
         <div className="flex flex-col lg:flex-row gap-2.5">
-          {/* Search */}
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <input
@@ -61,25 +88,46 @@ const JobsFilter: React.FC<JobsFilterProps> = ({
             )}
           </div>
 
-          {/* Status select */}
-          <div className="relative">
-            <SlidersHorizontal className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <select
-              value={statusFilter}
-              onChange={(e) => onStatusFilterChange(e.target.value)}
-              aria-label="Filter by status"
-              className="h-10 w-full lg:w-56 rounded-lg border border-input bg-background/60 pl-10 pr-8 text-sm shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring capitalize"
-            >
-              {statusOptions.map(({ label, value }) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => onStatusFilterChange(e.target.value)}
+            aria-label="Filter by status"
+            className="h-10 w-full lg:w-44 rounded-lg border border-input bg-background px-3 text-sm shadow-sm capitalize focus:outline-none focus:ring-2 focus:ring-ring/40"
+          >
+            {statusOptions.map(({ label, value }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
 
-          {/* View toggle */}
-          <div className="hidden sm:flex items-center gap-1 p-1 rounded-lg border border-input bg-background/60 shadow-sm">
+          <select
+            value={priorityFilter}
+            onChange={(e) => onPriorityFilterChange(e.target.value)}
+            aria-label="Filter by priority"
+            className="h-10 w-full lg:w-40 rounded-lg border border-input bg-background px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+          >
+            {priorityOptions.map(({ label, value }) => (
+              <option key={value || "all"} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={sort}
+            onChange={(e) => onSortChange(e.target.value)}
+            aria-label="Sort jobs"
+            className="h-10 w-full lg:w-44 rounded-lg border border-input bg-background px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring/40"
+          >
+            {sortOptions.map(({ label, value }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+
+          <div className="hidden sm:flex items-center gap-1 p-1 rounded-lg border border-input bg-background shadow-sm shrink-0">
             <ViewBtn
               active={viewMode === "table"}
               onClick={() => onViewModeChange("table")}
@@ -96,10 +144,15 @@ const JobsFilter: React.FC<JobsFilterProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-2 justify-between">
-          <div className="text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">{filteredCount}</span>{" "}
-            of {totalCount} {totalCount === 1 ? "job" : "jobs"}
-            {hasFilters && " match your filters"}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {isFetching && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            <span>
+              <span className="font-medium text-foreground">{filteredCount}</span> on this page
+              {totalCount > filteredCount && (
+                <> · <span className="font-medium text-foreground">{totalCount}</span> total</>
+              )}
+              {hasFilters && " matching filters"}
+            </span>
           </div>
           {hasFilters && (
             <Button
@@ -108,6 +161,7 @@ const JobsFilter: React.FC<JobsFilterProps> = ({
               onClick={() => {
                 onSearchChange("");
                 onStatusFilterChange("");
+                onPriorityFilterChange("");
               }}
               className="h-7 text-xs"
             >

@@ -1,35 +1,47 @@
 import { AnalyticsHeader, CompaniesChart, LocationsChart, MetricsGrid, OverviewCharts, TimelineChart } from "@/components";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useJobs } from "@/hooks/JobContext";
-import { getMetrics, getStatusData, getTopCompanies, getJobTypeData, getTopLocations } from "@/utils/analyticsHelpers";
-
-
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Analytics = () => {
-  const { jobs } = useJobs();
+  const { data, isLoading, error, refetch } = useAnalytics();
 
-  const metrics = getMetrics(jobs);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm">Loading analytics…</p>
+        </div>
+      </div>
+    );
+  }
 
-  const statusData = getStatusData(jobs);
-  const topCompanies = getTopCompanies(jobs);
-  const jobTypeData = getJobTypeData(jobs);
-  const topLocations = getTopLocations(jobs);
+  if (error || !data) {
+    return (
+      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <p className="text-sm text-muted-foreground">{error ?? "No analytics data"}</p>
+          <Button variant="outline" size="sm" onClick={refetch}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const { metrics, charts } = data;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-background p-6 transition-colors">
+    <div className="min-h-screen bg-background p-6 transition-colors">
       <div className="max-w-7xl mx-auto space-y-6">
         <AnalyticsHeader totalJobs={metrics.totalJobs} />
 
         <MetricsGrid metrics={metrics} />
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList
-            className="
-              grid grid-cols-2 md:grid-cols-4
-              w-full h-auto gap-2
-              bg-slate-200 dark:bg-slate-900
-            "
-          >
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full h-auto gap-2 bg-muted/50">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="companies">Companies</TabsTrigger>
             <TabsTrigger value="locations">Locations</TabsTrigger>
@@ -38,21 +50,21 @@ const Analytics = () => {
 
           <TabsContent value="overview" className="mt-6">
             <OverviewCharts
-              statusData={statusData}
-              jobTypeData={jobTypeData}
+              statusData={charts.status}
+              jobTypeData={charts.jobTypes}
             />
           </TabsContent>
 
           <TabsContent value="companies" className="mt-6">
-            <CompaniesChart data={topCompanies} />
+            <CompaniesChart data={charts.companies} />
           </TabsContent>
 
           <TabsContent value="locations" className="mt-6">
-            <LocationsChart data={topLocations} />
+            <LocationsChart data={charts.locations} />
           </TabsContent>
 
           <TabsContent value="timeline" className="mt-6">
-            <TimelineChart />
+            <TimelineChart timelineData={charts.timeline} />
           </TabsContent>
         </Tabs>
       </div>

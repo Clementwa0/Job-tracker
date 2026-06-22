@@ -26,7 +26,9 @@ import {
 import type { Job } from "@/types/job";
 import type { Interview } from "@/types";
 import JobStatusBadge from "./JobStatusBadge";
+import PriorityBadge from "./PriorityBadge";
 import CompanyLogo from "./CompanyLogo";
+import ActivityTimeline from "./ActivityTimeline";
 
 interface Props {
   job: Job | null;
@@ -48,12 +50,7 @@ const formatDate = (d?: string) => {
   });
 };
 
-const resolveFileUrl = (file?: string | File | null) => {
-  if (!file || typeof file !== "string") return null;
-  if (file.startsWith("http")) return file;
-  const base = import.meta.env.VITE_API_DB_URL?.replace(/\/api\/?$/, "") ?? "";
-  return `${base}${file}`;
-};
+import { resolveApiAssetUrl } from "@/services/uploadService";
 
 const InfoRow: React.FC<{
   icon: React.ReactNode;
@@ -84,8 +81,8 @@ const JobDetailsDrawer: React.FC<Props> = ({
   onDelete,
 }) => {
   if (!job) return null;
-  const resumeUrl = resolveFileUrl(job.resumeFile);
-  const coverLetterUrl = resolveFileUrl(job.coverLetterFile);
+  const resumeUrl = resolveApiAssetUrl(typeof job.resumeFile === "string" ? job.resumeFile : null);
+  const coverLetterUrl = resolveApiAssetUrl(typeof job.coverLetterFile === "string" ? job.coverLetterFile : null);
 
   const jobInterviews =
     interviews.length > 0 ? interviews : (job.interviews ?? []);
@@ -117,6 +114,7 @@ const JobDetailsDrawer: React.FC<Props> = ({
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <JobStatusBadge status={job.applicationStatus} />
+              {job.priority && <PriorityBadge priority={job.priority} />}
               {job.jobType && (
                 <span className="inline-flex items-center rounded-full border border-border/60 bg-background/60 px-2.5 py-0.5 text-xs text-muted-foreground">
                   {job.jobType}
@@ -138,6 +136,7 @@ const JobDetailsDrawer: React.FC<Props> = ({
               {[
                 { v: "overview", l: "Overview" },
                 { v: "interviews", l: `Interviews${jobInterviews.length ? ` (${jobInterviews.length})` : ""}` },
+                { v: "activity", l: `Activity${job.activity?.length ? ` (${job.activity.length})` : ""}` },
                 { v: "notes", l: "Notes" },
                 { v: "files", l: "Files" },
               ].map((t) => (
@@ -236,46 +235,12 @@ const JobDetailsDrawer: React.FC<Props> = ({
                   No interviews scheduled yet.
                 </div>
               ) : (
-                <ol className="relative space-y-3 border-l border-border/60 pl-5">
-                  {jobInterviews.map((i) => {
-                    const d = i.interviewDate ? new Date(i.interviewDate) : null;
-                    return (
-                      <li key={i._id} className="relative">
-                        <span className="absolute -left-[27px] top-2.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-background bg-primary" />
-                        <div className="rounded-lg border border-border/60 bg-card p-3.5 flex items-start gap-3">
-                          {d && (
-                            <div className="flex flex-col items-center justify-center rounded-md bg-primary/10 text-primary px-2.5 py-1.5 min-w-[3rem]">
-                              <span className="text-[10px] font-bold uppercase">
-                                {d.toLocaleString(undefined, { month: "short" })}
-                              </span>
-                              <span className="text-lg font-bold leading-none">
-                                {d.getDate()}
-                              </span>
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold capitalize text-foreground">
-                              {i.stage} interview
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {d
-                                ? d.toLocaleTimeString(undefined, {
-                                    hour: "numeric",
-                                    minute: "2-digit",
-                                  })
-                                : "No date"}
-                              {i.location ? ` · ${i.location}` : ""}
-                            </p>
-                            <span className="mt-1.5 inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                              {i.status}
-                            </span>
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ol>
+                <InterviewStageGroups interviews={jobInterviews} />
               )}
+            </TabsContent>
+
+            <TabsContent value="activity" className="mt-0">
+              <ActivityTimeline activities={job.activity ?? []} />
             </TabsContent>
 
             <TabsContent value="notes" className="mt-0">
@@ -357,6 +322,61 @@ const JobDetailsDrawer: React.FC<Props> = ({
         </SheetFooter>
       </SheetContent>
     </Sheet>
+  );
+};
+
+const stageLabel = (stage: string) =>
+  stage.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+const InterviewStageGroups: React.FC<{ interviews: Interview[] }> = ({ interviews }) => {
+  const grouped = interviews.reduce<Record<string, Interview[]>>((acc, iv) => {
+    const key = iv.stage || "other";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(iv);
+    return acc;
+  }, {});
+
+  return (
+    <div className="space-y-6">
+      {Object.entries(grouped).map(([stage, items]) => (
+        <div key={stage}>
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+            {stageLabel(stage)}
+          </h4>
+          <ol className="relative space-y-3 border-l border-border/60 pl-5">
+            {items.map((i) => {
+              const d = i.interviewDate ? new Date(i.interviewDate) : null;
+              return (
+                <li key={i._id} className="relative">
+                  <span className="absolute -left-[27px] top-2.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-background bg-primary" />
+                  <div className="rounded-lg border border-border/60 bg-card p-3.5 flex items-start gap-3">
+                    {d && (
+                      <div className="flex flex-col items-center justify-center rounded-md bg-primary/10 text-primary px-2.5 py-1.5 min-w-[3rem]">
+                        <span className="text-[10px] font-bold uppercase">
+                          {d.toLocaleString(undefined, { month: "short" })}
+                        </span>
+                        <span className="text-lg font-bold leading-none">{d.getDate()}</span>
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {d
+                          ? d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
+                          : "No date"}
+                        {i.location ? ` · ${i.location}` : ""}
+                      </p>
+                      <span className="mt-1.5 inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                        {i.status}
+                      </span>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      ))}
+    </div>
   );
 };
 

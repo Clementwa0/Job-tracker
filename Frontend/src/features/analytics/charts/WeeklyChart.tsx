@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { useJobs } from "@/hooks/JobContext";
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -11,158 +10,83 @@ import {
   CartesianGrid,
 } from "recharts";
 
-const WeeklyChart = () => {
-  const { jobs } = useJobs();
+interface TimelinePoint {
+  date: string;
+  count: number;
+}
 
+interface WeeklyChartProps {
+  timelineData?: TimelinePoint[];
+}
+
+const WeeklyChart = memo(({ timelineData }: WeeklyChartProps) => {
   const data = useMemo(() => {
     const days = Array.from({ length: 7 }).map((_, i) => {
       const d = new Date();
       d.setDate(d.getDate() - (6 - i));
-
+      d.setHours(0, 0, 0, 0);
       const key = d.toISOString().slice(0, 10);
-
+      const fromApi = timelineData?.find((t) => t.date === key);
       return {
         day: d.toLocaleDateString(undefined, { weekday: "short" }),
         key,
-        applications: 0,
+        applications: fromApi?.count ?? 0,
       };
     });
-
-    jobs.forEach((j) => {
-      const date = j.applicationDate
-        ? new Date(j.applicationDate)
-        : null;
-
-      if (!date || Number.isNaN(date.getTime())) return;
-
-      const k = date.toISOString().slice(0, 10);
-      const slot = days.find((d) => d.key === k);
-
-      if (slot) slot.applications += 1;
-    });
-
     return days;
-  }, [jobs]);
+  }, [timelineData]);
 
   return (
-    <Card
-      className="
-        p-5
-        border
-        border-slate-200
-        dark:border-slate-800
-        bg-white/80
-        dark:bg-slate-900/70
-        backdrop-blur-xl
-        shadow-sm
-        dark:shadow-none
-        transition-colors
-      "
-    >
+    <Card className="p-5 border border-border bg-card/80 backdrop-blur-xl shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
             This Week
           </h2>
-
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Applications per day
-          </p>
+          <p className="text-xs text-muted-foreground">Applications per day</p>
         </div>
-
-        <div
-          className="
-            px-2 py-1 rounded-md text-xs font-medium
-            bg-slate-800 text-slate-700
-            dark:bg-slate-900 dark:text-slate-300
-          "
-        >
+        <div className="px-2 py-1 rounded-md text-xs font-medium bg-muted text-muted-foreground">
           Last 7 Days
         </div>
       </div>
 
       <div className="h-56">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={data}
-            margin={{ top: 8, right: 10, left: -20, bottom: 0 }}
-          >
+          <AreaChart data={data} margin={{ top: 8, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="applicationsGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="0%"
-                  stopColor="#0ea5e9"
-                  stopOpacity={0.45}
-                />
-                <stop
-                  offset="100%"
-                  stopColor="#0ea5e9"
-                  stopOpacity={0}
-                />
+                <stop offset="0%" stopColor="#0ea5e9" stopOpacity={0.45} />
+                <stop offset="100%" stopColor="#0ea5e9" stopOpacity={0} />
               </linearGradient>
             </defs>
-
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="currentColor"
-              className="text-slate-200 dark:text-slate-800"
-              opacity={0.4}
-            />
-
-            <XAxis
-              dataKey="day"
-              tick={{ fontSize: 11 }}
-              stroke="currentColor"
-              className="text-slate-500 dark:text-slate-400"
-              axisLine={false}
-              tickLine={false}
-            />
-
-            <YAxis
-              allowDecimals={false}
-              tick={{ fontSize: 11 }}
-              stroke="currentColor"
-              className="text-slate-500 dark:text-slate-400"
-              axisLine={false}
-              tickLine={false}
-            />
-
+            <CartesianGrid strokeDasharray="3 3" className="text-border" opacity={0.4} />
+            <XAxis dataKey="day" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis allowDecimals={false} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
             <Tooltip
-              cursor={{
-                stroke: "#0ea5e9",
-                strokeWidth: 1,
-                strokeDasharray: "4 4",
-              }}
+              cursor={{ stroke: "#0ea5e9", strokeWidth: 1, strokeDasharray: "4 4" }}
               contentStyle={{
-                background: "rgb(15 23 42)",
-                border: "1px solid rgb(51 65 85)",
+                background: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border))",
                 borderRadius: "12px",
-                color: "#fff",
                 fontSize: "12px",
               }}
-              labelStyle={{
-                color: "#cbd5e1",
-                marginBottom: "4px",
-              }}
             />
-
             <Area
               type="monotone"
               dataKey="applications"
               stroke="#0ea5e9"
-              strokeWidth={1}
+              strokeWidth={2}
               fill="url(#applicationsGradient)"
-              activeDot={{
-                r: 5,
-                fill: "#fff",
-                stroke: "#0ea5e9",
-              }}
+              activeDot={{ r: 5 }}
+              isAnimationActive={false}
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
     </Card>
   );
-};
+});
+
+WeeklyChart.displayName = "WeeklyChart";
 
 export default WeeklyChart;

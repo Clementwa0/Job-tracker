@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Job } from "@/types/job";
 import JobStatusBadge from "./JobStatusBadge";
+import PriorityBadge from "./PriorityBadge";
 import CompanyLogo from "./CompanyLogo";
 
 interface JobCardProps {
@@ -127,9 +128,10 @@ const JobCard: React.FC<JobCardProps> = ({ job, onEdit, onDelete, onClick }) => 
         </DropdownMenu>
       </div>
 
-      {/* Status */}
-      <div className="mt-3">
+      {/* Status & priority */}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         <JobStatusBadge status={job.applicationStatus} />
+        {job.priority && <PriorityBadge priority={job.priority} />}
       </div>
 
       {/* Meta grid */}
@@ -182,4 +184,4 @@ const JobCard: React.FC<JobCardProps> = ({ job, onEdit, onDelete, onClick }) => 
   );
 };
 
-export default JobCard;
+export default React.memo(JobCard);

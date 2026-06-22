@@ -190,6 +190,7 @@ const StatusPieChart = ({ data }: Props) => {
                 paddingAngle={4}
                 stroke="hsl(var(--background))"
                 strokeWidth={3}
+                isAnimationActive={false}
               >
                 {data.map((d, index) => (
                   <Cell

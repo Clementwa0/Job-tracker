@@ -21,7 +21,7 @@ import {
   Clipboard,
   Loader2,
 } from "lucide-react";
-import { interviewStages } from "@/constants";
+import { interviewStages, interviewStatus } from "@/constants";
 
 interface AddInterviewModalProps {
   isOpen: boolean;
@@ -31,10 +31,10 @@ interface AddInterviewModalProps {
 
 const initialFormState: CreateInterviewRequest = {
   jobId: "",
-  stage: "technical",
+  stage: "hr",
   status: "scheduled",
   interviewDate: "",
-  location: "",
+  location: "online",
   notes: "",
 };
 
@@ -109,7 +109,7 @@ const InterviewSection = ({
         if (!open) handleClose();
       }}
     >
-      <DialogContent className="sm:max-w-[480px] bg-sky-900">
+      <DialogContent className="sm:max-w-[480px] bg-card border-border">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">
             Schedule New Interview
@@ -143,15 +143,13 @@ const InterviewSection = ({
             </select>
           </div>
 
-          {/* Stage + Date */}
+          {/* Stage + Status */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* Stage */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
                 <Layers className="h-3.5 w-3.5 text-primary" />
                 Interview Stage
               </label>
-
               <select
                 name="stage"
                 value={formData.stage}
@@ -166,23 +164,40 @@ const InterviewSection = ({
               </select>
             </div>
 
-            {/* Date */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5 text-primary" />
-                Date & Time *
+                Status
               </label>
-
-              <input
-                type="datetime-local"
-                name="interviewDate"
-                value={formData.interviewDate}
-                min={minDateTime}
+              <select
+                name="status"
+                value={formData.status}
                 onChange={handleChange}
-                required
                 className="w-full text-sm bg-background border border-border rounded-lg p-2 text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
-              />
+              >
+                {interviewStatus.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
             </div>
+          </div>
+
+          {/* Date */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
+              <Calendar className="h-3.5 w-3.5 text-primary" />
+              Date & Time *
+            </label>
+            <input
+              type="datetime-local"
+              name="interviewDate"
+              value={formData.interviewDate}
+              min={minDateTime}
+              onChange={handleChange}
+              required
+              className="w-full text-sm bg-background border border-border rounded-lg p-2 text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
+            />
           </div>
 
           {/* Location */}
