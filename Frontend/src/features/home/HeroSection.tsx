@@ -25,6 +25,9 @@ export default function HeroSection() {
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/jobs">Browse open jobs</Link>
+            </Button>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">Free forever · No credit card required</p>
         </div>

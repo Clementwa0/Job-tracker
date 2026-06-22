@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { navItems } from "@/constants";
+import { useAuth } from "@/hooks/AuthContext";
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
-  const isAuthenticated = false;
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -40,10 +40,29 @@ export default function Nav() {
     return () => observer.disconnect();
   }, []);
 
-
-
-  const NavLinks = () => (
+  const NavLinks = ({ onNavigate }: { onNavigate?: () => void }) => (
     <>
+      <Link
+        to="/jobs"
+        className="relative text-sm font-medium text-foreground transition hover:text-primary"
+        onClick={onNavigate}
+      >
+        Browse Jobs
+      </Link>
+      <Link
+        to="/employer/login"
+        className="relative text-sm font-medium text-muted-foreground transition hover:text-primary"
+        onClick={onNavigate}
+      >
+        For Employers
+      </Link>
+      <Link
+        to="/admin/login"
+        className="relative text-sm font-medium text-muted-foreground transition hover:text-primary"
+        onClick={onNavigate}
+      >
+        Admin
+      </Link>
       {navItems.map((item) => (
         <a
           key={item.id}
@@ -53,7 +72,7 @@ export default function Nav() {
               ? "text-foreground font-medium"
               : "text-muted-foreground"
           }`}
-          onClick={() => setOpen(false)}
+          onClick={onNavigate}
         >
           {item.label}
 
@@ -70,7 +89,7 @@ export default function Nav() {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 border-b border-border bg-background backdrop-blur-md transition-all duration-300 ${
+        className={`sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-md transition-all duration-300 ${
           scrolled ? "h-14" : "h-16"
         }`}
       >
@@ -98,10 +117,9 @@ export default function Nav() {
           {/* Actions */}
           <div className="flex items-center gap-2">
 
-            {/* Auth-aware UI */}
             {isAuthenticated ? (
-              <Button size="sm">
-                Dashboard
+              <Button asChild size="sm">
+                <Link to="/dashboard">Dashboard</Link>
               </Button>
             ) : (
               <>
@@ -131,6 +149,7 @@ export default function Nav() {
             <button
               className="md:hidden p-2"
               onClick={() => setOpen(true)}
+              aria-label="Open menu"
             >
               <Menu className="h-5 w-5" />
             </button>
@@ -160,25 +179,27 @@ export default function Nav() {
         >
           <div className="flex items-center justify-between mb-8">
             <span className="font-semibold">Menu</span>
-            <button onClick={() => setOpen(false)}>
+            <button onClick={() => setOpen(false)} aria-label="Close menu">
               <X className="h-5 w-5" />
             </button>
           </div>
 
           <div className="flex flex-col gap-6">
-            <NavLinks />
+            <NavLinks onNavigate={() => setOpen(false)} />
           </div>
 
           <div className="mt-8 flex flex-col gap-2">
             {isAuthenticated ? (
-              <Button className="w-full">Dashboard</Button>
+              <Button asChild className="w-full">
+                <Link to="/dashboard" onClick={() => setOpen(false)}>Dashboard</Link>
+              </Button>
             ) : (
               <>
-                <Button variant="ghost" className="w-full">
-                  Sign in
+                <Button asChild variant="ghost" className="w-full">
+                  <Link to="/login" onClick={() => setOpen(false)}>Sign in</Link>
                 </Button>
-                <Button className="w-full bg-primary text-primary-foreground">
-                  Get started
+                <Button asChild className="w-full">
+                  <Link to="/register" onClick={() => setOpen(false)}>Get started</Link>
                 </Button>
               </>
             )}
