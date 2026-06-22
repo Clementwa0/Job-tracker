@@ -127,9 +127,44 @@ const deleteInterview = async (req, res) => {
   }
 };
 
+/* ================= GET INTERVIEWS BY JOB ================= */
+const getJobInterviews = async (req, res) => {
+  try {
+    const job = await Job.findOne({
+      _id: req.params.jobId,
+      userId: req.userId,
+    });
+
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
+    }
+
+    const interviews = await Interview.find({
+      userId: req.userId,
+      jobId: req.params.jobId,
+    })
+      .populate("jobId", "jobTitle companyName applicationStatus")
+      .sort({ interviewDate: 1 });
+
+    res.json({
+      success: true,
+      data: interviews,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch job interviews",
+    });
+  }
+};
+
 module.exports = {
   createInterview,
   getInterviews,
+  getJobInterviews,
   updateInterview,
   deleteInterview,
 };
