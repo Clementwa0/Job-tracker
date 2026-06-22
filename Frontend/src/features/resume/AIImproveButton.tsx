@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, RefreshCw } from "lucide-react";
 import { aiService, type ImproveKind } from "@/services/aiService";
-import { toast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 interface Props {
   kind: ImproveKind;
@@ -14,22 +14,20 @@ interface Props {
 
 export default function AIImproveButton({ kind, text, context, onPick, label = "Improve with AI", size = "sm" }: Props) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [variants, setVariants] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
 
   const run = async () => {
-    if (!text || text.trim().length < 3) {
-      toast({ title: "Add some text first", description: "AI needs a few words to improve." });
-      return;
-    }
+    if (!text || text.trim().length < 3) return;
     setLoading(true);
+    setError(null);
     try {
-      const { variants } = await aiService.improve(kind, text, context);
-      setVariants(variants);
+      const { variants: next } = await aiService.improve(kind, text, context);
+      setVariants(next);
       setOpen(true);
-      if (variants.length === 0) toast({ title: "No suggestions", description: "Try rewording your input." });
-    } catch {
-      toast({ title: "AI request failed", description: "Please try again in a moment." });
+    } catch (err) {
+      setError(getApiErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -52,8 +50,17 @@ export default function AIImproveButton({ kind, text, context, onPick, label = "
         {label}
       </button>
 
+      {error && (
+        <div className="absolute right-0 z-20 mt-1 w-[280px] rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs">
+          <p className="text-destructive">{error}</p>
+          <button type="button" onClick={run} className="mt-2 inline-flex items-center gap-1 text-primary hover:underline">
+            <RefreshCw className="h-3 w-3" /> Retry
+          </button>
+        </div>
+      )}
+
       {open && variants.length > 0 && (
-        <div className="absolute right-0 z-20 mt-1 w-[320px] rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-900">
+        <div className="absolute right-0 z-20 mt-1 w-[320px] rounded-lg border border-border bg-card p-2 shadow-lg">
           <div className="mb-1 flex items-center justify-between px-1">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Suggestions</p>
             <button

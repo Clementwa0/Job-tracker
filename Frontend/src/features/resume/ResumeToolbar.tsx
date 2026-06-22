@@ -129,7 +129,7 @@ export default function ResumeToolbar({
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3.5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4">
         
         {/* Left Interactive Configuration Block */}
@@ -256,9 +256,13 @@ export default function ResumeToolbar({
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500 border-t border-slate-100 pt-2 dark:border-slate-800/50">
-        <Download className="h-3 w-3 text-slate-400" />
-        <span>Select an ATS-parsed styling system layout and brand accent to match target industry specifications.</span>
+      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground border-t border-border pt-2">
+        <Download className="h-3 w-3" />
+        <span>
+          {exporting
+            ? "Generating PDF… this may take a few seconds."
+            : "Choose a layout and accent color, then download or print your resume."}
+        </span>
       </div>
     </div>
   );

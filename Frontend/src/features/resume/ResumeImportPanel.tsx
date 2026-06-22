@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Upload, Loader2, FileUp, CheckCircle2, AlertTriangle } from "lucide-react";
 import { aiService } from "@/services/aiService";
+import { extractDocumentText } from "@/lib/documentExtract";
 import { toast } from "@/hooks/use-toast";
 import type { ResumeData } from "@/types/resume-builder";
 
@@ -23,10 +24,10 @@ export default function ResumeImportPanel({ onParsed }: Props) {
         text = await file.text();
       } else if (name.endsWith(".pdf")) {
         setProgress("Extracting PDF text…");
-        text = await extractPdf(file);
+        text = await extractDocumentText(file);
       } else if (name.endsWith(".docx")) {
         setProgress("Extracting DOCX text…");
-        text = await extractDocx(file);
+        text = await extractDocumentText(file);
       } else {
         throw new Error("Unsupported file type. Use PDF, DOCX or TXT.");
       }
@@ -97,38 +98,4 @@ export default function ResumeImportPanel({ onParsed }: Props) {
       </p>
     </div>
   );
-}
-
-/* ---------------- file readers (dynamic imports) ---------------- */
-
-async function extractPdf(file: File): Promise<string> {
-  // dynamic import keeps pdfjs out of the main bundle
-  const pdfjs: typeof import("pdfjs-dist") = await import("pdfjs-dist").catch(() => {
-    throw new Error("pdfjs-dist is not installed. Run: pnpm add pdfjs-dist");
-  });
-  // worker
-  try {
-    const workerUrl = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
-    pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
-  } catch {
-    /* fall back to default worker */
-  }
-  const buf = await file.arrayBuffer();
-  const pdf = await pdfjs.getDocument({ data: buf }).promise;
-  let text = "";
-  for (let p = 1; p <= pdf.numPages; p++) {
-    const page = await pdf.getPage(p);
-    const content = await page.getTextContent();
-    text += content.items.map((it) => ("str" in it ? it.str : "")).join(" ") + "\n\n";
-  }
-  return text;
-}
-
-async function extractDocx(file: File): Promise<string> {
-  const mammoth: typeof import("mammoth") = await import("mammoth").catch(() => {
-    throw new Error("mammoth is not installed. Run: pnpm add mammoth");
-  });
-  const buf = await file.arrayBuffer();
-  const { value } = await mammoth.extractRawText({ arrayBuffer: buf });
-  return value;
 }

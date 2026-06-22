@@ -8,11 +8,7 @@ import React, {
 } from "react";
 
 import API from "@/lib/axios";
-
-import mammoth from "mammoth";
-
-import * as pdfjsLib from "pdfjs-dist";
-import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
+import { extractDocxText, extractPdfText } from "@/lib/documentExtract";
 
 import { toast } from "sonner";
 
@@ -39,9 +35,6 @@ import {
   UploadSection,
 } from "@/components";
 import { getScoreMetrics } from "@/features/cvReview/scoreMetrics";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  pdfWorker;
 
 /* ---------------- TYPES ---------------- */
 
@@ -129,70 +122,21 @@ const CVReview: React.FC = () => {
 
   /* ---------------- FILE EXTRACTION ---------------- */
 
-  const extractTextFromPDF =
-    async (
-      file: File
-    ): Promise<string> => {
-      try {
-        const buffer =
-          await file.arrayBuffer();
+  const extractTextFromPDF = async (file: File): Promise<string> => {
+    try {
+      return await extractPdfText(file);
+    } catch {
+      throw new Error("Cannot read PDF file.");
+    }
+  };
 
-        const pdf =
-          await pdfjsLib
-            .getDocument({
-              data: buffer,
-            })
-            .promise;
-
-        let text = "";
-
-        for (
-          let i = 1;
-          i <= pdf.numPages;
-          i++
-        ) {
-          const page =
-            await pdf.getPage(i);
-
-          const content =
-            await page.getTextContent();
-
-          const strings = content.items.map(
-            (item: any) => item.str
-          );
-
-          text +=
-            strings.join(" ") + "\n";
-        }
-
-        return text.trim();
-      } catch {
-        throw new Error(
-          "Cannot read PDF file."
-        );
-      }
-    };
-
-  const extractTextFromDOCX =
-    async (
-      file: File
-    ): Promise<string> => {
-      try {
-        const buffer =
-          await file.arrayBuffer();
-
-        const result =
-          await mammoth.extractRawText({
-            arrayBuffer: buffer,
-          });
-
-        return result.value.trim();
-      } catch {
-        throw new Error(
-          "Failed to read DOCX file."
-        );
-      }
-    };
+  const extractTextFromDOCX = async (file: File): Promise<string> => {
+    try {
+      return await extractDocxText(file);
+    } catch {
+      throw new Error("Failed to read DOCX file.");
+    }
+  };
 
   const extractTextFromDOC =
     async (
