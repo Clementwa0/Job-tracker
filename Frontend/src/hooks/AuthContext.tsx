@@ -1,8 +1,13 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { ReactNode } from "react";
 import { authService } from "@/services/authService";
+import { employerAuthService } from "@/features/employer/services/employerAuthService";
+import { adminAuthService } from "@/features/admin/services/adminAuthService";
+import type { EmployerRegisterRequest } from "@/features/employer/services/employerAuthService";
 import { authEvents } from "@/lib/authEvents";
 import { tokenStorage } from "@/lib/tokenStorage";
+import { getLoginPathForLocation, isAuthPublicPath } from "@/lib/auth/redirects";
+import { roleStorage } from "@/lib/auth/roleStorage";
 import type { User as ApiUser } from "@/types/auth";
 
 interface User extends ApiUser {
@@ -11,7 +16,7 @@ interface User extends ApiUser {
   location?: string;
   phone?: string;
   emailVerified?: boolean;
-  role?: "user" | "admin";
+  role?: "user" | "admin" | "employer";
 }
 
 interface AuthContextType {
@@ -19,8 +24,11 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  loginEmployer: (email: string, password: string) => Promise<User>;
+  loginAdmin: (email: string, password: string) => Promise<User>;
   register: (name: string, email: string, password: string) => Promise<void>;
+  registerEmployer: (data: EmployerRegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
@@ -51,21 +59,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     tokenStorage.removeToken();
   }, []);
 
+  const applySession = useCallback((accessToken: string, nextUser: User) => {
+    tokenStorage.setToken(accessToken);
+    setToken(accessToken);
+    setUser(nextUser);
+    if (nextUser.role) roleStorage.set(nextUser.role);
+  }, []);
+
   const hydrate = useCallback(async (t: string) => {
     setToken(t);
     const res = await authService.getCurrentUser();
     setUser(res.data.user);
+    if (res.data.user.role) roleStorage.set(res.data.user.role);
   }, []);
 
   useEffect(() => {
     const unsub = authEvents.onUnauthorized(() => {
       clearSession();
-      const isPublic = ["/login", "/register", "/", "/forget-password"].some((p) =>
-        window.location.pathname.startsWith(p)
-      );
-      if (!isPublic) window.location.href = "/login";
+      const path = window.location.pathname;
+      if (!isAuthPublicPath(path)) {
+        window.location.href = getLoginPathForLocation(path);
+      }
     });
-    return () => { if (typeof unsub === 'function') unsub(); };
+    return () => { if (typeof unsub === "function") unsub(); };
   }, [clearSession]);
 
   useEffect(() => {
@@ -78,13 +94,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     })();
   }, [hydrate, clearSession]);
 
-  // Idle session timeout
   useEffect(() => {
     if (!token) return;
     let timer: ReturnType<typeof setTimeout>;
     const reset = () => {
       clearTimeout(timer);
-      timer = setTimeout(() => { clearSession(); window.location.href = "/login?reason=idle"; }, IDLE_LIMIT_MS);
+      timer = setTimeout(() => {
+        clearSession();
+        window.location.href = `${getLoginPathForLocation(window.location.pathname)}?reason=idle`;
+      }, IDLE_LIMIT_MS);
     };
     const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
     events.forEach((e) => window.addEventListener(e, reset, { passive: true }));
@@ -97,20 +115,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     const res = await authService.login({ email, password });
-    tokenStorage.setToken(res.data.token);
-    setToken(res.data.token);
-    setUser(res.data.user);
+    applySession(res.data.token, res.data.user);
+    return res.data.user;
+  };
+
+  const loginEmployer = async (email: string, password: string) => {
+    const res = await employerAuthService.login({ email, password });
+    applySession(res.data.token, res.data.user);
+    return res.data.user;
+  };
+
+  const loginAdmin = async (email: string, password: string) => {
+    const res = await adminAuthService.login({ email, password });
+    applySession(res.data.token, res.data.user);
+    return res.data.user;
   };
 
   const register = async (name: string, email: string, password: string) => {
     const res = await authService.register({ name, email, password });
-    tokenStorage.setToken(res.data.token);
-    setToken(res.data.token);
-    setUser(res.data.user);
+    applySession(res.data.token, res.data.user);
+  };
+
+  const registerEmployer = async (data: EmployerRegisterRequest) => {
+    const res = await employerAuthService.register(data);
+    applySession(res.data.token, res.data.user);
   };
 
   const logout = async () => {
     try { await authService.logout(); } catch { /* ignore */ }
+    roleStorage.clear();
     clearSession();
   };
 
@@ -135,7 +168,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider
       value={{
         user, token, isLoading, isAuthenticated: !!user && !!token,
-        login, register, logout, refresh,
+        login, loginEmployer, loginAdmin, register, registerEmployer, logout, refresh,
         updateProfile, updatePassword, forgotPassword, resetPassword,
         loginWithToken, hasRole,
       }}

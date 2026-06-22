@@ -1,8 +1,11 @@
-export type InterviewStage = "phone" | "hr" | "technical" | "onsite" | "final";
+export type InterviewStage = "phone" | "hr" | "technical" | "behavioral" | "onsite" | "final";
 export type InterviewStatus =
   | "scheduled"
   | "completed"
-  | "cancelled";
+  | "canceled"
+  | "passed"
+  | "failed"
+  | "rescheduled";
 
   
 export interface JobReference {
@@ -16,7 +19,7 @@ export interface Interview {
   data: Interview;
   _id: string;
   userId?: string;
-  jobId: string | JobReference;
+  jobId: string | JobReference | null;
   stage: InterviewStage;
   status: InterviewStatus;
   interviewDate: string;
@@ -36,7 +39,7 @@ export interface CreateInterviewRequest {
 }
 
 export function isPopulatedJobId(
-  jobId: string | JobReference,
+  jobId: string | JobReference | null | undefined,
 ): jobId is JobReference {
   return typeof jobId === "object" && jobId !== null && "_id" in jobId;
 }

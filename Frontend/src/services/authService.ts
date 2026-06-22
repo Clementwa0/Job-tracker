@@ -22,6 +22,7 @@ export interface ChangePasswordDto {
 
 export interface ForgotPasswordDto {
   email: string;
+  resetPath?: string;
 }
 
 export interface ResetPasswordDto {
@@ -103,12 +104,10 @@ export const authService = {
   /* ---------- AUTHJS SOCIAL LOGIN ---------- */
 
   loginWithGoogle() {
-    window.location.href =
-      `${API_URL}/auth/signin/google`;
+    window.location.href = `${API_URL}/auth/social/google`;
   },
 
   loginWithGithub() {
-    window.location.href =
-      `${API_URL}/auth/signin/github`;
+    window.location.href = `${API_URL}/auth/social/github`;
   },
 };

@@ -1,7 +1,12 @@
 export interface User {
   _id: string;
+  id?: string;
   name: string;
   email: string;
+  role?: "user" | "employer" | "admin";
+  accountStatus?: "active" | "suspended";
+  employerCompanyId?: string;
+  emailVerified?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

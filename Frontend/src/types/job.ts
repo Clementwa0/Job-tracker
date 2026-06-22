@@ -96,6 +96,7 @@ export interface BackendJob {
   isArchived?: boolean;
   interviews?: Interview[];
   userId?: string;
+  jobPostingId?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -134,6 +135,7 @@ export interface Job {
   reminders: JobReminder[];
   isArchived: boolean;
   interviews: Interview[];
+  jobPostingId?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -155,4 +157,37 @@ export interface JobFilters {
   minSalary?: number;
   maxSalary?: number;
   archived?: "true" | "false" | "all";
+  jobPostingId?: string;
+  sort?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface JobsListMeta {
+  page: number;
+  limit: number;
+  total: number;
+}
+
+export interface AnalyticsSummary {
+  version: number;
+  generatedAt: string;
+  metrics: {
+    totalJobs: number;
+    statusCounts: Record<string, number>;
+    responseRate: number;
+    interviewRate: number;
+    offerRate: number;
+    activeApplications: number;
+    interviewCount: number;
+    offerCount: number;
+    rejectedCount: number;
+  };
+  charts: {
+    status: { key: string; status: string; count: number }[];
+    companies: { company: string; count: number }[];
+    locations: { location: string; count: number }[];
+    jobTypes: { type: string; count: number }[];
+    timeline: { date: string; count: number }[];
+  };
 }

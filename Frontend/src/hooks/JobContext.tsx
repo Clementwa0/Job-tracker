@@ -28,7 +28,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
   const refetchJobs = useCallback(async () => {
     try {
       setIsLoading(true);
-      const nextJobs = await jobService.getJobs();
+      const nextJobs = await jobService.getJobs({ limit: 500 });
       setJobs(nextJobs);
     } catch (error) {
       toast({

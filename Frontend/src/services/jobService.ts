@@ -1,14 +1,40 @@
 import axiosInstance from "@/lib/axiosInstance";
 import type { ApiSuccessResponse } from "@/types/api";
-import type { BackendJob, Job, JobPayload, JobFilters, JobActivity } from "@/types/job";
+import type { BackendJob, Job, JobPayload, JobFilters, JobActivity, JobsListMeta, AnalyticsSummary } from "@/types/job";
 import {
   mapBackendJobToFrontend,
   mapFrontendJobToBackend,
 } from "@/lib/mappers/jobMapper";
+import { uploadService } from "@/services/uploadService";
+
+async function resolveFileField(
+  value: string | File | null | undefined,
+): Promise<string | null | undefined> {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value === "string") return value;
+  return uploadService.uploadFile(value);
+}
+
+async function resolveJobFiles(job: Partial<Job>): Promise<Partial<Job>> {
+  const resolved = { ...job };
+  if (job.resumeFile !== undefined) {
+    resolved.resumeFile = (await resolveFileField(job.resumeFile)) ?? null;
+  }
+  if (job.coverLetterFile !== undefined) {
+    resolved.coverLetterFile = (await resolveFileField(job.coverLetterFile)) ?? null;
+  }
+  return resolved;
+}
 
 type JobsListResponse = ApiSuccessResponse<BackendJob[]>;
 type JobResponse = ApiSuccessResponse<BackendJob>;
 type CreateJobResponse = ApiSuccessResponse<{ job: BackendJob }>;
+
+export interface JobsListResult {
+  jobs: Job[];
+  meta: JobsListMeta;
+}
 
 function buildQuery(filters?: JobFilters): string {
   if (!filters) return "";
@@ -27,10 +53,18 @@ function buildQuery(filters?: JobFilters): string {
 
 export const jobService = {
   async getJobs(filters?: JobFilters): Promise<Job[]> {
-    const { data } = await axiosInstance.get<JobsListResponse>(
+    const result = await this.getJobsPaginated(filters);
+    return result.jobs;
+  },
+
+  async getJobsPaginated(filters?: JobFilters): Promise<{ jobs: Job[]; meta: JobsListMeta }> {
+    const { data } = await axiosInstance.get<JobsListResponse & { meta: JobsListMeta }>(
       `/jobs${buildQuery(filters)}`
     );
-    return data.data.map(mapBackendJobToFrontend);
+    return {
+      jobs: data.data.map(mapBackendJobToFrontend),
+      meta: data.meta ?? { page: 1, limit: 50, total: data.data.length },
+    };
   },
 
   async getJobById(id: string): Promise<Job> {
@@ -39,17 +73,19 @@ export const jobService = {
   },
 
   async createJob(job: JobPayload): Promise<Job> {
+    const withFiles = await resolveJobFiles(job);
     const { data } = await axiosInstance.post<CreateJobResponse>(
       "/jobs",
-      mapFrontendJobToBackend(job)
+      mapFrontendJobToBackend(withFiles)
     );
     return mapBackendJobToFrontend(data.data.job);
   },
 
   async updateJob(id: string, job: Partial<Job>): Promise<Job> {
+    const withFiles = await resolveJobFiles(job);
     const { data } = await axiosInstance.put<JobResponse>(
       `/jobs/${id}`,
-      mapFrontendJobToBackend(job)
+      mapFrontendJobToBackend(withFiles)
     );
     return mapBackendJobToFrontend(data.data);
   },
@@ -97,7 +133,21 @@ export const jobService = {
     offerCount: number;
     rejectedCount: number;
   }> {
-    const { data } = await axiosInstance.get<ApiSuccessResponse<any>>("/jobs/stats");
+    const { data } = await axiosInstance.get<ApiSuccessResponse<{
+      total: number;
+      statusCounts: Record<string, number>;
+      responseRate: number;
+      interviewCount: number;
+      offerCount: number;
+      rejectedCount: number;
+    }>>("/jobs/stats");
+    return data.data;
+  },
+
+  async getAnalyticsSummary(): Promise<AnalyticsSummary> {
+    const { data } = await axiosInstance.get<ApiSuccessResponse<AnalyticsSummary>>(
+      "/jobs/analytics/summary"
+    );
     return data.data;
   },
 };

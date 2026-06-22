@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useAuth } from "@/hooks/AuthContext";
+import { resumeService } from "@/services/resumeService";
 import {
   EMPTY_RESUME,
   normalizeResume,
@@ -10,11 +12,7 @@ import {
 const INDEX_KEY = "resumes-index.v1";
 const ITEM_KEY = (id: string) => `resume.v1.${id}`;
 
-/* ------------------------------------------------------------------ */
-/*  Index                                                              */
-/* ------------------------------------------------------------------ */
-
-function readIndex(): ResumeMeta[] {
+function readLocalIndex(): ResumeMeta[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(INDEX_KEY);
@@ -26,15 +24,7 @@ function readIndex(): ResumeMeta[] {
   }
 }
 
-function writeIndex(metas: ResumeMeta[]) {
-  try {
-    window.localStorage.setItem(INDEX_KEY, JSON.stringify(metas));
-  } catch {
-    /* quota */
-  }
-}
-
-function readResume(id: string): ResumeData | null {
+function readLocalResume(id: string): ResumeData | null {
   try {
     const raw = window.localStorage.getItem(ITEM_KEY(id));
     if (!raw) return null;
@@ -44,13 +34,35 @@ function readResume(id: string): ResumeData | null {
   }
 }
 
-function writeResume(data: ResumeData) {
-  if (!data.meta?.id) return;
+function clearLocalResumes() {
+  const index = readLocalIndex();
+  index.forEach((m) => {
+    try {
+      window.localStorage.removeItem(ITEM_KEY(m.id));
+    } catch {
+      /* ignore */
+    }
+  });
   try {
-    window.localStorage.setItem(ITEM_KEY(data.meta.id), JSON.stringify(data));
+    window.localStorage.removeItem(INDEX_KEY);
   } catch {
-    /* quota */
+    /* ignore */
   }
+}
+
+async function migrateLocalResumesToApi(): Promise<void> {
+  const index = readLocalIndex();
+  if (!index.length) return;
+
+  for (const meta of index) {
+    const data = readLocalResume(meta.id);
+    if (!data) continue;
+    await resumeService.create({
+      ...data,
+      meta: { ...meta, name: meta.name || "Imported resume" },
+    });
+  }
+  clearLocalResumes();
 }
 
 /* ------------------------------------------------------------------ */
@@ -58,76 +70,109 @@ function writeResume(data: ResumeData) {
 /* ------------------------------------------------------------------ */
 
 export function useResumesIndex() {
-  const [items, setItems] = useState<ResumeMeta[]>(() => readIndex());
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const [items, setItems] = useState<ResumeMeta[]>([]);
+  const [loading, setLoading] = useState(true);
+  const migrated = useRef(false);
 
-  const refresh = useCallback(() => setItems(readIndex()), []);
-
-  const createBlank = useCallback((name?: string): ResumeMeta => {
-    const meta: ResumeMeta = {
-      id: uid(),
-      name: name?.trim() || "Untitled resume",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    const data: ResumeData = { ...EMPTY_RESUME, meta };
-    writeResume(data);
-    const next = [meta, ...readIndex()];
-    writeIndex(next);
-    setItems(next);
-    return meta;
-  }, []);
-
-  const createFromData = useCallback((partial: Partial<ResumeData>, name?: string): ResumeMeta => {
-    const meta: ResumeMeta = {
-      id: uid(),
-      name: name?.trim() || partial.contact?.fullName || "Imported resume",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    const data = normalizeResume({ ...partial, meta });
-    writeResume(data);
-    const next = [meta, ...readIndex()];
-    writeIndex(next);
-    setItems(next);
-    return meta;
-  }, []);
-
-  const duplicate = useCallback((id: string): ResumeMeta | null => {
-    const src = readResume(id);
-    if (!src) return null;
-    const meta: ResumeMeta = {
-      id: uid(),
-      name: `${src.meta?.name || "Resume"} (copy)`,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    writeResume({ ...src, meta });
-    const next = [meta, ...readIndex()];
-    writeIndex(next);
-    setItems(next);
-    return meta;
-  }, []);
-
-  const rename = useCallback((id: string, name: string) => {
-    const next = readIndex().map((m) => (m.id === id ? { ...m, name, updatedAt: Date.now() } : m));
-    writeIndex(next);
-    setItems(next);
-    const data = readResume(id);
-    if (data && data.meta) writeResume({ ...data, meta: { ...data.meta, name, updatedAt: Date.now() } });
-  }, []);
-
-  const remove = useCallback((id: string) => {
-    const next = readIndex().filter((m) => m.id !== id);
-    writeIndex(next);
-    setItems(next);
-    try {
-      window.localStorage.removeItem(ITEM_KEY(id));
-    } catch {
-      /* ignore */
+  const refresh = useCallback(async () => {
+    if (!isAuthenticated) {
+      setItems([]);
+      setLoading(false);
+      return;
     }
-  }, []);
+    setLoading(true);
+    try {
+      if (!migrated.current && readLocalIndex().length > 0) {
+        await migrateLocalResumesToApi();
+        migrated.current = true;
+      }
+      const list = await resumeService.list();
+      setItems(list);
+    } catch {
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
 
-  return { items, refresh, createBlank, createFromData, duplicate, rename, remove };
+  useEffect(() => {
+    if (authLoading) return;
+    refresh();
+  }, [authLoading, refresh]);
+
+  const createBlank = useCallback(async (name?: string): Promise<ResumeMeta | null> => {
+    const created = await resumeService.create({
+      ...EMPTY_RESUME,
+      meta: {
+        id: uid(),
+        name: name?.trim() || "Untitled resume",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+    });
+    await refresh();
+    return created.meta ?? null;
+  }, [refresh]);
+
+  const createFromData = useCallback(
+    async (partial: Partial<ResumeData>, name?: string): Promise<ResumeMeta | null> => {
+      const created = await resumeService.create(
+        normalizeResume({
+          ...partial,
+          meta: {
+            id: uid(),
+            name: name?.trim() || partial.contact?.fullName || "Imported resume",
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          },
+        }),
+      );
+      await refresh();
+      return created.meta ?? null;
+    },
+    [refresh],
+  );
+
+  const duplicate = useCallback(
+    async (id: string): Promise<ResumeMeta | null> => {
+      const src = await resumeService.get(id);
+      const created = await resumeService.create({
+        ...src,
+        meta: {
+          id: uid(),
+          name: `${src.meta?.name || "Resume"} (copy)`,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        },
+      });
+      await refresh();
+      return created.meta ?? null;
+    },
+    [refresh],
+  );
+
+  const rename = useCallback(
+    async (id: string, name: string) => {
+      const current = await resumeService.get(id);
+      await resumeService.update(id, {
+        ...current,
+        meta: { ...current.meta!, name, updatedAt: Date.now() },
+      });
+      await refresh();
+    },
+    [refresh],
+  );
+
+  const remove = useCallback(
+    async (id: string) => {
+      await resumeService.remove(id);
+      await refresh();
+    },
+    [refresh],
+  );
+
+  return { items, loading, refresh, createBlank, createFromData, duplicate, rename, remove };
 }
 
 /* ------------------------------------------------------------------ */
@@ -137,38 +182,56 @@ export function useResumesIndex() {
 const HISTORY_LIMIT = 50;
 
 export function useResumeEditor(id: string | undefined) {
-  const [data, _setData] = useState<ResumeData>(() => {
-    if (!id) return EMPTY_RESUME;
-    return readResume(id) || EMPTY_RESUME;
-  });
+  const { isAuthenticated } = useAuth();
+  const [data, _setData] = useState<ResumeData>(EMPTY_RESUME);
+  const [loading, setLoading] = useState(!!id);
   const past = useRef<ResumeData[]>([]);
   const future = useRef<ResumeData[]>([]);
-  const [savedAt, setSavedAt] = useState<number | null>(Date.now());
+  const [savedAt, setSavedAt] = useState<number | null>(null);
   const [, force] = useState(0);
 
-  // Re-load when id changes
   useEffect(() => {
-    if (!id) return;
-    const loaded = readResume(id) || EMPTY_RESUME;
-    _setData(loaded);
-    past.current = [];
-    future.current = [];
-    setSavedAt(Date.now());
-  }, [id]);
+    if (!id || !isAuthenticated) {
+      _setData(EMPTY_RESUME);
+      setLoading(false);
+      return;
+    }
 
-  // Debounced autosave
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const loaded = await resumeService.get(id);
+        if (!cancelled) {
+          _setData(loaded);
+          past.current = [];
+          future.current = [];
+          setSavedAt(Date.now());
+        }
+      } catch {
+        if (!cancelled) _setData(EMPTY_RESUME);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, isAuthenticated]);
+
   useEffect(() => {
-    if (!data.meta?.id) return;
+    if (!id || !data.meta?.id || loading) return;
     const t = setTimeout(() => {
-      const stamped: ResumeData = { ...data, meta: { ...data.meta!, updatedAt: Date.now() } };
-      writeResume(stamped);
-      // also bump index updatedAt
-      const idx = readIndex().map((m) => (m.id === stamped.meta!.id ? { ...m, updatedAt: stamped.meta!.updatedAt } : m));
-      writeIndex(idx);
-      setSavedAt(Date.now());
-    }, 400);
+      resumeService
+        .update(id, { ...data, meta: { ...data.meta!, updatedAt: Date.now() } })
+        .then(() => setSavedAt(Date.now()))
+        .catch(() => {
+          /* autosave failed silently; user can retry via navigation */
+        });
+    }, 600);
     return () => clearTimeout(t);
-  }, [data]);
+  }, [data, id, loading]);
 
   const apply = useCallback((updater: (d: ResumeData) => ResumeData) => {
     _setData((prev) => {
@@ -200,7 +263,6 @@ export function useResumeEditor(id: string | undefined) {
     });
   }, []);
 
-  // keyboard shortcuts
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const meta = e.metaKey || e.ctrlKey;
@@ -274,5 +336,5 @@ export function useResumeEditor(id: string | undefined) {
     [apply],
   );
 
-  return { data, ...helpers, undo, redo, canUndo, canRedo, savedAt };
+  return { data, loading, ...helpers, undo, redo, canUndo, canRedo, savedAt };
 }

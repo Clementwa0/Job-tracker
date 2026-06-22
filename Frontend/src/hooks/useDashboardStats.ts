@@ -1,18 +1,39 @@
-import { useMemo } from "react";
-import { useJobs } from "@/hooks/JobContext";
+import { useCallback, useEffect, useState } from "react";
+import { jobService } from "@/services/jobService";
 
-export const useDashboardStats = () => {
-  const { jobs } = useJobs();
+export function useDashboardStats() {
+  const [stats, setStats] = useState({
+    total: 0,
+    inProgress: 0,
+    interviewed: 0,
+    offered: 0,
+    rejected: 0,
+    responseRate: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
-  return useMemo(() => {
-    const normalize = (s?: string) => s?.toLowerCase();
+  const fetchStats = useCallback(async () => {
+    try {
+      const data = await jobService.getStats();
+      const sc = data.statusCounts;
+      setStats({
+        total: data.total,
+        inProgress: sc.applied || 0,
+        interviewed: data.interviewCount,
+        offered: data.offerCount,
+        rejected: data.rejectedCount,
+        responseRate: data.responseRate,
+      });
+    } catch {
+      // keep previous stats on error
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-    return {
-      total: jobs.length,
-      inProgress: jobs.filter(j => normalize(j.applicationStatus) === "applied").length,
-      interviewed: jobs.filter(j => normalize(j.applicationStatus) === "interviewing").length,
-      offered: jobs.filter(j => normalize(j.applicationStatus) === "offer").length,
-      rejected: jobs.filter(j => normalize(j.applicationStatus) === "rejected").length,
-    };
-  }, [jobs]);
-};
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  return { ...stats, isLoading, refetch: fetchStats };
+}
