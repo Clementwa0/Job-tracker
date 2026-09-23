@@ -1,0 +1,1 @@
+ALTER TABLE "job_postings" ALTER COLUMN "salary_currency" SET DEFAULT 'KES';

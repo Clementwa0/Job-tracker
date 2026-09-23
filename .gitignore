@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js
+.next/
+out/
+.vercel/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# Logs and reports
+*.log
+logs/
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# Local uploads and generated assets
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Database and local tooling
+.drizzle/
+
+# Editor and operating system files
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

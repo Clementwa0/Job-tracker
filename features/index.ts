@@ -1,0 +1,12 @@
+export { default as Contact } from "@/features/public/contact/Contact";
+export { default as EmployerLogin } from "@/features/employer/auth/Employer";
+export { default as JobBoardPage } from "@/features/public/job-board/JobBoardPage";
+export { default as JobDetailsPage } from "@/features/public/job-board/JobDetailsPage";
+export { default as Home } from "@/features/public/homepage/Homepage";
+export { default as Analytics } from "@/features/jobseeker/analytics/AnalyticsPage";
+export { default as AddJob } from "@/features/jobseeker/applications/AddApplicationPage";
+export { default as EditJob } from "@/features/jobseeker/applications/EditApplicationPage";
+export { default as Calendar } from "@/features/jobseeker/calendar/CalendarPage";
+export { default as CVReview } from "@/features/jobseeker/cv-review/CvReviewPage";
+export { default as InterviewList } from "@/features/jobseeker/interviews/InterviewsPage";
+export { default as ResumesDashboard } from "@/features/jobseeker/resumes/ResumesPage";

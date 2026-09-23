@@ -1,0 +1,62 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789304564708,
+      "tag": "0000_nebulous_golden_guardian",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789824294518,
+      "tag": "0001_postgres_jobseeker_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789840116070,
+      "tag": "0002_data_integrity",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790016425876,
+      "tag": "0003_add_job_posting_form_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790100000000,
+      "tag": "0004_add_per_posting_company_name",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790200000000,
+      "tag": "0005_default_job_posting_currency_kes",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790300000000,
+      "tag": "0006_add_structured_profile_data",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790101656478,
+      "tag": "0007_fancy_moondragon",
+      "breakpoints": true
+    }
+  ]
+}

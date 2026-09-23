@@ -1,0 +1,40 @@
+import React from "react";
+import { cn } from "@/lib/utils";
+import { applicationStatusColors, type ApplicationStatus } from "@/types/job";
+
+interface Props {
+  status: string;
+  className?: string;
+}
+
+const labelMap: Record<string, string> = {
+  applied: "Applied",
+  interviewing: "Interviewing",
+  offer: "Offer",
+  rejected: "Rejected",
+  waiting_response: "Awaiting",
+  ghosted: "Ghosted",
+  accepted: "Accepted",
+  completed: "Completed",
+};
+
+const JobStatusBadge: React.FC<Props> = ({ status, className }) => {
+  const key = (status || "applied") as ApplicationStatus;
+  const tone =
+    applicationStatusColors[key] ?? "bg-muted text-muted-foreground border-border";
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2 py-0.5 text-[10.5px] font-medium capitalize",
+        tone,
+        className,
+      )}
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
+      {labelMap[key] ?? key.replace(/_/g, " ")}
+    </span>
+  );
+};
+
+export default JobStatusBadge;

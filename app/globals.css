@@ -1,0 +1,462 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ===============================================================
+   DESIGN SYSTEM
+   Modern Premium / Productive
+   =============================================================== */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  /* ── New · surface layering for depth ─────────────────── */
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+
+  /* ── New · brand gradient stops ───────────────────────── */
+  --color-brand-from: var(--brand-from);
+  --color-brand-via: var(--brand-via);
+  --color-brand-to: var(--brand-to);
+
+  /* Typography */
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
+
+  /* Radius */
+  --radius-sm: calc(var(--radius) * 0.55);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.35);
+  --radius-2xl: calc(var(--radius) * 1.7);
+  --radius-3xl: calc(var(--radius) * 2.1);
+  --radius-4xl: calc(var(--radius) * 2.5);
+}
+
+/* ===============================================================
+   LIGHT MODE
+   Warm neutrals + indigo brand + vivid states
+   =============================================================== */
+
+:root {
+  --radius: 0.75rem;
+
+  /* ── Core surfaces ─────────────────────────────────────
+     Background has a whisper of indigo so it's not dead grey.
+     Cards are pure white for contrast. */
+  --background: oklch(0.985 0.006 265);
+  --foreground: oklch(0.19 0.03 265);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.19 0.03 265);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.19 0.03 265);
+
+  /* ── Layered surfaces (for nested cards, rails, sections) */
+  --surface-1: oklch(0.975 0.008 265);   /* subtle panel */
+  --surface-2: oklch(0.96 0.012 265);    /* recessed panel */
+  --surface-3: oklch(0.94 0.016 265);    /* wells, code blocks */
+
+  /* ── Brand · indigo ────────────────────────────────────
+     More saturated than the old navy, still professional. */
+  --primary: oklch(0.55 0.19 275);
+  --primary-foreground: oklch(0.99 0.005 275);
+
+  /* Gradient stops for hero cards / CTAs */
+  --brand-from: oklch(0.58 0.20 285);    /* violet */
+  --brand-via: oklch(0.55 0.19 275);     /* indigo */
+  --brand-to: oklch(0.60 0.16 240);      /* blue */
+
+  /* ── Secondary · cool neutral with a tint ────────────── */
+  --secondary: oklch(0.955 0.014 270);
+  --secondary-foreground: oklch(0.32 0.05 270);
+
+  /* ── Muted ───────────────────────────────────────────── */
+  --muted: oklch(0.965 0.008 265);
+  --muted-foreground: oklch(0.52 0.03 265);
+
+  /* ── Accent · cool violet for hovers / highlights ────── */
+  --accent: oklch(0.945 0.03 285);
+  --accent-foreground: oklch(0.38 0.14 285);
+
+  /* ── Destructive · vivid rose ────────────────────────── */
+  --destructive: oklch(0.60 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  /* ── Borders / inputs ───────────────────────────────────
+     Slightly violet-tinted so they feel intentional. */
+  --border: oklch(0.91 0.014 265);
+  --input: oklch(0.89 0.016 265);
+  --ring: oklch(0.60 0.18 275);
+
+  /* ── Financial states · brighter, more confident ─────── */
+  --success: oklch(0.62 0.17 155);
+  --success-foreground: oklch(0.28 0.10 155);
+
+  --warning: oklch(0.78 0.16 75);
+  --warning-foreground: oklch(0.36 0.10 65);
+
+  --info: oklch(0.62 0.16 235);
+  --info-foreground: oklch(0.30 0.10 235);
+
+  /* ── Charts · vivid but harmonious ───────────────────── */
+  --chart-1: oklch(0.58 0.19 275);   /* indigo */
+  --chart-2: oklch(0.66 0.17 155);   /* emerald */
+  --chart-3: oklch(0.76 0.16 75);    /* amber */
+  --chart-4: oklch(0.64 0.16 210);   /* sky */
+  --chart-5: oklch(0.62 0.20 330);   /* magenta */
+
+  /* ── Sidebar ──────────────────────────────────────────── */
+  --sidebar: oklch(0.99 0.005 265);
+  --sidebar-foreground: oklch(0.24 0.03 265);
+
+  --sidebar-primary: oklch(0.55 0.19 275);
+  --sidebar-primary-foreground: oklch(0.99 0.005 275);
+
+  --sidebar-accent: oklch(0.95 0.02 280);
+  --sidebar-accent-foreground: oklch(0.34 0.10 280);
+
+  --sidebar-border: oklch(0.91 0.014 265);
+  --sidebar-ring: oklch(0.60 0.18 275);
+
+  /* ── Gold · warm accent for "premium" moments ────────── */
+  --gold: oklch(0.78 0.15 80);
+  --gold-foreground: oklch(0.34 0.10 65);
+}
+
+/* ===============================================================
+   DARK MODE
+   Atmospheric navy-violet, not flat slate
+   =============================================================== */
+
+.dark {
+  /* ── Core surfaces ─────────────────────────────────────
+     Background has real chroma so it reads as "deep indigo
+     night" instead of "grey." */
+  --background: oklch(0.155 0.025 270);
+  --foreground: oklch(0.97 0.008 270);
+
+  --card: oklch(0.20 0.028 270);
+  --card-foreground: oklch(0.97 0.008 270);
+
+  --popover: oklch(0.22 0.03 270);
+  --popover-foreground: oklch(0.97 0.008 270);
+
+  /* ── Layered surfaces ─────────────────────────────────── */
+  --surface-1: oklch(0.22 0.03 270);
+  --surface-2: oklch(0.25 0.032 270);
+  --surface-3: oklch(0.28 0.034 270);
+
+  /* ── Brand · brighter in dark so it pops ─────────────── */
+  --primary: oklch(0.72 0.17 275);
+  --primary-foreground: oklch(0.17 0.03 275);
+
+  --brand-from: oklch(0.74 0.18 290);
+  --brand-via: oklch(0.72 0.17 275);
+  --brand-to: oklch(0.74 0.15 235);
+
+  /* ── Secondary ───────────────────────────────────────── */
+  --secondary: oklch(0.26 0.03 270);
+  --secondary-foreground: oklch(0.95 0.01 270);
+
+  /* ── Muted ───────────────────────────────────────────── */
+  --muted: oklch(0.25 0.028 270);
+  --muted-foreground: oklch(0.72 0.02 270);
+
+  /* ── Accent ──────────────────────────────────────────── */
+  --accent: oklch(0.30 0.06 285);
+  --accent-foreground: oklch(0.92 0.04 285);
+
+  /* ── Destructive ─────────────────────────────────────── */
+  --destructive: oklch(0.68 0.20 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  /* ── Borders · faint chroma so they're not just white/10 ─ */
+  --border: oklch(0.80 0.04 275 / 14%);
+  --input: oklch(0.80 0.04 275 / 18%);
+  --ring: oklch(0.70 0.15 275);
+
+  /* ── Financial states ─────────────────────────────────── */
+  --success: oklch(0.72 0.16 155);
+  --success-foreground: oklch(0.85 0.10 155);
+
+  --warning: oklch(0.80 0.15 75);
+  --warning-foreground: oklch(0.88 0.09 75);
+
+  --info: oklch(0.72 0.14 235);
+  --info-foreground: oklch(0.85 0.08 235);
+
+  /* ── Charts ──────────────────────────────────────────── */
+  --chart-1: oklch(0.74 0.17 275);
+  --chart-2: oklch(0.74 0.15 155);
+  --chart-3: oklch(0.82 0.15 75);
+  --chart-4: oklch(0.74 0.14 210);
+  --chart-5: oklch(0.74 0.17 330);
+
+  /* ── Sidebar ──────────────────────────────────────────── */
+  --sidebar: oklch(0.18 0.028 270);
+  --sidebar-foreground: oklch(0.96 0.008 270);
+
+  --sidebar-primary: oklch(0.72 0.17 275);
+  --sidebar-primary-foreground: oklch(0.17 0.03 275);
+
+  --sidebar-accent: oklch(0.27 0.04 280);
+  --sidebar-accent-foreground: oklch(0.95 0.01 280);
+
+  --sidebar-border: oklch(0.80 0.04 275 / 12%);
+  --sidebar-ring: oklch(0.70 0.15 275);
+
+  /* ── Gold ────────────────────────────────────────────── */
+  --gold: oklch(0.80 0.14 80);
+  --gold-foreground: oklch(0.90 0.09 75);
+}
+
+/* ===============================================================
+   BASE
+   =============================================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    @apply border-border outline-ring/50;
+    min-width: 0;
+  }
+
+  html {
+    @apply font-sans;
+    overflow-x: clip;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    overflow-x: clip;
+    max-width: 100vw;
+    min-height: 100vh;
+
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+
+    /* ── Ambient background wash ──────────────────────────
+       Two very soft radial gradients give the page depth
+       without a hard "gradient" look. Barely visible, but
+       stops the background from reading as flat #FAFAFA. */
+    background-image:
+      radial-gradient(
+        1200px 600px at 0% -10%,
+        color-mix(in oklch, var(--brand-from) 8%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        900px 500px at 100% 0%,
+        color-mix(in oklch, var(--brand-to) 6%, transparent),
+        transparent 55%
+      );
+    background-attachment: fixed;
+  }
+
+  /* ── Typography ───────────────────────────────────────── */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
+    color: var(--foreground);
+    letter-spacing: -0.025em;
+    font-weight: 650;
+  }
+
+  h1 {
+    letter-spacing: -0.035em;
+  }
+
+  h2 {
+    letter-spacing: -0.03em;
+  }
+
+  p {
+    line-height: 1.65;
+  }
+
+  /* ── Interactive ─────────────────────────────────────── */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  /* ── Selection · uses brand tint ─────────────────────── */
+  ::selection {
+    background: color-mix(
+      in oklch,
+      var(--primary) 22%,
+      transparent
+    );
+    color: var(--foreground);
+  }
+
+  /* ── Focus ───────────────────────────────────────────── */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* ── Scrollbar ───────────────────────────────────────── */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color:
+      color-mix(in oklch, var(--foreground) 18%, transparent)
+      transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(
+      in oklch,
+      var(--foreground) 18%,
+      transparent
+    );
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(
+      in oklch,
+      var(--foreground) 28%,
+      transparent
+    );
+  }
+}
+
+/* ===============================================================
+   UTILITIES
+   Brand gradient + elevation helpers
+   =============================================================== */
+
+@layer utilities {
+  /* Gradient text — for hero headlines */
+  .text-brand-gradient {
+    background-image: linear-gradient(
+      135deg,
+      var(--brand-from) 0%,
+      var(--brand-via) 50%,
+      var(--brand-to) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Gradient fill — for CTAs / hero cards */
+  .bg-brand-gradient {
+    background-image: linear-gradient(
+      135deg,
+      var(--brand-from) 0%,
+      var(--brand-via) 50%,
+      var(--brand-to) 100%
+    );
+  }
+
+  /* Soft glow behind primary CTA */
+  .shadow-brand {
+    box-shadow:
+      0 1px 2px color-mix(in oklch, var(--primary) 12%, transparent),
+      0 8px 24px -8px color-mix(in oklch, var(--primary) 45%, transparent);
+  }
+
+  /* Layered elevation — used on cards that should lift */
+  .shadow-elevated {
+    box-shadow:
+      0 1px 2px color-mix(in oklch, var(--foreground) 6%, transparent),
+      0 8px 28px -12px color-mix(in oklch, var(--foreground) 18%, transparent);
+  }
+
+  /* Hairline top highlight on cards — instant "modern" feel */
+  .ring-hairline {
+    box-shadow: inset 0 1px 0 0
+      color-mix(in oklch, white 55%, transparent);
+  }
+
+  .dark .ring-hairline {
+    box-shadow: inset 0 1px 0 0
+      color-mix(in oklch, white 6%, transparent);
+  }
+}
