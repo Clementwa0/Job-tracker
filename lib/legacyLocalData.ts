@@ -5,7 +5,7 @@
  * localStorage (resumes, saved jobs) into the user's account.
  *
  * Each migration copies the data to the API first, then deletes the local
- * copy — so once it has run, nothing job-seeker related remains in
+ * copy - so once it has run, nothing job-seeker related remains in
  * localStorage, and a failure part-way simply retries on the next visit
  * (both APIs are safe to retry: saved jobs are idempotent, and each resume
  * is removed locally the moment it is created remotely).

@@ -103,7 +103,7 @@ const UpcomingEvents = () => {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[12.5px] font-medium text-foreground">
                     {e.title.split(" · ")[0]}
-                    {jobLabel ? ` — ${jobLabel}` : ""}
+                    {jobLabel ? ` - ${jobLabel}` : ""}
                   </p>
                   <p className="mt-0.5 truncate text-[10.5px] text-muted-foreground">
                     {relativeDay(d)} ·{" "}

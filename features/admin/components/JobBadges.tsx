@@ -25,7 +25,7 @@ export function JobStatusBadge({ status }: { status: string }) {
 }
 
 export function JobTypeBadge({ type }: { type?: string }) {
-  if (!type) return <span className="text-muted-foreground">—</span>;
+  if (!type) return <span className="text-muted-foreground">-</span>;
   const label = type.replace("-", " ");
   return (
     <Badge variant="outline" className="capitalize font-normal">

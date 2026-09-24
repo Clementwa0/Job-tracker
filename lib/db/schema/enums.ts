@@ -1,7 +1,7 @@
 import { pgEnum } from "drizzle-orm/pg-core";
 
 /**
- * Jobseeker vs employer only. Admin is intentionally NOT a value here —
+ * Jobseeker vs employer only. Admin is intentionally NOT a value here -
  * admin authentication is a separate system (its own table/auth path, added
  * in a later phase) and must never share the `users` table or this enum.
  */

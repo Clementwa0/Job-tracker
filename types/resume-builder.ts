@@ -109,7 +109,7 @@ export function uid() {
 
 /**
  * Merge a partial / legacy resume payload into a full ResumeData.
- * Tolerates missing arrays and missing meta — used by importJSON
+ * Tolerates missing arrays and missing meta - used by importJSON
  * and the AI parser response.
  */
 export function normalizeResume(partial: Partial<ResumeData> & Record<string, unknown>): ResumeData {

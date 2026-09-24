@@ -9,7 +9,7 @@ import { useCallback, useEffect, useReducer, useRef } from "react";
  * one in-flight request, so e.g. two dashboard cards showing the profile
  * cause a single fetch and always agree. Cached data is shown immediately
  * while a fresh copy is fetched (stale-while-revalidate), and refetched when
- * the tab regains focus (and optionally on an interval) — which is what
+ * the tab regains focus (and optionally on an interval) - which is what
  * keeps the same account in sync across devices.
  *
  * Keys should include the user's id so nothing leaks between accounts.

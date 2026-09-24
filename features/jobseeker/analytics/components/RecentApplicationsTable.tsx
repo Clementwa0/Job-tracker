@@ -38,7 +38,7 @@ const NEXT_STEP_ICONS = {
 
 const formatDate = (d: string) => {
   const date = new Date(d);
-  if (isNaN(date.getTime())) return "—";
+  if (isNaN(date.getTime())) return "-";
   return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 };
 
@@ -112,7 +112,7 @@ const RecentApplicationsTable = ({ rows }: Props) => {
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium text-foreground">
-                    {typeof row.matchScore === "number" ? `${row.matchScore}%` : "—"}
+                    {typeof row.matchScore === "number" ? `${row.matchScore}%` : "-"}
                   </TableCell>
                   <TableCell>
                     <Link

@@ -23,7 +23,7 @@ export interface AuthResponse {
   data: AuthData;
 }
 
-/** Used only by admin email/password login — jobseekers and employers authenticate via Google SSO. */
+/** Used only by admin email/password login - jobseekers and employers authenticate via Google SSO. */
 export interface LoginRequest {
   email: string;
   password: string;

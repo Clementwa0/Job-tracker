@@ -38,7 +38,7 @@ export function useAnimatedNumber(target: number, durationMs = 600): number {
     return () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
     };
-    // We intentionally only re-run when `target` changes — `value` is the
+    // We intentionally only re-run when `target` changes - `value` is the
     // animation cursor and would create a feedback loop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target, durationMs]);

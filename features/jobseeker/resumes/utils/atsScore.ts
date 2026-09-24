@@ -58,7 +58,7 @@ export function scoreResume(d: ResumeData, jdKeywords: string[] = []): AtsResult
     if (hasWeak || (!startsAction && bullets.length > 0)) weakBullets++;
   }
   const impact = bullets.length === 0 ? 0 : pct(strongBullets, bullets.length);
-  if (weakBullets > 0) issues.push(`${weakBullets} bullet${weakBullets > 1 ? "s use" : " uses"} weak language — lead with action verbs.`);
+  if (weakBullets > 0) issues.push(`${weakBullets} bullet${weakBullets > 1 ? "s use" : " uses"} weak language - lead with action verbs.`);
   if (strongBullets > 0) wins.push(`${strongBullets} high-impact bullet${strongBullets > 1 ? "s" : ""} with measurable outcomes.`);
 
   // Formatting: bullet length sanity, no excessive caps

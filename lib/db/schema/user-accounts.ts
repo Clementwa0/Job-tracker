@@ -5,7 +5,7 @@ import { authProviderEnum } from "./enums";
 import { users } from "./users";
 
 /**
- * A linked external-identity-provider account for a user — e.g. the Google
+ * A linked external-identity-provider account for a user - e.g. the Google
  * account behind a Google SSO sign-in. Kept separate from `users` (rather
  * than putting `googleId` directly on the user row) so another provider can
  * be linked later without changing the `users` table, and so this table can

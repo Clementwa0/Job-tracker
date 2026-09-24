@@ -6,7 +6,7 @@ import { isUuid } from "@/lib/uuid";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
-/** Body: `{ archive?: boolean }` — archives by default, `false` restores. */
+/** Body: `{ archive?: boolean }` - archives by default, `false` restores. */
 export async function POST(request: Request, { params }: RouteParams) {
   const auth = await requireActiveAccount(request, ["user"]);
   if (!auth.ok) return fail(auth.message, auth.status);

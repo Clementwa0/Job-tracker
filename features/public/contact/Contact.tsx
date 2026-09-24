@@ -59,7 +59,7 @@ export default function Contact() {
 
       <SectionWrapper
         className="relative z-10"
-        spacingClassName="py-10 lg:py-14"
+        spacingClassName="py-8 sm:py-10 lg:py-14"
       >
         {/* Heading */}
         <div className="mx-auto max-w-xl text-center">

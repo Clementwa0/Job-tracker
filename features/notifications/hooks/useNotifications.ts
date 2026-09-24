@@ -19,7 +19,7 @@ export function useNotifications(options?: { pollMs?: number }) {
       setItems(listRes.data);
       setUnreadCount(count);
     } catch {
-      // Scaffold — fail silently until notifications are wired end-to-end
+      // Scaffold - fail silently until notifications are wired end-to-end
     } finally {
       setIsLoading(false);
     }

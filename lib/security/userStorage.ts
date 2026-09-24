@@ -6,7 +6,7 @@ const USER_KEY = "jtrail_user";
  * Caches the current user object client-side so the UI can render
  * immediately on load, before the silent refresh call confirms the
  * session is still valid. Never treat this as a source of truth for
- * authorization — the server always re-verifies via the refresh cookie
+ * authorization - the server always re-verifies via the refresh cookie
  * and access token.
  */
 export const userStorage = {

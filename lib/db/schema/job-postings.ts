@@ -44,7 +44,7 @@ export const jobPostings = pgTable(
 
     description: text("description").notNull().default(""),
     responsibilities: text("responsibilities").notNull().default(""),
-    // "Qualifications" in the posting form/UI — kept as `requirements` at the
+    // "Qualifications" in the posting form/UI - kept as `requirements` at the
     // schema/DB level to avoid a duplicate column and preserve existing data.
     requirements: text("requirements").notNull().default(""),
     location: text("location").notNull().default(""),
@@ -55,7 +55,7 @@ export const jobPostings = pgTable(
 
     jobType: text("job_type").notNull().default("full-time"),
     workMode: text("work_mode").notNull().default("remote"),
-    // "Skills" in the posting form/UI — kept as `tags` at the schema/DB
+    // "Skills" in the posting form/UI - kept as `tags` at the schema/DB
     // level to avoid a duplicate column and preserve existing data.
     tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
 

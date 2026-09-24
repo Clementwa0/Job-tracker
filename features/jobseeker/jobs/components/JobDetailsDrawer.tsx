@@ -40,7 +40,7 @@ interface Props {
 }
 
 const formatDate = (d?: string) => {
-  if (!d) return "—";
+  if (!d) return "-";
   const date = new Date(d);
   if (Number.isNaN(date.getTime())) return d;
   return date.toLocaleDateString(undefined, {

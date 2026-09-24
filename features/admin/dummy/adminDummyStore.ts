@@ -16,7 +16,7 @@ import {
 } from "@/features/admin/dummy/adminDummyData";
 
 // ---------------------------------------------------------------------------
-// In-memory store shared across every admin page. Presentational only — no
+// In-memory store shared across every admin page. Presentational only - no
 // persistence, no API calls. Every mutation appends an audit log entry so
 // "Recent activity" reflects what actually happened this session.
 // ---------------------------------------------------------------------------
@@ -55,7 +55,7 @@ function logAction(action: string, targetType: string, targetId: string) {
     targetId,
     createdAt: new Date().toISOString(),
   };
-  // Newest first — matches how AdminRecentActivity expects logs to be ordered.
+  // Newest first - matches how AdminRecentActivity expects logs to be ordered.
   state = { ...state, auditLog: [entry, ...state.auditLog] };
 }
 
@@ -114,7 +114,7 @@ export function setJobStatus(id: string, status: PostingStatus) {
   emit();
 }
 
-/** Restores the original dummy dataset — handy if a demo needs a reset. */
+/** Restores the original dummy dataset - handy if a demo needs a reset. */
 export function resetAdminDummyStore() {
   state = {
     users: DUMMY_ADMIN_USERS,

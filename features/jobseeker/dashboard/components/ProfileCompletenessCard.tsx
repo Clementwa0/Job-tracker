@@ -34,7 +34,7 @@ const ProfileCompletenessCard = () => {
 
   return (
     <Card className="border-border p-4 shadow-none">
-      {/* Header — micro-label + counter */}
+      {/* Header - micro-label + counter */}
       <div className="flex items-center justify-between">
         <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground/60">
           Profile
@@ -45,7 +45,7 @@ const ProfileCompletenessCard = () => {
         </span>
       </div>
 
-      {/* Segmented progress — one tick per checklist item */}
+      {/* Segmented progress - one tick per checklist item */}
       <div className="mt-3 flex gap-1" aria-hidden>
         {Array.from({ length: totalCount }).map((_, i) => (
           <span

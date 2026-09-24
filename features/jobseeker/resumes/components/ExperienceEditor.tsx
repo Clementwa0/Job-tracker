@@ -105,7 +105,7 @@ function ExperienceItem({
                 <Calendar className="h-3 w-3 flex-shrink-0" />
                 <span>
                   {item.startDate ? new Date(item.startDate + "-01").toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : "?"}
-                  {" — "}
+                  {" - "}
                   {item.current ? "Present" : item.endDate ? new Date(item.endDate + "-01").toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : "?"}
                 </span>
                 {getDuration() && (

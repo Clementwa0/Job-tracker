@@ -49,7 +49,7 @@ export default function AdminNavContent({ onNavigate }: AdminNavContentProps) {
         </div>
       </div>
 
-      {/* Nav — no internal scroll */}
+      {/* Nav - no internal scroll */}
       <nav
         className="flex-1 px-2.5 py-3"
         aria-label="Admin navigation"

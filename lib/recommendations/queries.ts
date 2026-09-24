@@ -17,7 +17,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * Personalised job recommendations for a jobseeker.
  *
  * Considers only postings that are published, not closed, not past their
- * deadline, from a company that isn't suspended — and that the user hasn't
+ * deadline, from a company that isn't suspended - and that the user hasn't
  * already applied to. "Applied" means a tracked application linked to the
  * posting, or one with the same title + company (covers jobs added by hand).
  */

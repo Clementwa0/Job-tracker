@@ -54,7 +54,7 @@ const columns: {
 ];
 
 const formatDate = (d?: string) => {
-  if (!d) return "—";
+  if (!d) return "-";
   const date = new Date(d);
   if (Number.isNaN(date.getTime())) return d;
   return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
@@ -160,7 +160,7 @@ const JobsTable: React.FC<JobsTableProps> = ({ jobs, onEdit, onDelete, onSelect 
                   {formatDate(job.applicationDeadline)}
                 </td>
                 <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">
-                  {job.salaryRange || "—"}
+                  {job.salaryRange || "-"}
                 </td>
                 <td className="px-3 py-2 text-right">
                   <div

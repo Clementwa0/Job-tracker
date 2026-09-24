@@ -14,7 +14,7 @@ const KeepGoingCard = () => (
       You&apos;re on the right track!
     </h3>
     <p className="mt-1 max-w-[85%] text-[11px] leading-relaxed text-primary-foreground/80">
-      Stay consistent — your next opportunity is closer than you think.
+      Stay consistent - your next opportunity is closer than you think.
     </p>
 
     <Link

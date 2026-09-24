@@ -171,7 +171,7 @@ export async function recordStatusChange(
 
 /**
  * Replaces a job's child rows. For each kind of child, `undefined` means
- * "not supplied — leave what's stored"; an array (even empty) replaces the
+ * "not supplied - leave what's stored"; an array (even empty) replaces the
  * client-owned rows. Activity is special: only notes/reminders are replaced,
  * and any status/system rows in the payload are ignored, so a client that
  * round-trips (or blanks) the activity list can never rewrite history.
@@ -241,7 +241,7 @@ export async function createJob(
 /**
  * Applies `input` to one job whose state was read under a row lock: stamps
  * the response/offer history markers, records the status transition, updates
- * the row and replaces any supplied children — all inside the caller's
+ * the row and replaces any supplied children - all inside the caller's
  * transaction.
  */
 async function applyUpdate(tx: Tx, prev: StatusState, input: JobInput, now: Date) {

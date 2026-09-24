@@ -207,7 +207,7 @@ export interface JobStatsWindowCounts {
   offers: number;
 }
 
-/** Response of `GET /api/jobs/stats` — everything the dashboard stat cards show. */
+/** Response of `GET /api/jobs/stats` - everything the dashboard stat cards show. */
 export interface JobStats {
   /** Non-archived applications. */
   total: number;

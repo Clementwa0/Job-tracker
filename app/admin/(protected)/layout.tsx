@@ -62,7 +62,7 @@ export default function AdminProtectedLayout({
         Skip to content
       </a>
 
-      {/* Desktop rail — full height, no scroll */}
+      {/* Desktop rail - full height, no scroll */}
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:block">
         <AdminNavContent />
       </aside>

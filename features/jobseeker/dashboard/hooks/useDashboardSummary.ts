@@ -27,7 +27,7 @@ export const useDashboardSummary = () => {
       j => j.applicationStatus?.toLowerCase() === "applied"
     ).length;
 
-    // Applications submitted in the last 7 days (any status) — what "this week" means.
+    // Applications submitted in the last 7 days (any status) - what "this week" means.
     const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const appliedLast7Days = jobs.filter((j) => {
       const t = new Date(j.applicationDate).getTime();
@@ -42,7 +42,7 @@ export const useDashboardSummary = () => {
     if (total === 0) {
       mood = "slow";
       message = "Start your job journey today";
-      subtitle = "No applications yet — let’s change that.";
+      subtitle = "No applications yet - let’s change that.";
     } 
     else if (offers > 0) {
       mood = "productive";
@@ -56,12 +56,12 @@ export const useDashboardSummary = () => {
     } 
     else if (applied >= 10) {
       mood = "balanced";
-      message = "Good effort — keep applying";
+      message = "Good effort - keep applying";
       subtitle = `${applied} applications sent. Interviews will come soon.`;
     } 
     else if (rejected >= 5) {
       mood = "warning";
-      message = "Don't give up — adjust your strategy";
+      message = "Don't give up - adjust your strategy";
       subtitle = "Consider improving CV or targeting better roles.";
     } 
     else {

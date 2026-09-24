@@ -10,7 +10,7 @@ import { accountStatusEnum, userRoleEnum } from "./enums";
  * authentication is email/password based and lives in its own separate
  * table/auth path (added in a later phase), while every row in `users` is
  * created exclusively via Google SSO (see `user_accounts`). Do not add a
- * password column or an "admin" role value to this table — that would
+ * password column or an "admin" role value to this table - that would
  * re-merge the two auth systems this design keeps apart.
  */
 export const users = pgTable("users", {

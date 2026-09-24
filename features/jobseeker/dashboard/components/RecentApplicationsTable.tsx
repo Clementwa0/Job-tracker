@@ -19,7 +19,7 @@ import { applicationStatusColors, type ApplicationStatus } from "@/types/job";
 
 const formatDate = (date: string | Date) => {
   const d = new Date(date);
-  if (isNaN(d.getTime())) return "—";
+  if (isNaN(d.getTime())) return "-";
   return d.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -77,7 +77,7 @@ const RecentApplicationsTable = () => {
         </div>
       ) : (
         <>
-          {/* Table layout — sm and up */}
+          {/* Table layout - sm and up */}
           <div className="hidden sm:block">
             <Table>
               <TableHeader>
@@ -145,7 +145,7 @@ const RecentApplicationsTable = () => {
             </Table>
           </div>
 
-          {/* Card layout — mobile only, no horizontal scrolling */}
+          {/* Card layout - mobile only, no horizontal scrolling */}
           <ul className="divide-y divide-border sm:hidden">
             {recent.map((job) => {
               const color =

@@ -10,7 +10,7 @@ export interface FaqCategory {
 }
 
 // ---------------------------------------------------------------------------
-// Dummy help content — foundation only, no backend involved. Rewording or
+// Dummy help content - foundation only, no backend involved. Rewording or
 // adding articles later doesn't need any code changes elsewhere on the page.
 // ---------------------------------------------------------------------------
 export const FAQ_CATEGORIES: FaqCategory[] = [
@@ -26,7 +26,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       {
         question: "Can I track applications I submitted before joining JobTrail?",
         answer:
-          "Yes — add them the same way as a new application, and set the applied date to whenever you actually applied. Your stats and timeline will reflect the real date.",
+          "Yes - add them the same way as a new application, and set the applied date to whenever you actually applied. Your stats and timeline will reflect the real date.",
       },
       {
         question: "What do the different application statuses mean?",

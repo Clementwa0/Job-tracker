@@ -46,9 +46,9 @@ const TABS: { value: Filter; label: string }[] = [
 ];
 
 const formatDate = (date?: string) => {
-  if (!date) return "—";
+  if (!date) return "-";
   const d = new Date(date);
-  if (isNaN(d.getTime())) return "—";
+  if (isNaN(d.getTime())) return "-";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
@@ -116,7 +116,7 @@ export default function EmployerJobPostingsPage() {
   }, []);
 
   // Deep-linkable: /employer/dashboard/jobs?edit=<id> opens that posting's
-  // editor, and ?new=1 opens a fresh draft — used by dashboard shortcuts.
+  // editor, and ?new=1 opens a fresh draft - used by dashboard shortcuts.
   useEffect(() => {
     if (!jobs) return;
     const editId = searchParams.get("edit");
@@ -194,7 +194,7 @@ export default function EmployerJobPostingsPage() {
     }
   };
 
-  // Saves the current fields, then transitions the posting to "published" —
+  // Saves the current fields, then transitions the posting to "published" -
   // a single primary action for the common create-and-go-live flow. Reuses
   // the same create/update + transition calls the rest of the lifecycle
   // already relies on; no duplicate business logic.
@@ -366,7 +366,7 @@ export default function EmployerJobPostingsPage() {
               )
             ) : (
               <>
-                {/* Table — sm and up */}
+                {/* Table - sm and up */}
                 <div className="mt-3 hidden sm:block">
                   <Table>
                     <TableHeader>
@@ -421,7 +421,7 @@ export default function EmployerJobPostingsPage() {
                   </Table>
                 </div>
 
-                {/* Cards — mobile only */}
+                {/* Cards - mobile only */}
                 <ul className="mt-3 divide-y divide-border sm:hidden">
                   {visibleJobs.map((job) => (
                     <li key={job.id} className="flex items-center gap-2 py-3">

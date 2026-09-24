@@ -269,7 +269,7 @@ export const TopCategoriesChart = memo(({ data }: { data: AdminAnalyticsCharts["
   if (!hasSeriesData(data)) {
     return (
       <ChartCard title="Top job categories">
-        <ChartEmpty message="No categories to show — job postings have no tags yet." />
+        <ChartEmpty message="No categories to show - job postings have no tags yet." />
       </ChartCard>
     );
   }

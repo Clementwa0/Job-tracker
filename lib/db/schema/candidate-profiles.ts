@@ -9,7 +9,7 @@ import { users } from "./users";
  * table stays provider-agnostic and this can grow independently without
  * touching auth.
  *
- * One row per user with role "jobseeker" — enforced with a unique
+ * One row per user with role "jobseeker" - enforced with a unique
  * constraint on `userId` rather than making `userId` the primary key, so a
  * future migration to a surrogate id doesn't require an app-visible change.
  *

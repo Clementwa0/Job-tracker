@@ -84,7 +84,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
       {/* Account dropdown */}
       <DropdownMenu>
-        {/* Base UI's Trigger already renders a <button> — don't nest another one. */}
+        {/* Base UI's Trigger already renders a <button> - don't nest another one. */}
         <DropdownMenuTrigger
           aria-label="Open account menu"
           className="group flex items-center gap-2 rounded-md px-1.5 py-1 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -111,7 +111,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" sideOffset={6} className="w-56">
-          {/* Identity block — plain div, not DropdownMenuLabel (which is group-scoped). */}
+          {/* Identity block - plain div, not DropdownMenuLabel (which is group-scoped). */}
           <div className="flex items-center gap-2.5 px-2 py-2">
             <Avatar className="size-8">
               <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">

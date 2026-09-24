@@ -4,7 +4,7 @@ import { timestamp } from "drizzle-orm/pg-core";
  * Standard `created_at` / `updated_at` columns shared by every table.
  *
  * `updatedAt` is maintained application-side by Drizzle (`$onUpdate`) rather
- * than a DB trigger — simple, portable across any Postgres host, and good
+ * than a DB trigger - simple, portable across any Postgres host, and good
  * enough for this app's needs.
  */
 export function timestamps() {

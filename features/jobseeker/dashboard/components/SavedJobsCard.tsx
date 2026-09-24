@@ -38,7 +38,7 @@ const SavedJobsCard = () => {
                 <Heart className="h-3.5 w-3.5 shrink-0 fill-destructive/15 text-destructive" />
                 <span className="min-w-0 flex-1 truncate">
                   <span className="font-medium text-foreground">{job.title}</span>
-                  <span className="text-muted-foreground"> — {job.company}</span>
+                  <span className="text-muted-foreground"> - {job.company}</span>
                 </span>
               </Link>
             </li>

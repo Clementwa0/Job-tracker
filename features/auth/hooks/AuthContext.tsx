@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // On mount, silently try to restore the session from the httpOnly refresh
   // cookie. This is the only trustworthy signal that a session still
-  // exists — the cached user below is just for an instant, optimistic UI.
+  // exists - the cached user below is just for an instant, optimistic UI.
   useEffect(() => {
     let cancelled = false;
 

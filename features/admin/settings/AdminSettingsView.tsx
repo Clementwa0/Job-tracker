@@ -12,7 +12,7 @@ import AdminPageHeader from "@/features/admin/shell/PageHeader";
 import { useAuth } from "@/features/auth/hooks/AuthContext";
 
 /**
- * Local-only settings — nothing here is persisted or sent to a server.
+ * Local-only settings - nothing here is persisted or sent to a server.
  * The account's real password change already has a working endpoint
  * (features/admin/services/adminAuthService.ts), but wiring it up here is a
  * real account mutation outside this preview's dummy-data scope, so that

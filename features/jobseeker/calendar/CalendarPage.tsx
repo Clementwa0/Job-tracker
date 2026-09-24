@@ -110,7 +110,7 @@ const Calendar = () => {
           {/* Mobile title */}
           <h2 className="text-base font-semibold text-foreground md:hidden">Calendar</h2>
 
-          {/* View switcher — full on md+, compact (icon-only labels) on mobile */}
+          {/* View switcher - full on md+, compact (icon-only labels) on mobile */}
           <div
             role="tablist"
             aria-label="Calendar view"
@@ -214,7 +214,7 @@ const Calendar = () => {
           />
         </div>
 
-        {/* Sidebar — always shown on lg, conditionally shown on smaller screens */}
+        {/* Sidebar - always shown on lg, conditionally shown on smaller screens */}
         <div className={`lg:block ${sidebarOpen ? "block" : "hidden"}`}>
           <AgendaSidebar events={filteredEvents} onSelect={setSelected} />
         </div>

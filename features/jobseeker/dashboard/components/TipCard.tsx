@@ -12,7 +12,7 @@ import { tipService, type Tip } from "@/features/jobseeker/dashboard/services/ti
 const fallbackTip: Tip = {
   title: "Tailor your resume",
   description:
-    "Mirror keywords from the job description in your resume. Recruiters scan quickly—make it count.",
+    "Mirror keywords from the job description in your resume. Recruiters scan quickly-make it count.",
 };
 
 const TipCard = () => {

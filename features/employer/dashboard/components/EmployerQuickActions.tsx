@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 
 interface EmployerQuickActionsProps {
   onPostJob: () => void;
-  /** View Job Postings now routes to the real jobs list — see button below. */
+  /** View Job Postings now routes to the real jobs list - see button below. */
   onViewPostings: () => void;
 }
 
 /**
  * Two actions only, by design: post a job (primary) and view job postings
- * (secondary). Both route to the job postings workspace — "Post a Job" deep
+ * (secondary). Both route to the job postings workspace - "Post a Job" deep
  * links straight into a fresh draft via the caller-provided handler.
  */
 export default function EmployerQuickActions({

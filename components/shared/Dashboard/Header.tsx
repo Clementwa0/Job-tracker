@@ -63,7 +63,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-40 flex h-14 w-full items-center gap-2 border-b border-border/70 bg-background/80 px-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 sm:gap-3 sm:px-4 md:px-6">
-      {/* Search — hidden on the smallest screens, shown from `sm` up */}
+      {/* Search - hidden on the smallest screens, shown from `sm` up */}
       <div className="relative hidden min-w-0 w-full max-w-sm sm:block">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground/70" />
         <input

@@ -4,7 +4,7 @@ const UUID_RE =
 /**
  * True for a canonical hyphenated UUID. Use before putting any
  * client-supplied id (route params, JWT `sub`, query strings) into a query
- * against a `uuid` column — Postgres throws on malformed input rather than
+ * against a `uuid` column - Postgres throws on malformed input rather than
  * simply matching nothing.
  */
 export function isUuid(value: unknown): value is string {

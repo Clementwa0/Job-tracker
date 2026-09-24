@@ -65,7 +65,7 @@ export default function AdminStatsGrid({
       },
     );
   } else if (analytics) {
-    // Overview endpoint unavailable — fall back to the wider analytics payload.
+    // Overview endpoint unavailable - fall back to the wider analytics payload.
     cards.push(
       { label: "Total users", value: analytics.users.total, hint: "All registered accounts", icon: Users },
       ...(jobSeekers === undefined

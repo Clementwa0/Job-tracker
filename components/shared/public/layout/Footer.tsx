@@ -25,7 +25,7 @@ export default function Footer() {
               <span className="text-base font-semibold">JobTrail</span>
             </div>
             <p className="mt-2 text-xs leading-5 text-muted-foreground">
-              The calm, organized way to manage your job search — from first
+              The calm, organized way to manage your job search - from first
               application to signed offer.
             </p>
           </div>

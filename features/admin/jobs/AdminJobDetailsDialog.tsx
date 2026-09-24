@@ -17,9 +17,9 @@ interface AdminJobDetailsDialogProps {
 }
 
 const formatDate = (date?: string) => {
-  if (!date) return "—";
+  if (!date) return "-";
   const d = new Date(date);
-  if (isNaN(d.getTime())) return "—";
+  if (isNaN(d.getTime())) return "-";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
@@ -56,7 +56,7 @@ export default function AdminJobDetailsDialog({ job, onOpenChange }: AdminJobDet
               </div>
               <div>
                 <dt className="text-muted-foreground">Work mode</dt>
-                <dd className="mt-0.5 font-medium text-foreground">{job.workMode ?? "—"}</dd>
+                <dd className="mt-0.5 font-medium text-foreground">{job.workMode ?? "-"}</dd>
               </div>
               <div>
                 <dt className="text-muted-foreground">Views</dt>

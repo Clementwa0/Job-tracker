@@ -14,7 +14,7 @@ function getBearerToken(request: Request): string | null {
 /**
  * Verifies the request's access token and checks its role against
  * `allowedRoles`. Use this at the top of any API route handler that must
- * enforce authorization server-side — never trust a client-supplied role.
+ * enforce authorization server-side - never trust a client-supplied role.
  */
 export function requireRole(
   request: Request,
@@ -33,7 +33,7 @@ export function requireRole(
   }
 
   // Ids are UUIDs now. A validly signed token whose `sub` isn't one was
-  // issued before the PostgreSQL migration (a MongoDB ObjectId) — treat it
+  // issued before the PostgreSQL migration (a MongoDB ObjectId) - treat it
   // as expired so the client re-authenticates, instead of letting it reach
   // a uuid column and blow up.
   if (!isUuid(payload.sub)) {

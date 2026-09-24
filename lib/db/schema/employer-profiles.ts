@@ -5,11 +5,11 @@ import { companies } from "./companies";
 import { users } from "./users";
 
 /**
- * Employer-facing profile data for a user with role "employer" — the
+ * Employer-facing profile data for a user with role "employer" - the
  * person, plus the company/organization they represent (`company_id`,
  * null until they create or join one).
  *
- * One row per user — enforced with a unique constraint on `userId`, same
+ * One row per user - enforced with a unique constraint on `userId`, same
  * pattern as `candidate_profiles`.
  */
 export const employerProfiles = pgTable(

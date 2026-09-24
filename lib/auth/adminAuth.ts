@@ -21,7 +21,7 @@ const INVALID_CREDENTIALS_MESSAGE = "Invalid admin credentials.";
 
 /**
  * Verifies admin email/password credentials and issues session tokens.
- * This is the only email/password login path in JobTrail — jobseekers and
+ * This is the only email/password login path in JobTrail - jobseekers and
  * employers authenticate exclusively via Google SSO, and admins live in
  * their own `admin_users` table.
  */

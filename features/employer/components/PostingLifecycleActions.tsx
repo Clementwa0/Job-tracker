@@ -11,7 +11,7 @@ interface PostingLifecycleActionsProps {
 }
 
 /**
- * Unpublish / close / delete — the "step back" half of the lifecycle.
+ * Unpublish / close / delete - the "step back" half of the lifecycle.
  * Moving a posting forward (draft/closed → published) lives on the
  * "Publish job" button in JobPostingForm instead, since that action needs
  * to save whatever is currently in the form first; a separate publish

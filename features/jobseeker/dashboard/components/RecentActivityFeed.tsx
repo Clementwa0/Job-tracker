@@ -37,7 +37,7 @@ const RecentActivityFeed = () => {
             id: `${job.id}-submitted`,
             icon: CheckCircle2,
             iconClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-            title: `Application submitted — ${job.companyName}`,
+            title: `Application submitted - ${job.companyName}`,
             subtitle: job.jobTitle,
             date: d,
           });

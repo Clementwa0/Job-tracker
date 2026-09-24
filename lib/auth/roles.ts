@@ -2,7 +2,7 @@ import type { TokenPayload } from "@/lib/auth/jwt";
 
 /**
  * The `users.role` enum in Postgres ("jobseeker" | "employer"). Admins are
- * not in that table at all — see `admin_users`.
+ * not in that table at all - see `admin_users`.
  */
 export type DbUserRole = "jobseeker" | "employer";
 

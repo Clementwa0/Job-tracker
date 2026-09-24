@@ -198,7 +198,7 @@ const AddJob = () => {
             Both rails fill the same vertical band so there's
             no dead space beside either column. */}
         <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-12">
-          {/* Left rail — 8 cols */}
+          {/* Left rail - 8 cols */}
           <div className="space-y-4 lg:col-span-8">
             <JobDescriptionAnalyzer
               formData={formData}
@@ -214,7 +214,7 @@ const AddJob = () => {
             <NotesSection formData={formData} setFormData={setFormData} />
           </div>
 
-          {/* Right rail — 4 cols, stacked */}
+          {/* Right rail - 4 cols, stacked */}
           <div className="space-y-4 lg:col-span-4">
             <div data-field="contactEmail">
               <ContactSection formData={formData} setFormData={setFormData} />

@@ -49,7 +49,7 @@ export default function JobPostingPreviewDialog({
         <DialogHeader>
           <div className="flex items-center gap-1.5 text-muted-foreground">
             <Eye className="h-3.5 w-3.5" />
-            <span className="text-[11px] font-medium uppercase tracking-wide">Preview — not yet published</span>
+            <span className="text-[11px] font-medium uppercase tracking-wide">Preview - not yet published</span>
           </div>
           <p className="text-sm font-medium text-primary">{value.companyName || "Your company"}</p>
           <DialogTitle className="text-2xl">{value.title || "Untitled role"}</DialogTitle>

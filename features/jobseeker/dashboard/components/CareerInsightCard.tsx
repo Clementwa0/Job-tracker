@@ -27,7 +27,7 @@ const CareerInsightCard = () => {
       return `You're getting the most responses from applications submitted within ${3} days of a job being posted.`;
     }
     if (recent === 0) {
-      return "You haven't applied to anything in the last few days — a steady pace keeps momentum going.";
+      return "You haven't applied to anything in the last few days - a steady pace keeps momentum going.";
     }
     return `You've submitted ${recent} application${recent === 1 ? "" : "s"} this week. Keep the pace up.`;
   }, [jobs]);

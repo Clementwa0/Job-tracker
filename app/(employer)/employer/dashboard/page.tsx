@@ -36,9 +36,9 @@ import {
 import type { EmployerJobPosting } from "@/types/employer";
 
 const formatDate = (date?: string) => {
-  if (!date) return "—";
+  if (!date) return "-";
   const d = new Date(date);
-  if (isNaN(d.getTime())) return "—";
+  if (isNaN(d.getTime())) return "-";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
@@ -50,7 +50,7 @@ export default function EmployerDashboardPage() {
   const openWorkspace = () => router.push("/employer/dashboard/jobs");
   const openNewPosting = () => router.push("/employer/dashboard/jobs?new=1");
 
-  // Derived from the dummy jobs — not hardcoded.
+  // Derived from the dummy jobs - not hardcoded.
   const jobStats = useMemo(() => {
     const totalJobs = jobs.length;
     const activeJobs = jobs.filter((job) => job.status === "published").length;
@@ -183,7 +183,7 @@ export default function EmployerDashboardPage() {
           <EmployerJobsEmptyState onPostJob={openNewPosting} />
         ) : (
           <>
-            {/* Table layout — sm and up */}
+            {/* Table layout - sm and up */}
             <div className="hidden sm:block">
               <Table>
                 <TableHeader>
@@ -228,7 +228,7 @@ export default function EmployerDashboardPage() {
               </Table>
             </div>
 
-            {/* Card layout — mobile only, no horizontal scrolling */}
+            {/* Card layout - mobile only, no horizontal scrolling */}
             <ul className="divide-y divide-border sm:hidden">
               {recentJobs.map((job) => (
                 <li key={job.id} className="flex items-center gap-2 py-2.5">

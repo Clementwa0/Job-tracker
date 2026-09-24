@@ -159,7 +159,7 @@ export function computeCharts(
     jobsOverTime,
     userGrowth,
     employerGrowth,
-    topCategories: [], // Dummy jobs don't carry tags in the admin model — left empty rather than fabricated.
+    topCategories: [], // Dummy jobs don't carry tags in the admin model - left empty rather than fabricated.
     topLocations,
   };
 }

@@ -4,7 +4,7 @@ import { timestamps } from "./_helpers";
 import { accountStatusEnum } from "./enums";
 
 /**
- * Admin accounts — a wholly separate identity system from `users`.
+ * Admin accounts - a wholly separate identity system from `users`.
  *
  * Admins sign in with email + password (scrypt hash, see
  * lib/auth/password.ts); jobseekers and employers only ever use Google SSO

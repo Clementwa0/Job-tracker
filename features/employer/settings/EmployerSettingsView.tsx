@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/features/auth/hooks/AuthContext";
 
 /**
- * Local-only settings — nothing here is persisted or sent to a server, same
+ * Local-only settings - nothing here is persisted or sent to a server, same
  * approach as the rest of the employer dashboard preview. Password changes
  * stay a placeholder rather than reaching into the real auth flow.
  */

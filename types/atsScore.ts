@@ -10,11 +10,11 @@ import { resumeToPlainText, wordCount, keywordMatches } from "@/features/jobseek
 export interface AtsBreakdown {
   /** Structure of required sections (contact, summary, work, edu, skills). */
   structure: number;
-  /** Formatting hygiene — bullet length, caps, ATS-hostile glyphs. */
+  /** Formatting hygiene - bullet length, caps, ATS-hostile glyphs. */
   formatting: number;
   /** Coverage of JD keywords (or generic tech vocabulary if no JD). */
   keywords: number;
-  /** Quality of experience entries — completeness, dates, tenure. */
+  /** Quality of experience entries - completeness, dates, tenure. */
   experienceQuality: number;
   /** Quantified outcomes ratio across bullets. */
   measurableImpact: number;
@@ -35,7 +35,7 @@ export interface AtsResult {
   breakdown: AtsBreakdown;
   matchedKeywords: string[];
   missingKeywords: string[];
-  /** Negative deltas applied — surface in UI for transparency. */
+  /** Negative deltas applied - surface in UI for transparency. */
   penalties: { reason: string; points: number }[];
   issues: string[];
   wins: string[];
@@ -116,7 +116,7 @@ export function scoreResume(d: ResumeData, jdKeywords: string[] = []): AtsResult
     penalties.push({ reason: "No email on resume", points: 8 });
   }
   if (!d.contact.linkedin) {
-    issues.push("Add a LinkedIn URL — recruiters expect it.");
+    issues.push("Add a LinkedIn URL - recruiters expect it.");
     penalties.push({ reason: "No LinkedIn URL", points: 3 });
   }
   if (!d.summary) {
@@ -149,7 +149,7 @@ export function scoreResume(d: ResumeData, jdKeywords: string[] = []): AtsResult
     issues.push(`${formatIssues} bullet${formatIssues > 1 ? "s have" : " has"} formatting issues (length or caps).`);
   }
   if (unfriendlyGlyphs > 0) {
-    issues.push("Replace decorative bullet glyphs (★ ► ✓) — many ATS parsers drop them.");
+    issues.push("Replace decorative bullet glyphs (★ ► ✓) - many ATS parsers drop them.");
     penalties.push({ reason: "ATS-unfriendly glyphs", points: 4 });
   }
 
@@ -216,7 +216,7 @@ export function scoreResume(d: ResumeData, jdKeywords: string[] = []): AtsResult
   }
   if (weakBullets > 0) {
     issues.push(
-      `${weakBullets} bullet${weakBullets > 1 ? "s use" : " uses"} weak language — lead with action verbs.`,
+      `${weakBullets} bullet${weakBullets > 1 ? "s use" : " uses"} weak language - lead with action verbs.`,
     );
     penalties.push({ reason: "Weak bullet phrasing", points: Math.min(6, weakBullets) });
   }
@@ -238,11 +238,11 @@ export function scoreResume(d: ResumeData, jdKeywords: string[] = []): AtsResult
   let density = 100;
   if (totalWords < minWords) {
     density = round((totalWords / minWords) * 100);
-    issues.push("Resume is too short — aim for at least one full page.");
+    issues.push("Resume is too short - aim for at least one full page.");
     penalties.push({ reason: "Resume too short", points: 5 });
   } else if (totalWords > maxWords) {
     density = clamp(round(100 - ((totalWords - maxWords) / maxWords) * 60));
-    issues.push("Resume is too long — trim to one or two pages.");
+    issues.push("Resume is too long - trim to one or two pages.");
   }
   if (bullets.length < minBullets) {
     density = Math.min(density, round(pct(bullets.length, minBullets)));

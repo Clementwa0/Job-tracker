@@ -12,14 +12,14 @@ export function resumeToPlainText(d: ResumeData): string {
   ];
 
   for (const x of d.experience) {
-    parts.push(`${x.role} — ${x.company}`);
+    parts.push(`${x.role} - ${x.company}`);
     for (const b of x.bullets) parts.push(b);
   }
   for (const p of d.projects) {
     parts.push(p.name, p.description, p.tech.join(", "));
   }
   for (const e of d.education) {
-    parts.push(`${e.degree} ${e.field} — ${e.school}`, e.notes);
+    parts.push(`${e.degree} ${e.field} - ${e.school}`, e.notes);
   }
   for (const s of d.skills) {
     parts.push(`${s.category}: ${s.items.join(", ")}`);

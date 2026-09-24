@@ -27,7 +27,7 @@ export const companies = pgTable(
     status: companyStatusEnum("status").notNull().default("pending"),
 
     // RESTRICT: a user who created a company can't be hard-deleted out from
-    // under it — reassign or remove the company first.
+    // under it - reassign or remove the company first.
     createdBy: uuid("created_by")
       .notNull()
       .references(() => users.id, { onDelete: "restrict" }),

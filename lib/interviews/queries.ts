@@ -97,8 +97,8 @@ export async function getInterview(userId: string, id: string): Promise<Intervie
 /**
  * Books an interview for one of the caller's applications. The application
  * row is locked for the duration, and if it hadn't yet been answered
- * ("applied" / "waiting_response") it moves to "interviewing" — with the
- * response history stamped and the change recorded — so statuses and
+ * ("applied" / "waiting_response") it moves to "interviewing" - with the
+ * response history stamped and the change recorded - so statuses and
  * analytics agree with the interviews on file.
  */
 export async function createInterview(

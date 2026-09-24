@@ -1,5 +1,5 @@
 /**
- * Drizzle schema entry point — re-exports every table/enum/relations module
+ * Drizzle schema entry point - re-exports every table/enum/relations module
  * so `import * as schema from "@/lib/db/schema"` (used by `lib/db/index.ts`)
  * and `drizzle.config.ts` both see the full schema.
  *

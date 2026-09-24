@@ -5,7 +5,7 @@ import { LOGIN_PATHS, DASHBOARD_PATHS, type UserRole } from "@/lib/auth/redirect
 
 // Note: Proxy (the renamed "middleware" convention) always runs on the
 // Node.js runtime in Next.js 16+, so no explicit runtime export is needed
-// (and is in fact disallowed) — this is what lets us use jsonwebtoken here.
+// (and is in fact disallowed) - this is what lets us use jsonwebtoken here.
 
 function roleRequiredFor(pathname: string): UserRole | null {
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") return "admin";
@@ -34,7 +34,7 @@ export function proxy(request: NextRequest) {
   try {
     const payload = verifyRefreshToken(refreshToken);
 
-    // Wrong role for this area — send them to their own dashboard rather
+    // Wrong role for this area - send them to their own dashboard rather
     // than looping them back through a login page they're already past.
     if (payload.role !== requiredRole) {
       const dashboardUrl = new URL(DASHBOARD_PATHS[payload.role] ?? DASHBOARD_PATHS.user, request.url);

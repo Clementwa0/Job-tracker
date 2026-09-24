@@ -223,7 +223,7 @@ const AppSidebar = () => {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer — user + sign out */}
+      {/* Footer - user + sign out */}
       <SidebarFooter className="border-t border-border/70 p-2">
         <div className="flex items-center gap-2.5 rounded-lg p-1.5 transition-colors hover:bg-muted group-data-[collapsible=icon]:justify-center">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-[11px] font-semibold text-white shadow-sm shadow-blue-500/25">
@@ -317,7 +317,7 @@ export function MobileBottomNav() {
           );
         })}
 
-        {/* More — opens the full sidebar sheet */}
+        {/* More - opens the full sidebar sheet */}
         <button
           type="button"
           onClick={() => setOpenMobile(true)}

@@ -13,7 +13,7 @@ type Status = "idle" | "loading" | "error";
 interface UseGoogleAuthOptions {
   /** Calls the backend with the Google ID token and returns the auth response. */
   signIn: (idToken: string) => Promise<AuthResponse>;
-  /** "user" for jobseekers, "employer" for employers — used for the dashboard redirect and local role cache. */
+  /** "user" for jobseekers, "employer" for employers - used for the dashboard redirect and local role cache. */
   role: "user" | "employer";
   /** Optional deep-link to return to after sign-in, e.g. from a `redirect` query param. */
   redirectTo?: string | null;

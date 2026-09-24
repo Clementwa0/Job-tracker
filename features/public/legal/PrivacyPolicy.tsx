@@ -304,7 +304,7 @@ export default function PrivacyPolicy() {
               </Badge>
             </CardHeader>
 
-            <CardContent className="px-5 py-7 sm:px-7 sm:py-8">
+            <CardContent className="break-words px-4 py-6 sm:px-7 sm:py-8">
               {/* Introduction */}
               <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
                 <p className="text-[13px] leading-6 text-slate-600">

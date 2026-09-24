@@ -281,7 +281,7 @@ export function useAnalyticsData(period: Period = "30d") {
           ? `Best match: ${bestType.type} roles (${bestType.avg}%)`
           : "Consider applying to more roles",
         description: bestType
-          ? "You tend to score highest on this job type — look for more like it."
+          ? "You tend to score highest on this job type - look for more like it."
           : "Add match scores to your applications to get tailored suggestions.",
       },
       {

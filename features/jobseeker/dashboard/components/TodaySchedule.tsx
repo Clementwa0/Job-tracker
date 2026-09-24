@@ -88,9 +88,9 @@ const TodaySchedule = () => {
             const job = e.extendedProps.job;
             const iv = e.extendedProps.interview;
             const jobLabel = job
-              ? `${job.companyName} — ${job.jobTitle}`
+              ? `${job.companyName} - ${job.jobTitle}`
               : iv && isPopulatedJobId(iv.jobId)
-              ? `${iv.jobId.companyName} — ${iv.jobId.jobTitle}`
+              ? `${iv.jobId.companyName} - ${iv.jobId.jobTitle}`
               : "";
 
             return (

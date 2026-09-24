@@ -26,7 +26,7 @@ function fmtRange(start: string, end: string, current?: boolean) {
         })
       : "";
 
-  return [s, e].filter(Boolean).join(" — ");
+  return [s, e].filter(Boolean).join(" - ");
 }
 
 function ResumePreview({ data }: Props) {

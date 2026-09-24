@@ -31,7 +31,7 @@ interface JobCardProps {
 }
 
 const formatDate = (d?: string) => {
-  if (!d) return "—";
+  if (!d) return "-";
   const date = new Date(d);
   if (Number.isNaN(date.getTime())) return d;
   return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
@@ -74,7 +74,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onEdit, onDelete, onClick }) => 
             {job.jobTitle || "Untitled role"}
           </h3>
           <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-            {job.companyName || "—"}
+            {job.companyName || "-"}
           </p>
         </div>
 

@@ -34,7 +34,7 @@ export const STOP_WORDS: ReadonlySet<string> = new Set([
   "they", "those", "these", "while", "about", "across", "via", "per",
 ]);
 
-/** Markers commonly missed by ATS parsers — we penalize their presence. */
+/** Markers commonly missed by ATS parsers - we penalize their presence. */
 export const ATS_UNFRIENDLY_TOKENS: readonly string[] = [
   "★", "✓", "✔", "✗", "→", "►", "▪", "■", "●", "◆", "❖", "✦",
 ];

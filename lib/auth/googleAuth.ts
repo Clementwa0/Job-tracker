@@ -71,7 +71,7 @@ async function ensureProfile(
 /**
  * Verifies a Google ID token and either signs in the matching account or
  * creates a new one, scoped to `role` (jobseeker vs employer). This is the
- * single entry point for account creation in JobTrail — there is no
+ * single entry point for account creation in JobTrail - there is no
  * email/password registration path, so signing in with Google the first
  * time *is* how an account gets created.
  *

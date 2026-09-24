@@ -17,9 +17,9 @@ function resumeToPlainText(d: ResumeData): string {
     d.contact.fullName,
     d.contact.title,
     d.summary,
-    ...d.experience.flatMap((x) => [`${x.role} — ${x.company}`, ...x.bullets]),
+    ...d.experience.flatMap((x) => [`${x.role} - ${x.company}`, ...x.bullets]),
     ...d.projects.flatMap((p) => [p.name, p.description, p.tech.join(", ")]),
-    ...d.education.flatMap((e) => [`${e.degree} ${e.field} — ${e.school}`, e.notes]),
+    ...d.education.flatMap((e) => [`${e.degree} ${e.field} - ${e.school}`, e.notes]),
     ...d.skills.flatMap((s) => `${s.category}: ${s.items.join(", ")}`),
   ];
   return lines.filter(Boolean).join("\n");

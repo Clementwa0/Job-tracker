@@ -340,7 +340,7 @@ function SettingsForm({ initial }: { initial: ProfileResponse }) {
     try {
       const next = await save(patch);
       setIsDirty(false);
-      setStatus({ ok: true, message: `Saved — your profile is ${next.completeness.percentage}% complete.` });
+      setStatus({ ok: true, message: `Saved - your profile is ${next.completeness.percentage}% complete.` });
     } catch (error) {
       setStatus({ ok: false, message: getApiErrorMessage(error) });
     } finally {
@@ -520,7 +520,7 @@ const SettingsPage = () => {
   const { profile, isLoading, refresh } = useProfile();
 
   // The form is seeded once from the loaded profile, so make sure that's the
-  // server's current copy (not a cache from earlier) before showing it —
+  // server's current copy (not a cache from earlier) before showing it -
   // otherwise saving could overwrite changes made from another device.
   const [fresh, setFresh] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);

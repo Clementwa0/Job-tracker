@@ -19,7 +19,7 @@ function DeltaIcon({ value }: { value: number }) {
   return <Icon className="size-3 shrink-0" aria-hidden />;
 }
 
-/** Full month/week/today breakdown — used on the analytics detail views. */
+/** Full month/week/today breakdown - used on the analytics detail views. */
 export function TrendIndicator({ trends }: { trends: TrendCounts }) {
   return (
     <dl className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">

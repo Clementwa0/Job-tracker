@@ -322,7 +322,7 @@ const LABELS: Record<DimensionKey, string> = {
 
 /**
  * Scores one posting against one candidate. Returns null if the candidate has
- * neither skills nor a role to match on — without at least one of those there
+ * neither skills nor a role to match on - without at least one of those there
  * is no honest basis for a recommendation.
  */
 export function scorePosting(c: CandidateSignals, p: PostingSignals): MatchResult | null {

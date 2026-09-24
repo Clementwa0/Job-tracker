@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  ArrowRight,
   BadgeCheck,
   Brain,
   BriefcaseBusiness,
@@ -30,10 +29,34 @@ const path: Array<{
   Icon: LucideIcon;
   tone: string;
 }> = [
-  { step: 1, title: "Discover", copy: "Uncover opportunities that match your skills, interests, and goals.", Icon: Compass, tone: "bg-[#2563eb]" },
-  { step: 2, title: "Apply", copy: "Apply with confidence using AI-powered tools that highlight your best fit.", Icon: FileCheck2, tone: "bg-[#6d45dd]" },
-  { step: 3, title: "Grow", copy: "Build in-demand skills and track your progress with personalized insights.", Icon: TrendingUp, tone: "bg-[#2563eb]" },
-  { step: 4, title: "Move Forward", copy: "Take the next step toward your goals and keep moving your career ahead.", Icon: Send, tone: "bg-[#6d45dd]" },
+  {
+    step: 1,
+    title: "Discover",
+    copy: "Uncover opportunities that match your skills, interests, and goals.",
+    Icon: Compass,
+    tone: "bg-[#2563eb]",
+  },
+  {
+    step: 2,
+    title: "Apply",
+    copy: "Apply with confidence using AI-powered tools that highlight your best fit.",
+    Icon: FileCheck2,
+    tone: "bg-[#6d45dd]",
+  },
+  {
+    step: 3,
+    title: "Grow",
+    copy: "Build in-demand skills and track your progress with personalized insights.",
+    Icon: TrendingUp,
+    tone: "bg-[#2563eb]",
+  },
+  {
+    step: 4,
+    title: "Move Forward",
+    copy: "Take the next step toward your goals and keep moving your career ahead.",
+    Icon: Send,
+    tone: "bg-[#6d45dd]",
+  },
 ];
 
 const howItWorks = [
@@ -44,17 +67,49 @@ const howItWorks = [
 ];
 
 const highlights: Array<{ title: string; copy: string; Icon: LucideIcon }> = [
-  { title: "Personalized matching", copy: "Roles surfaced around your skills and goals.", Icon: Users },
-  { title: "A growing job board", copy: "New opportunities added on an ongoing basis.", Icon: BriefcaseBusiness },
-  { title: "Built for both sides", copy: "One platform for job seekers and employers.", Icon: Building2 },
-  { title: "Career insights", copy: "Track progress and plan your next move.", Icon: TrendingUp },
+  {
+    title: "Personalized matching",
+    copy: "Roles surfaced around your skills and goals.",
+    Icon: Users,
+  },
+  {
+    title: "A growing job board",
+    copy: "New opportunities added on an ongoing basis.",
+    Icon: BriefcaseBusiness,
+  },
+  {
+    title: "Built for both sides",
+    copy: "One platform for job seekers and employers.",
+    Icon: Building2,
+  },
+  {
+    title: "Career insights",
+    copy: "Track progress and plan your next move.",
+    Icon: TrendingUp,
+  },
 ];
 
 const values: Array<{ title: string; copy: string; Icon: LucideIcon }> = [
-  { title: "People First", copy: "We build with empathy and put our users at the center of every decision.", Icon: UsersRound },
-  { title: "Data Driven", copy: "We use data and AI to unlock insights that lead to better career outcomes.", Icon: BadgeCheck },
-  { title: "Always Improving", copy: "We iterate, learn, and evolve to stay ahead of the changing world of work.", Icon: Settings2 },
-  { title: "Stronger Together", copy: "We collaborate openly and celebrate diverse perspectives and backgrounds.", Icon: Users },
+  {
+    title: "People First",
+    copy: "We build with empathy and put our users at the center of every decision.",
+    Icon: UsersRound,
+  },
+  {
+    title: "Data Driven",
+    copy: "We use data and AI to unlock insights that lead to better career outcomes.",
+    Icon: BadgeCheck,
+  },
+  {
+    title: "Always Improving",
+    copy: "We iterate, learn, and evolve to stay ahead of the changing world of work.",
+    Icon: Settings2,
+  },
+  {
+    title: "Stronger Together",
+    copy: "We collaborate openly and celebrate diverse perspectives and backgrounds.",
+    Icon: Users,
+  },
 ];
 
 export default function AboutPage() {
@@ -77,28 +132,24 @@ export default function AboutPage() {
               has a path<span className="text-[#2563eb]">.</span>
             </h1>
             <p className="mt-4 max-w-[480px] text-[14px] leading-6 text-slate-600">
-              JobTrail exists to make careers clearer and opportunities
-              closer. We combine intelligent technology with human insight to
-              help you discover the right opportunities, take action with
-              confidence, and keep growing.
+              JobTrail exists to make careers clearer and opportunities closer.
+              We combine intelligent technology with human insight to help you
+              discover the right opportunities, take action with confidence, and
+              keep growing.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
               <Button
                 size="lg"
-                className="gap-2 w-auto rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold shadow-[0_4px_10px_rgba(37,99,235,.15)] hover:bg-[#1d55d1]"
+                className="w-full rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold hover:bg-[#1d55d1] sm:w-auto"
               >
-                <Link href="/account">
-                  Join JobTrail 
-                </Link>
+                <Link href="/account">Join JobTrail</Link>
               </Button>
               <Button
                 variant="outline"
                 size="lg"
-                className="gap-2 rounded-lg border-slate-200 px-5 py-3 text-sm font-medium text-[#155fce] hover:border-[#2563eb] hover:text-[#155fce]"
+                className="w-full rounded-lg border-slate-200 px-5 py-3 text-sm font-medium text-[#155fce] hover:border-[#2563eb] sm:w-auto"
               >
-                <Link href="/job-board">
-                  Explore Careers
-                </Link>
+                <Link href="/job-board">Explore Careers</Link>
               </Button>
             </div>
           </div>
@@ -141,7 +192,7 @@ export default function AboutPage() {
             <Feature
               icon={<Brain className="h-5 w-5" />}
               title="Career Intelligence"
-              copy="Our AI looks at your skills, experience, and goals to surface personalized recommendations and skill insights—so you can make smarter career decisions."
+              copy="Our AI looks at your skills, experience, and goals to surface personalized recommendations and skill insights-so you can make smarter career decisions."
             />
             <MissionQuote />
           </div>
@@ -186,7 +237,7 @@ export default function AboutPage() {
               <p className="mt-3 max-w-[380px] text-sm leading-6 text-slate-600">
                 We&apos;re a team of technologists, data scientists, product
                 thinkers, and career advocates building the future of
-                work—together.
+                work-together.
               </p>
             </div>
             <div className="grid gap-6 sm:grid-cols-2">
@@ -218,7 +269,10 @@ function JobTrailPath() {
           <div className="absolute left-[12%] right-[12%] top-5 hidden border-t border-dashed border-[#cfdcff] sm:block" />
 
           {path.map(({ step, title, Icon, tone }) => (
-            <div key={title} className="relative z-10 flex flex-col items-center">
+            <div
+              key={title}
+              className="relative z-10 flex flex-col items-center"
+            >
               <span
                 className={`flex h-10 w-10 items-center justify-center rounded-full text-white ring-4 ring-white ${tone}`}
               >
@@ -274,7 +328,7 @@ function MissionQuote() {
           We believe the job search should feel like clarity, not chaos.
         </p>
         <p className="mt-2 text-[11px] font-medium text-[#6941d7]">
-          — The JobTrail Team
+          - The JobTrail Team
         </p>
       </CardContent>
     </Card>

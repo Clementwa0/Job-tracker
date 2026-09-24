@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ADMIN_MAIN_NAV } from "@/features/admin/config/nav";
 
-/** Reuses the existing admin navigation — no new routes are introduced here. */
+/** Reuses the existing admin navigation - no new routes are introduced here. */
 const ACTION_DESCRIPTIONS: Record<string, string> = {
   "/admin/jobs": "Review, approve and close job postings",
   "/admin/companies": "Approve and manage employer companies",

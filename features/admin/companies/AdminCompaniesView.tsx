@@ -35,9 +35,9 @@ const STATUS_OPTIONS = [
 ];
 
 const formatDate = (date?: string) => {
-  if (!date) return "—";
+  if (!date) return "-";
   const d = new Date(date);
-  if (isNaN(d.getTime())) return "—";
+  if (isNaN(d.getTime())) return "-";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
@@ -119,7 +119,7 @@ export default function AdminCompaniesView() {
                       <p className="font-medium">{company.name}</p>
                       <p className="text-xs text-muted-foreground">{company.location}</p>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{company.industry ?? "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{company.industry ?? "-"}</td>
                     <td className="px-4 py-3">
                       <CompanyStatusBadge status={company.status} />
                     </td>

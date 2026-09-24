@@ -60,7 +60,7 @@ interface JobPostingFormProps {
   /**
    * Saves the current field values and moves the posting to "published" in
    * one step. Omit to hide the button (e.g. a published/closed posting
-   * being edited — use the lifecycle actions in `extraActions` instead).
+   * being edited - use the lifecycle actions in `extraActions` instead).
    */
   onPublish?: () => void;
   isSubmitting?: boolean;
@@ -314,7 +314,7 @@ export default function JobPostingForm({
         </div>
       </Section>
 
-      <Section title="Application" description="Candidates apply externally — no in-platform applications.">
+      <Section title="Application" description="Candidates apply externally - no in-platform applications.">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label>Application method *</Label>

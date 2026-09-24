@@ -36,7 +36,7 @@ export function toResumeData(row: ResumeRow): ResumeData {
   };
 }
 
-/** The user's resumes, most recently edited first (metadata only — no section bodies). */
+/** The user's resumes, most recently edited first (metadata only - no section bodies). */
 export async function listResumes(userId: string): Promise<ResumeMeta[]> {
   const rows = await db
     .select({

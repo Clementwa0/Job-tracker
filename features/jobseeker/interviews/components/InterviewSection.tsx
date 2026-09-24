@@ -139,7 +139,7 @@ const InterviewSection = ({
 
               {jobs.map((job) => (
                 <option key={job.id} value={job.id}>
-                  {job.companyName} — {job.jobTitle}
+                  {job.companyName} - {job.jobTitle}
                 </option>
               ))}
             </select>

@@ -13,7 +13,7 @@ interface StatCardProps {
   accent?: "default" | "blue" | "green" | "amber" | "violet";
 }
 
-/** Restrained, single-tone icon treatment — no gradients or heavy fills. */
+/** Restrained, single-tone icon treatment - no gradients or heavy fills. */
 const ICON_TONE: Record<NonNullable<StatCardProps["accent"]>, string> = {
   default: "bg-muted text-muted-foreground",
   blue: "bg-blue-500/10 text-blue-600 dark:text-blue-400",

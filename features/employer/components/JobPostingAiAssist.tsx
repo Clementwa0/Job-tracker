@@ -112,16 +112,16 @@ export default function JobPostingAiAssist({
       { key: "location" as const, value: result.location },
       {
         key: "salaryMin" as const,
-        value: result.salaryMin != null ? String(result.salaryMin) : "—",
+        value: result.salaryMin != null ? String(result.salaryMin) : "-",
       },
       {
         key: "salaryMax" as const,
-        value: result.salaryMax != null ? String(result.salaryMax) : "—",
+        value: result.salaryMax != null ? String(result.salaryMax) : "-",
       },
-      { key: "applicationDeadline" as const, value: result.applicationDeadline || "—" },
+      { key: "applicationDeadline" as const, value: result.applicationDeadline || "-" },
       {
         key: "application" as const,
-        value: result.applicationUrl ? `${result.applicationMethod}: ${result.applicationUrl}` : "—",
+        value: result.applicationUrl ? `${result.applicationMethod}: ${result.applicationUrl}` : "-",
       },
     ];
   }, [result]);
@@ -136,7 +136,7 @@ export default function JobPostingAiAssist({
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold">AI job posting assistant</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Paste a title, short brief, or full job description — we&apos;ll draft a professional posting.
+              Paste a title, short brief, or full job description - we&apos;ll draft a professional posting.
             </p>
           </div>
         </div>
@@ -237,7 +237,7 @@ export default function JobPostingAiAssist({
                     (key === "salaryMin" && result.salaryMin == null) ||
                     (key === "salaryMax" && result.salaryMax == null);
                   const checked = selected.has(key);
-                  const hasValue = value && value !== "—";
+                  const hasValue = value && value !== "-";
 
                   return (
                     <label

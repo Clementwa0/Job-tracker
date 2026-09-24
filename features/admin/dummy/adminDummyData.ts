@@ -7,7 +7,7 @@ import type {
 } from "@/types/admin";
 
 // ---------------------------------------------------------------------------
-// Dummy data — foundation only, mirrors the employer dashboard's approach.
+// Dummy data - foundation only, mirrors the employer dashboard's approach.
 // No API calls happen anywhere in this feature; everything here is seed data
 // for an in-memory store (see adminDummyStore.ts) that the admin pages read
 // from and mutate during the session.
@@ -77,7 +77,7 @@ export const DUMMY_ADMIN_AUDIT_LOG: AuditLogEntry[] = [
 ];
 
 /**
- * Which state the dummy admin dashboard resolves to — same knob as the
+ * Which state the dummy admin dashboard resolves to - same knob as the
  * employer dashboard. "default" is what ships.
  */
 export type DummyAdminPreview = "default" | "loading" | "error";

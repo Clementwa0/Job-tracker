@@ -22,10 +22,10 @@ function Brand() {
       className="flex items-center gap-2.5"
       aria-label="JobTrail home"
     >
-      <span className="relative h-10 w-10" aria-hidden="true">
-        <img src="/logo.png" alt="" className="rounded-lg" />
+      <span className="relative h-9 w-9 shrink-0 sm:h-10 sm:w-10" aria-hidden="true">
+        <img src="/logo.png" alt="" className="h-full w-full rounded-lg object-contain" />
       </span>
-      <span className="text-[25px] font-semibold tracking-[-1.5px] text-[#0f2a5f]">
+      <span className="text-[22px] font-semibold tracking-[-1.2px] text-[#0f2a5f] sm:text-[25px] sm:tracking-[-1.5px]">
         JobTrail
       </span>
     </Link>
@@ -140,8 +140,8 @@ export default function Nav() {
           className="fixed inset-0 z-50 bg-[#0f2a5f]/20 lg:hidden"
           onClick={closeMenu}
         >
-          <aside
-            className="ml-auto min-h-full w-full max-w-sm bg-white p-6 shadow-xl"
+            <aside
+            className="ml-auto min-h-full w-full max-w-sm bg-white p-4 shadow-xl sm:p-6"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between">
