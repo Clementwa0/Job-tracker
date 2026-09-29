@@ -5,7 +5,7 @@ import Jobs from "@/features/jobseeker/jobs/components/Jobs";
 import ApplicationsStats from "@/features/jobseeker/jobs/components/ApplicationsStats";
 import UpcomingEvents from "@/features/jobseeker/jobs/components/UpcomingEvents";
 import ReadyForNextStep from "@/features/jobseeker/jobs/components/ReadyForNextStep";
-import ApplicationProgressDonut from "@/components/shared/Dashboard/ApplicationProgressDonut";
+import ApplicationProgressDonut from "@/components/shared/dashboard/ApplicationProgressDonut";
 import KeepGoingCard from "@/features/jobseeker/dashboard/components/KeepGoingCard";
 import { JobProvider, useJobs } from "@/features/jobseeker/jobs/hooks/JobContext";
 import type { ApplicationStatus } from "@/types/job";

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import AdminPageHeader from "@/features/admin/shell/PageHeader";
+import PageHeader from "@/components/shared/dashboard/PageHeader";
 import AdminPagination from "@/features/admin/components/AdminPagination";
 import { AdminEmptyState } from "@/features/admin/components/AdminListStates";
 import { JobStatusBadge, JobTypeBadge } from "@/features/admin/components/JobBadges";
@@ -58,7 +58,7 @@ export default function AdminJobsView() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader
+      <PageHeader
         title="Jobs"
         description={
           pendingCount > 0

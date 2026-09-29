@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import AdminPageHeader from "@/features/admin/shell/PageHeader";
+import PageHeader from "@/components/shared/dashboard/PageHeader";
 import { useAuth } from "@/features/auth/hooks/AuthContext";
 import AdminActivityOverview from "./AdminActivityOverview";
 import AdminAttentionPanel from "./AdminAttentionPanel";
@@ -58,7 +58,7 @@ export default function AdminDashboardView() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader
+      <PageHeader
         title={`Welcome back, ${firstName || "Admin"}`}
         description="Here's an overview of your JobTrail platform."
         actions={

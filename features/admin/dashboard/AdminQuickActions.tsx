@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ADMIN_MAIN_NAV } from "@/features/admin/config/nav";
+import { ADMIN_MAIN_NAV } from "@/components/shared/dashboard/config";
 
 /** Reuses the existing admin navigation - no new routes are introduced here. */
 const ACTION_DESCRIPTIONS: Record<string, string> = {

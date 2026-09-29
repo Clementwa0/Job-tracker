@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import AdminPageHeader from "@/features/admin/shell/PageHeader";
+import PageHeader from "@/components/shared/dashboard/PageHeader";
 import AdminPagination from "@/features/admin/components/AdminPagination";
 import { AdminEmptyState } from "@/features/admin/components/AdminListStates";
 import { useAdminPagination } from "@/features/admin/hooks/useAdminPagination";
@@ -64,7 +64,7 @@ export default function AdminCompaniesView() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader
+      <PageHeader
         title="Companies"
         description={
           pendingCount > 0

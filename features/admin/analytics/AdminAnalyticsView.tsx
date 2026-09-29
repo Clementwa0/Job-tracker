@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import AdminPageHeader from "@/features/admin/shell/PageHeader";
+import PageHeader from "@/components/shared/dashboard/PageHeader";
 import { AdminErrorState } from "@/features/admin/components/AdminListStates";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -50,7 +50,7 @@ export default function AdminAnalyticsView() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader
+      <PageHeader
         title="Analytics"
         description="Platform trends and reports."
         actions={

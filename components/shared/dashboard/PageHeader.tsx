@@ -1,10 +1,10 @@
-interface AdminPageHeaderProps {
+interface PageHeaderProps {
   title: string;
   description?: string;
   actions?: React.ReactNode;
 }
 
-export default function AdminPageHeader({ title, description, actions }: AdminPageHeaderProps) {
+export default function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="space-y-1">

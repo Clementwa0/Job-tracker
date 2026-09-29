@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import AdminPageHeader from "@/features/admin/shell/PageHeader";
+import PageHeader from "@/components/shared/dashboard/PageHeader";
 import { useAuth } from "@/features/auth/hooks/AuthContext";
 
 /**
@@ -32,7 +32,7 @@ export default function AdminSettingsView() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Settings" description="Update your admin account settings." />
+      <PageHeader title="Settings" description="Update your admin account settings." />
 
       <Card>
         <CardHeader>
