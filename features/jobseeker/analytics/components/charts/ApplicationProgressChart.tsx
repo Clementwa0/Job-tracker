@@ -3,14 +3,7 @@
 import Link from "next/link";
 import { ChevronRight, TrendingUp } from "lucide-react";
 import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
+  ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from "recharts";
 import { Card } from "@/components/ui/card";
 
@@ -22,10 +15,6 @@ export type ProgressPoint = {
   hired: number;
 };
 
-type Props = {
-  data: ProgressPoint[];
-};
-
 const SERIES: { key: keyof ProgressPoint; name: string; color: string }[] = [
   { key: "applications", name: "Applications", color: "#3B82F6" },
   { key: "interviews", name: "Interviews", color: "#10B981" },
@@ -33,51 +22,55 @@ const SERIES: { key: keyof ProgressPoint; name: string; color: string }[] = [
   { key: "hired", name: "Hired", color: "#F59E0B" },
 ];
 
-const ApplicationProgressChart = ({ data }: Props) => {
+const AnalyticsHeaderRow = ({
+  icon, title, href, linkLabel,
+}: { icon: React.ReactNode; title: string; href: string; linkLabel: string }) => (
+  <div className="mb-3 flex items-center justify-between">
+    <div className="flex items-center gap-2">
+      {icon}
+      <h2 className="font-display text-sm font-semibold tracking-tight text-foreground sm:text-base">
+        {title}
+      </h2>
+    </div>
+    <Link href={href} className="flex items-center gap-0.5 text-[11px] font-medium text-primary hover:underline sm:text-xs">
+      {linkLabel}
+      <ChevronRight className="h-3 w-3" />
+    </Link>
+  </div>
+);
+
+const ApplicationProgressChart = ({ data }: { data: ProgressPoint[] }) => {
   const hasData = data.some((d) => d.applications > 0);
 
   return (
-    <Card className="border-border p-5 shadow-none">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-primary" />
-          <h2 className="font-display text-base font-semibold tracking-tight text-foreground">
-            Application Progress
-          </h2>
-        </div>
-        <Link
-          href="/jobseeker/applications"
-          className="flex items-center gap-0.5 text-xs font-medium text-primary hover:underline"
-        >
-          View Details
-          <ChevronRight className="h-3 w-3" />
-        </Link>
-      </div>
+    <Card className="border-border p-4 shadow-none sm:p-5">
+      <AnalyticsHeaderRow
+        icon={<TrendingUp className="h-4 w-4 text-primary" />}
+        title="Application Progress"
+        href="/jobseeker/applications"
+        linkLabel="View"
+      />
 
       {!hasData ? (
-        <div className="flex h-[280px] items-center justify-center rounded-lg border border-dashed border-border">
+        <div className="flex h-56 items-center justify-center rounded-lg border border-dashed border-border sm:h-72">
           <p className="text-sm text-muted-foreground">No applications yet</p>
         </div>
       ) : (
-        <div className="h-[280px] w-full">
+        <div className="h-56 w-full sm:h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+            <LineChart data={data} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" className="text-border" opacity={0.4} />
-              <XAxis dataKey="label" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{
                   background: "var(--card)",
                   border: "1px solid var(--border)",
-                  borderRadius: "12px",
-                  fontSize: "12px",
+                  borderRadius: "10px",
+                  fontSize: "11px",
                 }}
               />
-              <Legend
-                iconType="circle"
-                iconSize={8}
-                wrapperStyle={{ fontSize: "11px" }}
-              />
+              <Legend iconType="circle" iconSize={7} wrapperStyle={{ fontSize: "10px" }} />
               {SERIES.map((s) => (
                 <Line
                   key={s.key}
@@ -86,8 +79,8 @@ const ApplicationProgressChart = ({ data }: Props) => {
                   name={s.name}
                   stroke={s.color}
                   strokeWidth={2}
-                  dot={{ r: 2.5 }}
-                  activeDot={{ r: 5 }}
+                  dot={{ r: 2 }}
+                  activeDot={{ r: 4 }}
                   isAnimationActive={false}
                 />
               ))}
