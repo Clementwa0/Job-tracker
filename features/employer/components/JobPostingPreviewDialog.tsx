@@ -18,7 +18,7 @@ interface JobPostingPreviewDialogProps {
   value: EmployerJobPayload;
 }
 
-function label(list: [string, string][], v: string) {
+function label(list: readonly (readonly [string, string])[], v: string) {
   return list.find(([value]) => value === v)?.[1] ?? v;
 }
 
