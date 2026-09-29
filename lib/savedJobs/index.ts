@@ -18,17 +18,7 @@ const SYNC_INTERVAL_MS = 60_000;
 
 const migrationStarted = new Set<string>();
 
-/**
- * The signed-in job seeker's saved jobs, stored in PostgreSQL.
- *
- * - Every component using this hook shares one list and stays in sync.
- * - Toggling updates the UI immediately, then confirms with the server and
- *   rolls back if that fails.
- * - The list refreshes on tab focus and periodically, so saves made on
- *   another device appear here without a reload.
- * - Saving requires a job-seeker account: signed-out visitors are sent to
- *   sign in instead.
- */
+
 export function useSavedJobs() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
@@ -61,7 +51,7 @@ export function useSavedJobs() {
       if (!canSave) {
         if (!isAuthenticated) {
           toast.info("Sign in to save jobs.");
-          router.push("/login");
+          router.push("/jobseeker/account");
         } else {
           toast.info("Saving jobs is available to job seeker accounts.");
         }

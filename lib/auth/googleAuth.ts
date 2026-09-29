@@ -31,7 +31,7 @@ const ROLE_LABEL: Record<AccountRole, string> = {
 };
 
 const ROLE_LOGIN_PATH: Record<AccountRole, string> = {
-  user: "/login",
+  user: "/account",
   employer: "/employer/login",
 };
 

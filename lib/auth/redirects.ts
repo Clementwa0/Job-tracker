@@ -1,7 +1,7 @@
 export type UserRole = "user" | "employer" | "admin";
 
 export const LOGIN_PATHS: Record<UserRole, string> = {
-  user: "/login",
+  user: "/account",
   employer: "/employer/login",
   admin: "/admin/login",
 };
@@ -43,7 +43,7 @@ export function resolvePostLoginRedirect(
 
 export function isAuthPublicPath(pathname: string): boolean {
   const publicPrefixes = [
-    "/login",
+    "/account",
     "/register",
     "/employer/login",
     "/admin/login",

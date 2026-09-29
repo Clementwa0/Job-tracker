@@ -1,18 +1,12 @@
 "use client";
 
-import {
-  BriefcaseBusiness,
-  GraduationCap,
-  LayoutGrid,
-  Monitor,
-  RotateCcw,
-} from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   EXPERIENCE_LEVELS,
   JOB_CATEGORIES,
-  JOB_TYPES as JOB_TYPE_OPTIONS,
-  WORK_MODES as WORK_MODE_OPTIONS,
+  JOB_TYPES,
+  WORK_MODES,
 } from "@/lib/jobPostings/options";
 import { cn } from "@/lib/utils";
 
@@ -24,31 +18,33 @@ export interface JobBoardFilterValue {
   experienceLevel: string;
 }
 
-const CATEGORIES: [string, string][] = [
-  ["all", "All categories"],
-  ...JOB_CATEGORIES.map((c): [string, string] => [c, c]),
-];
+export const EMPTY_FILTERS: JobBoardFilterValue = {
+  location: "",
+  category: "all",
+  jobType: "all",
+  workMode: "all",
+  experienceLevel: "all",
+};
 
-const JOB_TYPES: [string, string][] = [
-  ["all", "All job types"],
-  ...JOB_TYPE_OPTIONS,
-];
+const labelOf = (options: readonly (readonly [string, string])[], value: string) =>
+  options.find(([key]) => key === value)?.[1] ?? value;
 
-const WORK_MODES: [string, string][] = [
-  ["all", "All work modes"],
-  ...WORK_MODE_OPTIONS,
-];
-
-const EXPERIENCE: [string, string][] = [
-  ["all", "All levels"],
-  ...EXPERIENCE_LEVELS.map((level): [string, string] => [level, level]),
-];
+/** Active filters as removable chips (used by the page toolbar). */
+export function getActiveFilterChips(value: JobBoardFilterValue) {
+  const chips: { key: keyof JobBoardFilterValue; label: string }[] = [];
+  if (value.location.trim()) chips.push({ key: "location", label: value.location.trim() });
+  if (value.category !== "all") chips.push({ key: "category", label: value.category });
+  if (value.jobType !== "all") chips.push({ key: "jobType", label: labelOf(JOB_TYPES, value.jobType) });
+  if (value.workMode !== "all") chips.push({ key: "workMode", label: labelOf(WORK_MODES, value.workMode) });
+  if (value.experienceLevel !== "all") chips.push({ key: "experienceLevel", label: value.experienceLevel });
+  return chips;
+}
 
 interface JobBoardFiltersProps {
   value: JobBoardFilterValue;
   onChange: (patch: Partial<JobBoardFilterValue>) => void;
   onClear: () => void;
-  /** "sidebar" (default) wraps in a card, "sheet" renders bare for the mobile sheet. */
+  /** "sidebar" (default) is sticky on desktop; "sheet" renders bare for the mobile sheet. */
   variant?: "sidebar" | "sheet";
 }
 
@@ -58,121 +54,122 @@ export default function JobBoardFilters({
   onClear,
   variant = "sidebar",
 }: JobBoardFiltersProps) {
-  const active =
-    value.location.trim() !== "" ||
-    value.category !== "all" ||
-    value.jobType !== "all" ||
-    value.workMode !== "all" ||
-    value.experienceLevel !== "all";
+  const hasActive = getActiveFilterChips(value).length > 0;
 
   return (
     <div
       className={cn(
-        variant === "sidebar" &&
-          "h-fit space-y-4 rounded-xl border border-border bg-card p-4 shadow-xs sm:space-y-5 sm:p-5 lg:sticky lg:top-24",
-        variant === "sheet" && "space-y-5 pt-4",
+        "space-y-4",
+        variant === "sidebar" && "sticky top-20 h-fit",
       )}
     >
-      {/* Header row — only shown in sidebar; the sheet already has its own title */}
       {variant === "sidebar" && (
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-foreground">Filters</h2>
-          {active && (
+        <div className="flex h-6 items-center justify-between">
+          <h2 className="text-sm font-semibold tracking-tight">Filters</h2>
+          {hasActive && (
             <button
+              type="button"
               onClick={onClear}
-              className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+              className="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
-              <RotateCcw className="h-3 w-3" />
-              Clear all
+              <RotateCcw className="size-3" />
+              Reset
             </button>
           )}
         </div>
       )}
 
-      <div className="space-y-2">
-        <Label>Location</Label>
+      <Field label="Location">
         <Input
           value={value.location}
           onChange={(e) => onChange({ location: e.target.value })}
-          placeholder="City, state, or country"
-          className="h-10 text-sm"
+          placeholder="City or country"
+          className="h-8 px-2.5 text-[13px] md:text-[13px]"
         />
-      </div>
+      </Field>
 
-      <FilterGroup
-        icon={LayoutGrid}
-        label="Category"
-        options={CATEGORIES}
-        selected={value.category}
-        onSelect={(category) => onChange({ category })}
-      />
+      <Field label="Category">
+        <select
+          value={value.category}
+          onChange={(e) => onChange({ category: e.target.value })}
+          className="h-8 w-full rounded-md border border-input bg-background px-2 text-[13px] outline-none transition-[box-shadow] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
+        >
+          <option value="all">All categories</option>
+          {JOB_CATEGORIES.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+      </Field>
 
-      <FilterGroup
-        icon={BriefcaseBusiness}
-        label="Job type"
-        options={JOB_TYPES}
-        selected={value.jobType}
-        onSelect={(jobType) => onChange({ jobType })}
-      />
+      <Field label="Job type">
+        <Chips
+          options={JOB_TYPES}
+          selected={value.jobType}
+          onSelect={(jobType) => onChange({ jobType })}
+        />
+      </Field>
 
-      <FilterGroup
-        icon={Monitor}
-        label="Work mode"
-        options={WORK_MODES}
-        selected={value.workMode}
-        onSelect={(workMode) => onChange({ workMode })}
-      />
+      <Field label="Work mode">
+        <Chips
+          options={WORK_MODES}
+          selected={value.workMode}
+          onSelect={(workMode) => onChange({ workMode })}
+        />
+      </Field>
 
-      <FilterGroup
-        icon={GraduationCap}
-        label="Experience level"
-        options={EXPERIENCE}
-        selected={value.experienceLevel}
-        onSelect={(experienceLevel) => onChange({ experienceLevel })}
-      />
+      <Field label="Experience">
+        <Chips
+          options={EXPERIENCE_LEVELS.map((level): [string, string] => [level, level])}
+          selected={value.experienceLevel}
+          onSelect={(experienceLevel) => onChange({ experienceLevel })}
+        />
+      </Field>
     </div>
   );
 }
 
-function Label({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs font-medium text-foreground">{children}</p>;
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      {children}
+    </div>
+  );
 }
 
-function FilterGroup({
-  icon: Icon,
-  label,
+/** Tap a selected chip again to clear it. */
+function Chips({
   options,
   selected,
   onSelect,
 }: {
-  icon: typeof BriefcaseBusiness;
-  label: string;
-  options: [string, string][];
+  options: readonly (readonly [string, string])[];
   selected: string;
   onSelect: (value: string) => void;
 }) {
   return (
-    <section className="space-y-2 border-t border-border pt-4">
-      <div className="flex items-center gap-1.5 text-foreground">
-        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-        <Label>{label}</Label>
-      </div>
-      <div className="flex flex-col gap-1">
-        {options.map(([optionValue, text]) => (
+    <div className="flex flex-wrap gap-1.5">
+      {options.map(([optionValue, text]) => {
+        const active = selected === optionValue;
+        return (
           <button
             key={optionValue}
-            onClick={() => onSelect(optionValue)}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onSelect(active ? "all" : optionValue)}
             className={cn(
-              "flex min-h-10 w-full items-center rounded-md px-2.5 py-2 text-left text-sm transition",
-              selected === optionValue
-                ? "bg-primary/10 font-medium text-primary"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              "h-7 rounded-full border px-2.5 text-xs transition-colors",
+              active
+                ? "border-primary bg-primary/10 font-medium text-primary"
+                : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
             )}
           >
             {text}
           </button>
-        ))}
-      </div>
-    </section>
+        );
+      })}
+    </div>
   );
 }
