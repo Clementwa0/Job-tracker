@@ -80,11 +80,11 @@ export default function LandingPreview() {
     <>
       {/* Audience strip */}
       <SectionWrapper
-        className="border-y border-blue-100/50 bg-gradient-to-r from-blue-50/30 via-white to-purple-50/30"
+        className="border-y border-border bg-gradient-to-r from-primary/5 via-background to-accent/30"
         containerClassName="max-w-[1665px] px-4 sm:px-6 xl:px-0"
         spacingClassName="py-4"
       >
-        <p className="text-[13px] font-semibold text-[#10192d]">
+        <p className="text-[13px] font-semibold text-foreground">
           Built for modern employers &amp; job seekers
         </p>
         <div className="mt-2 flex flex-wrap gap-1.5">
@@ -92,7 +92,7 @@ export default function LandingPreview() {
             <Badge
               key={label}
               variant="outline"
-              className="border-blue-100 bg-white/70 px-2.5 py-0.5 text-[11px] font-medium text-[#425066]"
+              className="border-border bg-card/70 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground"
             >
               {label}
             </Badge>
@@ -102,7 +102,7 @@ export default function LandingPreview() {
 
       {/* Main grid */}
       <SectionWrapper
-        className="bg-gradient-to-br from-[#f8faff] to-[#f0f4ff]"
+        className="bg-gradient-to-br from-background to-muted/50"
         containerClassName="grid grid-cols-1 gap-4 px-4 sm:px-6 lg:grid-cols-[380px_1fr] lg:gap-5 lg:px-8 xl:px-10"
         spacingClassName="py-6"
       >
@@ -132,9 +132,9 @@ function Highlights() {
   ];
 
   return (
-    <Card className="h-fit overflow-hidden border-blue-100/60 py-0 shadow-[0_8px_30px_rgba(37,99,235,0.06)]">
-      <CardHeader className="border-b border-blue-50 bg-gradient-to-r from-blue-50/50 to-transparent px-4 py-2.5">
-        <CardTitle className="text-[13px] font-bold text-[#0f1830]">
+    <Card className="h-fit overflow-hidden border-border py-0 shadow-[0_8px_30px_rgba(37,99,235,0.06)]">
+      <CardHeader className="border-b border-border bg-muted/40 px-4 py-2.5">
+        <CardTitle className="text-[13px] font-bold text-foreground">
           What you get
         </CardTitle>
       </CardHeader>
@@ -144,18 +144,18 @@ function Highlights() {
             <div
               key={item.title}
               className={`flex items-center gap-3 px-4 py-3
-                ${i % 2 ? "sm:border-l sm:border-blue-50/50" : ""}
-                ${i > 0 ? "border-t border-blue-50/50 sm:border-t-0" : ""}
-                ${i > 1 ? "sm:border-t sm:border-blue-50/50" : ""}`}
+                ${i % 2 ? "sm:border-l sm:border-border" : ""}
+                ${i > 0 ? "border-t border-border sm:border-t-0" : ""}
+                ${i > 1 ? "sm:border-t sm:border-border" : ""}`}
             >
               <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${item.gradient} text-white`}>
                 <item.Icon className="h-4 w-4" />
               </span>
               <div className="min-w-0">
-                <b className="block truncate text-[13px] font-semibold text-[#0f1830]">
+                <b className="block truncate text-[13px] font-semibold text-foreground">
                   {item.title}
                 </b>
-                <small className="block truncate text-[11px] text-slate-500">
+                <small className="block truncate text-[11px] text-muted-foreground">
                   {item.desc}
                 </small>
               </div>
@@ -177,33 +177,33 @@ function Jobs({
   loading: boolean;
 }) {
   return (
-    <Card className="relative h-fit overflow-hidden border-blue-100/60 py-0 shadow-[0_8px_30px_rgba(37,99,235,0.06)]">
-      <CardHeader className="flex-row items-center justify-between border-b border-blue-50 bg-gradient-to-r from-blue-50/50 to-transparent px-4 py-2.5">
-        <CardTitle className="text-[13px] font-bold text-[#0f1830]">
+    <Card className="relative h-fit overflow-hidden border-border py-0 shadow-[0_8px_30px_rgba(37,99,235,0.06)]">
+      <CardHeader className="flex-row items-center justify-between border-b border-border bg-muted/40 px-4 py-2.5">
+        <CardTitle className="text-[13px] font-bold text-foreground">
           Featured jobs
         </CardTitle>
-        <Button variant="link" className="h-auto p-0 text-[11px] font-semibold text-[#1668df]">
+        <Button variant="link" className="h-auto p-0 text-[11px] font-semibold text-primary">
           <Link href="/job-board">View all</Link>
         </Button>
       </CardHeader>
       <CardContent className="p-0">
         {loading ? (
-          <div className="divide-y divide-blue-50/50">
+          <div className="divide-y divide-border">
             {[0, 1, 2].map((i) => (
               <div key={i} className="flex items-center gap-3 px-4 py-3">
-                <div className="h-9 w-9 shrink-0 animate-pulse rounded-lg bg-slate-100" />
+                <div className="h-9 w-9 shrink-0 animate-pulse rounded-lg bg-muted" />
                 <div className="min-w-0 flex-1 space-y-1.5">
-                  <div className="h-3 w-2/3 animate-pulse rounded bg-slate-100" />
-                  <div className="h-2.5 w-1/2 animate-pulse rounded bg-slate-100" />
+                  <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
+                  <div className="h-2.5 w-1/2 animate-pulse rounded bg-muted" />
                 </div>
-                <div className="h-3 w-16 shrink-0 animate-pulse rounded bg-slate-100" />
+                <div className="h-3 w-16 shrink-0 animate-pulse rounded bg-muted" />
               </div>
             ))}
           </div>
         ) : jobs.length === 0 ? (
           <div className="px-4 py-8 text-center">
-            <p className="text-[12px] text-slate-500">No live jobs yet.</p>
-            <Button variant="link" className="mt-1 h-auto p-0 text-[12px] font-semibold text-[#1668df]">
+            <p className="text-[12px] text-muted-foreground">No live jobs yet.</p>
+            <Button variant="link" className="mt-1 h-auto p-0 text-[12px] font-semibold text-primary">
               <Link href="/job-board">Browse job board</Link>
             </Button>
           </div>
@@ -225,24 +225,24 @@ function JobRow({ job }: { job: PublicJobListItem }) {
   return (
     <Link
       href={`/job-board/${job.slug}`}
-      className="flex min-w-0 items-center gap-3 border-b border-blue-50/50 px-4 py-3 last:border-0 transition-colors hover:bg-blue-50/30"
+      className="flex min-w-0 items-center gap-3 border-b border-border px-4 py-3 last:border-0 transition-colors hover:bg-accent/40"
     >
-      <Avatar className="h-9 w-9 rounded-lg bg-slate-50">
+      <Avatar className="h-9 w-9 rounded-lg bg-muted">
         <AvatarFallback className="rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 text-[14px] font-bold text-white">
           {letter}
         </AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1">
-        <b className="block truncate text-[13px] font-semibold text-[#111a31]">
+        <b className="block truncate text-[13px] font-semibold text-foreground">
           {job.title}
         </b>
-        <p className="truncate text-[11px] text-slate-500">{meta}</p>
+        <p className="truncate text-[11px] text-muted-foreground">{meta}</p>
       </div>
       <div className="shrink-0 text-right">
         {salary && (
-          <b className="block text-[12px] font-semibold text-emerald-600">{salary}</b>
+          <b className="block text-[12px] font-semibold text-emerald-600 dark:text-emerald-300">{salary}</b>
         )}
-        <small className="text-[10px] text-slate-400">{time}</small>
+        <small className="text-[10px] text-muted-foreground">{time}</small>
       </div>
     </Link>
   );
@@ -252,7 +252,7 @@ function JobRow({ job }: { job: PublicJobListItem }) {
 
 function Dashboard() {
   return (
-    <Card className="h-fit overflow-hidden border-blue-100/60 py-0 shadow-[0_8px_30px_rgba(37,99,235,0.06)]">
+    <Card className="h-fit overflow-hidden border-border py-0 shadow-[0_8px_30px_rgba(37,99,235,0.06)]">
       <div className="flex">
         <DashboardSidebar />
 
@@ -317,16 +317,16 @@ function DashboardSidebar() {
   ];
 
   return (
-    <aside className="hidden w-[170px] shrink-0 flex-col border-r border-blue-50 bg-white sm:flex lg:w-[190px]">
-      <div className="flex items-center gap-2 border-b border-blue-50 px-3 py-3">
+    <aside className="hidden w-[170px] shrink-0 flex-col border-r border-border bg-card text-card-foreground sm:flex lg:w-[190px]">
+      <div className="flex items-center gap-2 border-b border-border px-3 py-3">
         <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
           <BriefcaseBusiness className="h-3.5 w-3.5" />
         </span>
         <div className="min-w-0">
-          <b className="block text-[12px] font-bold leading-none text-[#0f1830]">
+          <b className="block text-[12px] font-bold leading-none text-foreground">
             JobTrail
           </b>
-          <span className="mt-0.5 block text-[9px] leading-none text-slate-500">
+          <span className="mt-0.5 block text-[9px] leading-none text-muted-foreground">
             Job application tracker
           </span>
         </div>
@@ -338,19 +338,19 @@ function DashboardSidebar() {
         <SidebarGroup label="ACCOUNT" items={account} />
       </nav>
 
-      <div className="flex items-center gap-2 border-t border-blue-50 px-2.5 py-2">
+      <div className="flex items-center gap-2 border-t border-border px-2.5 py-2">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 text-[10px] font-bold text-white">
           CW
         </span>
         <div className="min-w-0 flex-1">
-          <b className="block truncate text-[10.5px] font-semibold leading-tight text-[#0f1830]">
+          <b className="block truncate text-[10.5px] font-semibold leading-tight text-foreground">
             Clement Wambua
           </b>
-          <span className="block text-[9px] leading-tight text-slate-500">
+          <span className="block text-[9px] leading-tight text-muted-foreground">
             Job Seeker
           </span>
         </div>
-        <LogOut className="h-3 w-3 shrink-0 text-slate-400" />
+        <LogOut className="h-3 w-3 shrink-0 text-muted-foreground" />
       </div>
     </aside>
   );
@@ -365,7 +365,7 @@ function SidebarGroup({
 }) {
   return (
     <div>
-      <p className="px-2 pb-1 text-[9px] font-semibold uppercase tracking-wider text-slate-400">
+      <p className="px-2 pb-1 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </p>
       <ul className="space-y-0.5">
@@ -375,16 +375,16 @@ function SidebarGroup({
               className={cn(
                 "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[11px] font-medium transition",
                 item.active
-                  ? "bg-blue-50 text-[#1668df]"
-                  : "text-slate-600 hover:bg-blue-50/50 hover:text-[#1668df]",
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
               )}
             >
-              <span className={item.active ? "text-[#1668df]" : "text-slate-400"}>
+              <span className={item.active ? "text-primary" : "text-muted-foreground"}>
                 {item.icon}
               </span>
               <span className="truncate flex-1">{item.label}</span>
               {item.badge && (
-                <span className="rounded-full bg-slate-100 px-1.5 py-0 text-[9px] font-semibold text-slate-600">
+                <span className="rounded-full bg-muted px-1.5 py-0 text-[9px] font-semibold text-muted-foreground">
                   {item.badge}
                 </span>
               )}
@@ -412,23 +412,23 @@ function StatCard({
   tone: "blue" | "emerald" | "purple" | "amber";
 }) {
   const toneMap = {
-    blue: "bg-blue-50 text-blue-600",
-    emerald: "bg-emerald-50 text-emerald-600",
-    purple: "bg-purple-50 text-purple-600",
-    amber: "bg-amber-50 text-amber-600",
+    blue: "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300",
+    emerald: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-300",
+    purple: "bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-300",
+    amber: "bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-300",
   };
   return (
-    <div className="rounded-lg border border-blue-100/60 bg-white p-2.5">
+    <div className="rounded-lg border border-border bg-card p-2.5">
       <div className="flex items-center gap-1.5">
         <span className={`flex h-6 w-6 items-center justify-center rounded-md ${toneMap[tone]}`}>
           {icon}
         </span>
-        <span className="truncate text-[10.5px] font-medium text-slate-500">
+        <span className="truncate text-[10.5px] font-medium text-muted-foreground">
           {label}
         </span>
       </div>
-      <b className="mt-1.5 block text-lg font-bold text-[#0f1830]">{value}</b>
-      <p className="mt-0.5 text-[9.5px] text-slate-500">{delta}</p>
+      <b className="mt-1.5 block text-lg font-bold text-foreground">{value}</b>
+      <p className="mt-0.5 text-[9.5px] text-muted-foreground">{delta}</p>
     </div>
   );
 }
@@ -450,12 +450,12 @@ function TodayFocus() {
   ];
 
   return (
-    <Card className="h-fit rounded-xl border border-blue-100/60 py-0 shadow-[0_4px_14px_rgba(37,99,235,0.05)]">
+    <Card className="h-fit rounded-xl border border-border py-0 shadow-[0_4px_14px_rgba(37,99,235,0.05)]">
       <CardHeader className="flex-row items-center justify-between px-3 py-2.5">
-        <CardTitle className="text-[12px] font-bold text-[#0f1830]">
+        <CardTitle className="text-[12px] font-bold text-foreground">
           Today&apos;s Focus
         </CardTitle>
-        <Button variant="link" className="h-auto p-0 text-[10px] font-semibold text-[#1668df]">
+        <Button variant="link" className="h-auto p-0 text-[10px] font-semibold text-primary">
           View all
         </Button>
       </CardHeader>
@@ -464,22 +464,22 @@ function TodayFocus() {
           {tasks.map((task) => (
             <div
               key={task.title}
-              className="flex items-center gap-2.5 rounded-lg border border-blue-100/60 bg-white p-2.5"
+              className="flex items-center gap-2.5 rounded-lg border border-border bg-card p-2.5"
             >
               <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${
                 task.tone === "emerald"
-                  ? "bg-emerald-50 text-emerald-600"
-                  : "bg-amber-50 text-amber-600"
+                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-300"
+                  : "bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-300"
               }`}>
                 {task.icon}
               </span>
               <div className="min-w-0 flex-1">
-                <b className="block truncate text-[11px] font-semibold text-[#0f1830]">
+                <b className="block truncate text-[11px] font-semibold text-foreground">
                   {task.title}
                 </b>
                 <Button
                   size="sm"
-                  className="mt-1 h-6 rounded-md bg-blue-600 px-2 text-[10px] font-medium text-white hover:bg-blue-700"
+                  className="mt-1 h-6 rounded-md bg-primary px-2 text-[10px] font-medium text-primary-foreground hover:bg-primary/90"
                 >
                   {task.action}
                 </Button>
@@ -494,12 +494,12 @@ function TodayFocus() {
 
 function UpcomingInterviews() {
   return (
-    <Card className="h-fit rounded-xl border border-blue-100/60 py-0 shadow-[0_4px_14px_rgba(37,99,235,0.05)]">
+    <Card className="h-fit rounded-xl border border-border py-0 shadow-[0_4px_14px_rgba(37,99,235,0.05)]">
       <CardHeader className="flex-row items-center justify-between px-3 py-2.5">
-        <CardTitle className="text-[12px] font-bold text-[#0f1830]">
+        <CardTitle className="text-[12px] font-bold text-foreground">
           Upcoming Interviews
         </CardTitle>
-        <Button variant="link" className="h-auto p-0 text-[10px] font-semibold text-[#1668df]">
+        <Button variant="link" className="h-auto p-0 text-[10px] font-semibold text-primary">
           View all
         </Button>
       </CardHeader>
@@ -508,20 +508,20 @@ function UpcomingInterviews() {
           {UPCOMING.map((item) => (
             <li
               key={item.title}
-              className="flex items-center gap-2.5 rounded-lg border border-blue-100/60 bg-white p-2"
+              className="flex items-center gap-2.5 rounded-lg border border-border bg-card p-2"
             >
               <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${
                 item.tone === "purple"
-                  ? "bg-purple-50 text-purple-600"
-                  : "bg-blue-50 text-blue-600"
+                  ? "bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-300"
+                  : "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300"
               }`}>
                 <CalendarDays className="h-3.5 w-3.5" />
               </span>
               <div className="min-w-0 flex-1">
-                <b className="block truncate text-[11px] font-semibold text-[#0f1830]">
+                <b className="block truncate text-[11px] font-semibold text-foreground">
                   {item.title}
                 </b>
-                <p className="truncate text-[10px] text-slate-500">
+                <p className="truncate text-[10px] text-muted-foreground">
                   {item.company} · {item.when}
                 </p>
               </div>
@@ -542,9 +542,9 @@ function QuickActions() {
   ];
 
   return (
-    <Card className="h-fit rounded-xl border border-blue-100/60 py-0 shadow-[0_4px_14px_rgba(37,99,235,0.05)]">
+    <Card className="h-fit rounded-xl border border-border py-0 shadow-[0_4px_14px_rgba(37,99,235,0.05)]">
       <CardHeader className="px-3 py-2.5">
-        <CardTitle className="text-[12px] font-bold text-[#0f1830]">
+        <CardTitle className="text-[12px] font-bold text-foreground">
           Quick Actions
         </CardTitle>
       </CardHeader>
@@ -553,12 +553,12 @@ function QuickActions() {
           {actions.map(({ icon, label }) => (
             <button
               key={label}
-              className="flex flex-col items-center gap-1.5 rounded-lg border border-blue-100/60 bg-white px-1.5 py-2 text-center transition hover:border-blue-200 hover:bg-blue-50/40"
+              className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-card px-1.5 py-2 text-center transition hover:border-primary/40 hover:bg-accent/40"
             >
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-50 text-blue-600">
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
                 {icon}
               </span>
-              <span className="text-[9.5px] font-medium leading-tight text-slate-600">
+              <span className="text-[9.5px] font-medium leading-tight text-muted-foreground">
                 {label}
               </span>
             </button>
@@ -571,12 +571,12 @@ function QuickActions() {
 
 function RecentApplications() {
   return (
-    <Card className="h-fit rounded-xl border border-blue-100/60 py-0 shadow-[0_4px_14px_rgba(37,99,235,0.05)]">
+    <Card className="h-fit rounded-xl border border-border py-0 shadow-[0_4px_14px_rgba(37,99,235,0.05)]">
       <CardHeader className="flex-row items-center justify-between px-3 py-2.5">
-        <CardTitle className="text-[12px] font-bold text-[#0f1830]">
+        <CardTitle className="text-[12px] font-bold text-foreground">
           Recent Applications
         </CardTitle>
-        <Button variant="link" className="h-auto p-0 text-[10px] font-semibold text-[#1668df]">
+        <Button variant="link" className="h-auto p-0 text-[10px] font-semibold text-primary">
           View all
         </Button>
       </CardHeader>
@@ -585,31 +585,31 @@ function RecentApplications() {
           {RECENT.map((item) => (
             <li
               key={item.title}
-              className="flex items-center gap-2.5 rounded-lg border border-blue-100/60 bg-white p-2"
+              className="flex items-center gap-2.5 rounded-lg border border-border bg-card p-2"
             >
               <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[10px] font-bold ${
                 item.tone === "purple"
-                  ? "bg-purple-50 text-purple-600"
+                  ? "bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-300"
                   : item.tone === "emerald"
-                    ? "bg-emerald-50 text-emerald-600"
-                    : "bg-blue-50 text-blue-600"
+                    ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-300"
+                    : "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300"
               }`}>
                 {item.title[0]}
               </span>
               <div className="min-w-0 flex-1">
-                <b className="block truncate text-[11px] font-semibold text-[#0f1830]">
+                <b className="block truncate text-[11px] font-semibold text-foreground">
                   {item.title}
                 </b>
-                <p className="truncate text-[10px] text-slate-500">
+                <p className="truncate text-[10px] text-muted-foreground">
                   {item.company} · {item.when}
                 </p>
               </div>
               <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold ${
                 item.tone === "purple"
-                  ? "bg-purple-50 text-purple-700"
+                  ? "bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300"
                   : item.tone === "emerald"
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-blue-50 text-blue-700"
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+                    : "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
               }`}>
                 {item.status}
               </span>

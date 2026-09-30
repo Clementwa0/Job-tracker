@@ -198,11 +198,11 @@ const sections: Section[] = [
 
 export default function PrivacyPolicy() {
   return (
-    <main className="relative min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <main className="relative min-h-screen bg-gradient-to-br from-background via-background to-muted/40">
       {/* Decorative blurs isolated so sticky positioning is not broken */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-40 -top-40 h-[400px] w-[400px] rounded-full bg-blue-400/20 blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 h-[400px] w-[400px] rounded-full bg-purple-400/20 blur-3xl" />
+        <div className="absolute -left-40 -top-40 h-[400px] w-[400px] rounded-full bg-blue-400/20 blur-3xl dark:bg-blue-400/10" />
+        <div className="absolute -bottom-40 -right-40 h-[400px] w-[400px] rounded-full bg-purple-400/20 blur-3xl dark:bg-purple-400/10" />
       </div>
 
       <SectionWrapper
@@ -212,7 +212,7 @@ export default function PrivacyPolicy() {
       >
         <Button
           variant="ghost"
-          className="mb-6 h-8 gap-1.5 px-2 text-[13px] font-medium text-[#1762d8] hover:bg-blue-50 hover:text-[#1258d7]"
+          className="mb-6 h-8 gap-1.5 px-2 text-[13px] font-medium text-primary hover:bg-accent hover:text-accent-foreground"
         >
           <Link href="/">
             <ArrowLeft className="h-3.5 w-3.5" />
@@ -221,10 +221,10 @@ export default function PrivacyPolicy() {
         </Button>
 
         {/* Mobile table of contents */}
-        <Card className="mb-6 rounded-2xl border-white/70 bg-white/80 shadow-lg shadow-indigo-500/5 backdrop-blur-xl lg:hidden">
+        <Card className="mb-6 rounded-2xl border-border/70 bg-card/90 shadow-lg shadow-indigo-500/5 backdrop-blur-xl lg:hidden">
           <CardHeader className="px-5 py-4">
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-[#071437]">
-              <List className="h-4 w-4 text-blue-600" />
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <List className="h-4 w-4 text-primary" />
               Table of contents
             </CardTitle>
           </CardHeader>
@@ -236,7 +236,7 @@ export default function PrivacyPolicy() {
                   <a
                     key={id}
                     href={`#${id}`}
-                    className="rounded-md px-2.5 py-1.5 text-[12px] leading-5 text-slate-500 transition hover:bg-blue-50 hover:text-blue-700"
+                    className="rounded-md px-2.5 py-1.5 text-[12px] leading-5 text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
                   >
                     {title}
                   </a>
@@ -249,15 +249,15 @@ export default function PrivacyPolicy() {
         <div className="grid items-start gap-6 lg:grid-cols-[230px_minmax(0,1fr)]">
           {/* Desktop sticky table of contents */}
           <aside className="sticky top-6 hidden self-start lg:block">
-            <Card className="rounded-2xl border-white/70 bg-white/75 shadow-lg shadow-indigo-500/5 backdrop-blur-xl">
+            <Card className="rounded-2xl border-border/70 bg-card/90 shadow-lg shadow-indigo-500/5 backdrop-blur-xl">
               <CardHeader className="px-4 py-3">
-                <CardTitle className="flex items-center gap-2 text-[12px] font-semibold text-[#071437]">
-                  <List className="h-4 w-4 text-blue-600" />
+                <CardTitle className="flex items-center gap-2 text-[12px] font-semibold text-foreground">
+                  <List className="h-4 w-4 text-primary" />
                   Contents
                 </CardTitle>
               </CardHeader>
 
-              <Separator className="bg-slate-100" />
+              <Separator className="bg-border" />
 
               <CardContent className="p-3">
                 <ScrollArea className="h-[calc(100vh-220px)] pr-3">
@@ -266,7 +266,7 @@ export default function PrivacyPolicy() {
                       <a
                         key={id}
                         href={`#${id}`}
-                        className="rounded-md px-2 py-1.5 text-[11px] leading-4 text-slate-500 transition hover:bg-blue-50 hover:text-blue-700"
+                        className="rounded-md px-2 py-1.5 text-[11px] leading-4 text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
                       >
                         {title}
                       </a>
@@ -278,19 +278,19 @@ export default function PrivacyPolicy() {
           </aside>
 
           {/* Policy document */}
-          <Card className="rounded-2xl border-white/70 bg-white/85 shadow-xl shadow-indigo-500/10 backdrop-blur-xl">
-            <CardHeader className="border-b border-slate-100/80 px-5 py-6 sm:px-7">
+          <Card className="rounded-2xl border-border/70 bg-card/95 shadow-xl shadow-indigo-500/10 backdrop-blur-xl">
+            <CardHeader className="border-b border-border px-5 py-6 sm:px-7">
               <div className="flex items-start gap-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30">
                   <FileText className="h-5 w-5" />
                 </span>
 
                 <div className="min-w-0">
-                  <CardTitle className="text-xl font-semibold tracking-[-0.5px] text-[#071437] sm:text-2xl">
+                  <CardTitle className="text-xl font-semibold tracking-[-0.5px] text-foreground sm:text-2xl">
                     Privacy Policy
                   </CardTitle>
 
-                  <p className="mt-1 text-[12px] text-slate-500">
+                  <p className="mt-1 text-[12px] text-muted-foreground">
                     Last updated: {lastUpdated}
                   </p>
                 </div>
@@ -298,7 +298,7 @@ export default function PrivacyPolicy() {
 
               <Badge
                 variant="outline"
-                className="mt-4 w-fit rounded-full border-blue-100 bg-blue-50/60 text-[11px] font-medium text-blue-700"
+                className="mt-4 w-fit rounded-full border-info/20 bg-info/10 text-[11px] font-medium text-info"
               >
                 Your privacy matters
               </Badge>
@@ -306,15 +306,15 @@ export default function PrivacyPolicy() {
 
             <CardContent className="break-words px-4 py-6 sm:px-7 sm:py-8">
               {/* Introduction */}
-              <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
-                <p className="text-[13px] leading-6 text-slate-600">
+              <div className="rounded-xl border border-border bg-muted/40 p-4">
+                <p className="text-[13px] leading-6 text-muted-foreground">
                   At JobTrail, we understand that your personal information is
                   important. We aim to be transparent about the information we
                   collect and how it is used to provide a secure and useful
                   recruitment platform.
                 </p>
 
-                <p className="mt-3 text-[13px] leading-6 text-slate-600">
+                <p className="mt-3 text-[13px] leading-6 text-muted-foreground">
                   This Privacy Policy applies to information processed through
                   JobTrail and explains your choices and rights regarding that
                   information.
@@ -326,7 +326,7 @@ export default function PrivacyPolicy() {
                 {sections.map((section, index) => (
                   <div key={section.id}>
                     <section id={section.id} className="scroll-mt-24 pt-2">
-                      <h2 className="text-[14px] font-semibold tracking-[-0.01em] text-[#0f1830] sm:text-[15px]">
+                      <h2 className="text-[14px] font-semibold tracking-[-0.01em] text-foreground sm:text-[15px]">
                         {section.title}
                       </h2>
 
@@ -334,7 +334,7 @@ export default function PrivacyPolicy() {
                         {section.body.map((paragraph) => (
                           <p
                             key={paragraph}
-                            className="text-[13px] leading-6 text-slate-600"
+                            className="text-[13px] leading-6 text-muted-foreground"
                           >
                             {paragraph}
                           </p>
@@ -343,15 +343,15 @@ export default function PrivacyPolicy() {
                     </section>
 
                     {index < sections.length - 1 && (
-                      <Separator className="my-6 bg-slate-100" />
+                      <Separator className="my-6 bg-border" />
                     )}
                   </div>
                 ))}
               </div>
 
               {/* Privacy acknowledgement */}
-              <div className="mt-10 rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50/70 to-indigo-50/40 p-4">
-                <p className="text-[12px] leading-5 text-slate-600">
+              <div className="mt-10 rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 to-accent/20 p-4">
+                <p className="text-[12px] leading-5 text-muted-foreground">
                   By using JobTrail, you acknowledge that you have read and
                   understood this Privacy Policy and how we handle personal
                   information as described above.
@@ -362,7 +362,7 @@ export default function PrivacyPolicy() {
               <div className="mt-5 flex justify-end">
                 <Button
                   variant="link"
-                  className="h-auto p-0 text-[11px] font-medium text-blue-600 hover:text-blue-700"
+                  className="h-auto p-0 text-[11px] font-medium text-primary hover:text-primary/80"
                 >
                   <a href="#">Back to top</a>
                 </Button>

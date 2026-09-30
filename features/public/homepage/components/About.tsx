@@ -114,24 +114,24 @@ const values: Array<{ title: string; copy: string; Icon: LucideIcon }> = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-[#071632]">
+    <div className="min-h-screen bg-background text-foreground">
       <main>
         {/* Hero Section */}
         <SectionWrapper
-          className="border-b border-slate-100 bg-white"
+          className="border-b border-border bg-card"
           containerClassName="grid max-w-[1400px] items-center gap-10 lg:grid-cols-[.95fr_1.05fr] lg:px-0"
           spacingClassName="py-10 lg:py-12"
         >
           <div className="max-w-[520px]">
-            <Badge className="rounded-full bg-[#f1f0ff] px-3 py-1 text-xs font-medium text-[#5b43c8] hover:bg-[#f1f0ff]">
+            <Badge className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground hover:bg-accent">
               About JobTrail
             </Badge>
-            <h1 className="mt-4 text-3xl font-semibold leading-[1.1] tracking-[-1.2px] text-[#061337] md:text-5xl">
+            <h1 className="mt-4 text-3xl font-semibold leading-[1.1] tracking-[-1.2px] text-foreground md:text-5xl">
               Your career
               <br />
-              has a path<span className="text-[#2563eb]">.</span>
+              has a path<span className="text-primary">.</span>
             </h1>
-            <p className="mt-4 max-w-[480px] text-[14px] leading-6 text-slate-600">
+            <p className="mt-4 max-w-[480px] text-[14px] leading-6 text-muted-foreground">
               JobTrail exists to make careers clearer and opportunities closer.
               We combine intelligent technology with human insight to help you
               discover the right opportunities, take action with confidence, and
@@ -147,7 +147,7 @@ export default function AboutPage() {
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full rounded-lg border-slate-200 px-5 py-3 text-sm font-medium text-[#155fce] hover:border-[#2563eb] sm:w-auto"
+                className="w-full rounded-lg border-border px-5 py-3 text-sm font-medium text-primary hover:border-primary sm:w-auto"
               >
                 <Link href="/job-board">Explore Careers</Link>
               </Button>
@@ -168,9 +168,9 @@ export default function AboutPage() {
               title="Our Mission"
               copy="To empower every professional to find purpose, achieve growth, and create impact through the right career opportunities."
             />
-            <Card className="rounded-xl border-slate-200 p-0 shadow-[0_2px_8px_rgba(15,23,42,.035)]">
+            <Card className="rounded-xl border-border p-0 shadow-[0_2px_8px_rgba(15,23,42,.035)]">
               <CardContent className="p-5">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#e5faf4] text-[#12b981]">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10 text-success">
                   <Sparkles className="h-5 w-5" />
                 </span>
                 <h2 className="mt-4 text-base font-semibold">
@@ -180,9 +180,9 @@ export default function AboutPage() {
                   {howItWorks.map((item) => (
                     <li
                       key={item}
-                      className="flex items-start gap-1.5 text-[13px] leading-5 text-slate-600"
+                      className="flex items-start gap-1.5 text-[13px] leading-5 text-muted-foreground"
                     >
-                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#12b981]" />
+                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
                       {item}
                     </li>
                   ))}
@@ -200,24 +200,24 @@ export default function AboutPage() {
 
         {/* Platform highlights */}
         <SectionWrapper
-          className="border-y border-slate-200 bg-white"
+          className="border-y border-border bg-card"
           containerClassName="mx-auto max-w-[1400px] lg:px-0"
           spacingClassName="py-6"
         >
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {highlights.map(({ title, copy, Icon }, index) => (
               <div
-                className={`flex items-center gap-3 border-slate-100 lg:pr-4 ${
+                className={`flex items-center gap-3 border-border lg:pr-4 ${
                   index < highlights.length - 1 ? "lg:border-r" : ""
                 }`}
                 key={title}
               >
-                <span className="shrink-0 rounded-lg bg-[#eff5ff] p-2.5 text-[#2563eb]">
+                <span className="shrink-0 rounded-lg bg-primary/10 p-2.5 text-primary">
                   <Icon className="h-5 w-5" />
                 </span>
                 <span>
-                  <b className="block text-[13px] text-[#0a1b42]">{title}</b>
-                  <small className="text-[11px] text-slate-500">{copy}</small>
+                  <b className="block text-[13px] text-foreground">{title}</b>
+                  <small className="text-[11px] text-muted-foreground">{copy}</small>
                 </span>
               </div>
             ))}
@@ -234,7 +234,7 @@ export default function AboutPage() {
               <h2 className="text-xl font-semibold tracking-[-0.5px]">
                 The People Behind JobTrail
               </h2>
-              <p className="mt-3 max-w-[380px] text-sm leading-6 text-slate-600">
+              <p className="mt-3 max-w-[380px] text-sm leading-6 text-muted-foreground">
                 We&apos;re a team of technologists, data scientists, product
                 thinkers, and career advocates building the future of
                 work-together.
@@ -243,11 +243,11 @@ export default function AboutPage() {
             <div className="grid gap-6 sm:grid-cols-2">
               {values.map(({ title, copy, Icon }) => (
                 <div key={title}>
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#eff5ff] text-[#2563eb]">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <Icon className="h-4 w-4" />
                   </span>
                   <h3 className="mt-3 text-sm font-semibold">{title}</h3>
-                  <p className="mt-1.5 text-[12px] leading-5 text-slate-600">
+                  <p className="mt-1.5 text-[12px] leading-5 text-muted-foreground">
                     {copy}
                   </p>
                 </div>
@@ -262,11 +262,11 @@ export default function AboutPage() {
 
 function JobTrailPath() {
   return (
-    <Card className="rounded-xl border-slate-200 p-0 shadow-[0_4px_14px_rgba(30,64,175,.05)]">
+    <Card className="rounded-xl border-border p-0 shadow-[0_4px_14px_rgba(30,64,175,.05)]">
       <CardContent className="p-5">
         <p className="text-center text-sm font-semibold">The JobTrail Path</p>
         <div className="relative mt-5 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 sm:gap-2">
-          <div className="absolute left-[12%] right-[12%] top-5 hidden border-t border-dashed border-[#cfdcff] sm:block" />
+          <div className="absolute left-[12%] right-[12%] top-5 hidden border-t border-dashed border-border sm:block" />
 
           {path.map(({ step, title, Icon, tone }) => (
             <div
@@ -274,11 +274,11 @@ function JobTrailPath() {
               className="relative z-10 flex flex-col items-center"
             >
               <span
-                className={`flex h-10 w-10 items-center justify-center rounded-full text-white ring-4 ring-white ${tone}`}
+                className={`flex h-10 w-10 items-center justify-center rounded-full text-white ring-4 ring-background ${tone}`}
               >
                 <Icon className="h-4 w-4" />
               </span>
-              <span className="mt-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-slate-100 text-[10px] font-semibold text-slate-500">
+              <span className="mt-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
                 {step}
               </span>
               <b className="mt-1.5 text-[12px]">{title}</b>
@@ -287,7 +287,7 @@ function JobTrailPath() {
         </div>
         <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3 text-center sm:grid-cols-4">
           {path.map(({ title, copy }) => (
-            <p key={title} className="text-[11px] leading-4 text-slate-500">
+            <p key={title} className="text-[11px] leading-4 text-muted-foreground">
               {copy}
             </p>
           ))}
@@ -307,13 +307,13 @@ function Feature({
   copy: string;
 }) {
   return (
-    <Card className="rounded-xl border-slate-200 p-0 shadow-[0_2px_8px_rgba(15,23,42,.035)]">
+    <Card className="rounded-xl border-border p-0 shadow-[0_2px_8px_rgba(15,23,42,.035)]">
       <CardContent className="p-5">
-        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eff5ff] text-[#2563eb]">
+        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
           {icon}
         </span>
         <h2 className="mt-4 text-base font-semibold">{title}</h2>
-        <p className="mt-2 text-[13px] leading-5 text-slate-600">{copy}</p>
+        <p className="mt-2 text-[13px] leading-5 text-muted-foreground">{copy}</p>
       </CardContent>
     </Card>
   );
@@ -321,13 +321,13 @@ function Feature({
 
 function MissionQuote() {
   return (
-    <Card className="flex flex-col rounded-xl border-none bg-[#f4f0ff] p-0">
+    <Card className="flex flex-col rounded-xl border-none bg-accent p-0">
       <CardContent className="flex flex-1 flex-col justify-center p-5">
-        <Quote className="h-5 w-5 fill-[#6941d7] text-[#6941d7]" />
-        <p className="mt-3 text-[13px] leading-5 text-[#33255c]">
+        <Quote className="h-5 w-5 fill-accent-foreground text-accent-foreground" />
+        <p className="mt-3 text-[13px] leading-5 text-accent-foreground">
           We believe the job search should feel like clarity, not chaos.
         </p>
-        <p className="mt-2 text-[11px] font-medium text-[#6941d7]">
+        <p className="mt-2 text-[11px] font-medium text-accent-foreground">
           - The JobTrail Team
         </p>
       </CardContent>

@@ -25,7 +25,6 @@ export interface EmployerJobPosting {
   category?: string;
   description: string;
   responsibilities?: string;
-  /** Labelled "Qualifications" in the UI. */
   requirements?: string;
   location?: string;
   salaryMin?: number;
@@ -36,7 +35,6 @@ export interface EmployerJobPosting {
   experienceLevel?: string;
   educationLevel?: string;
   certifications?: string;
-  /** Labelled "Skills" in the UI. */
   tags: string[];
   applyMethod: ApplyMethod;
   status: PostingStatus;

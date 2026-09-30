@@ -6,7 +6,7 @@
 
 /* ===============================================================
    DESIGN SYSTEM
-   Modern Premium / Productive
+   Modern Premium / High-contrast / Accessible
    =============================================================== */
 
 @theme inline {
@@ -58,28 +58,30 @@
 
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
+  --color-success-soft-foreground: var(--success-soft-foreground);
 
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-soft-foreground: var(--warning-soft-foreground);
 
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+  --color-info-soft: var(--info-soft);
+  --color-info-soft-foreground: var(--info-soft-foreground);
 
-  /* ── New · surface layering for depth ─────────────────── */
   --color-surface-1: var(--surface-1);
   --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
 
-  /* ── New · brand gradient stops ───────────────────────── */
   --color-brand-from: var(--brand-from);
   --color-brand-via: var(--brand-via);
   --color-brand-to: var(--brand-to);
 
-  /* Typography */
   --font-sans: var(--font-sans);
   --font-heading: var(--font-heading);
 
-  /* Radius */
   --radius-sm: calc(var(--radius) * 0.55);
   --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
@@ -91,179 +93,186 @@
 
 /* ===============================================================
    LIGHT MODE
-   Warm neutrals + indigo brand + vivid states
+   Crisp paper white · vivid indigo brand · confident states
    =============================================================== */
 
 :root {
   --radius: 0.75rem;
 
-  /* ── Core surfaces ─────────────────────────────────────
-     Background has a whisper of indigo so it's not dead grey.
-     Cards are pure white for contrast. */
-  --background: oklch(0.985 0.006 265);
-  --foreground: oklch(0.19 0.03 265);
+  /* Core surfaces */
+  --background: oklch(0.99 0.004 265);
+  --foreground: oklch(0.18 0.035 265);
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.19 0.03 265);
+  --card-foreground: oklch(0.18 0.035 265);
 
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.19 0.03 265);
+  --popover-foreground: oklch(0.18 0.035 265);
 
-  /* ── Layered surfaces (for nested cards, rails, sections) */
-  --surface-1: oklch(0.975 0.008 265);   /* subtle panel */
-  --surface-2: oklch(0.96 0.012 265);    /* recessed panel */
-  --surface-3: oklch(0.94 0.016 265);    /* wells, code blocks */
+  /* Layered surfaces — clear steps, not squinting distance */
+  --surface-1: oklch(0.975 0.006 265);
+  --surface-2: oklch(0.955 0.010 265);
+  --surface-3: oklch(0.935 0.014 265);
 
-  /* ── Brand · indigo ────────────────────────────────────
-     More saturated than the old navy, still professional. */
-  --primary: oklch(0.55 0.19 275);
-  --primary-foreground: oklch(0.99 0.005 275);
+  /* Brand · indigo — punchier, sits at 48% for strong contrast on white */
+  --primary: oklch(0.52 0.20 275);
+  --primary-foreground: oklch(0.99 0.004 275);
 
-  /* Gradient stops for hero cards / CTAs */
-  --brand-from: oklch(0.58 0.20 285);    /* violet */
-  --brand-via: oklch(0.55 0.19 275);     /* indigo */
-  --brand-to: oklch(0.60 0.16 240);      /* blue */
+  /* Gradient stops — real spread: violet → indigo → sky */
+  --brand-from: oklch(0.58 0.22 300);   /* vivid violet */
+  --brand-via:  oklch(0.54 0.21 275);   /* indigo */
+  --brand-to:   oklch(0.62 0.16 235);   /* sky-blue */
 
-  /* ── Secondary · cool neutral with a tint ────────────── */
-  --secondary: oklch(0.955 0.014 270);
-  --secondary-foreground: oklch(0.32 0.05 270);
+  /* Secondary */
+  --secondary: oklch(0.955 0.012 270);
+  --secondary-foreground: oklch(0.30 0.05 270);
 
-  /* ── Muted ───────────────────────────────────────────── */
-  --muted: oklch(0.965 0.008 265);
-  --muted-foreground: oklch(0.52 0.03 265);
+  /* Muted */
+  --muted: oklch(0.965 0.007 265);
+  --muted-foreground: oklch(0.48 0.03 265);
 
-  /* ── Accent · cool violet for hovers / highlights ────── */
-  --accent: oklch(0.945 0.03 285);
-  --accent-foreground: oklch(0.38 0.14 285);
+  /* Accent */
+  --accent: oklch(0.94 0.035 285);
+  --accent-foreground: oklch(0.36 0.16 285);
 
-  /* ── Destructive · vivid rose ────────────────────────── */
-  --destructive: oklch(0.60 0.22 25);
+  /* Destructive — confident rose */
+  --destructive: oklch(0.58 0.23 25);
   --destructive-foreground: oklch(0.99 0 0);
 
-  /* ── Borders / inputs ───────────────────────────────────
-     Slightly violet-tinted so they feel intentional. */
-  --border: oklch(0.91 0.014 265);
-  --input: oklch(0.89 0.016 265);
-  --ring: oklch(0.60 0.18 275);
+  /* Borders / inputs / ring */
+  --border: oklch(0.90 0.012 265);
+  --input: oklch(0.88 0.014 265);
+  --ring: oklch(0.58 0.19 285);   /* warmer than primary → focus pops */
 
-  /* ── Financial states · brighter, more confident ─────── */
-  --success: oklch(0.62 0.17 155);
-  --success-foreground: oklch(0.28 0.10 155);
+  /* States — solid, on-solid text, soft tint, on-tint text */
+  --success: oklch(0.58 0.16 155);
+  --success-foreground: oklch(0.99 0 0);
+  --success-soft: oklch(0.94 0.045 155);
+  --success-soft-foreground: oklch(0.34 0.12 155);
 
-  --warning: oklch(0.78 0.16 75);
-  --warning-foreground: oklch(0.36 0.10 65);
+  --warning: oklch(0.72 0.16 70);
+  --warning-foreground: oklch(0.20 0.05 70);
+  --warning-soft: oklch(0.95 0.05 80);
+  --warning-soft-foreground: oklch(0.38 0.12 70);
 
-  --info: oklch(0.62 0.16 235);
-  --info-foreground: oklch(0.30 0.10 235);
+  --info: oklch(0.58 0.16 235);
+  --info-foreground: oklch(0.99 0 0);
+  --info-soft: oklch(0.94 0.04 235);
+  --info-soft-foreground: oklch(0.34 0.13 235);
 
-  /* ── Charts · vivid but harmonious ───────────────────── */
-  --chart-1: oklch(0.58 0.19 275);   /* indigo */
-  --chart-2: oklch(0.66 0.17 155);   /* emerald */
-  --chart-3: oklch(0.76 0.16 75);    /* amber */
-  --chart-4: oklch(0.64 0.16 210);   /* sky */
-  --chart-5: oklch(0.62 0.20 330);   /* magenta */
+  /* Charts — vivid, distinct hues */
+  --chart-1: oklch(0.58 0.20 275);   /* indigo */
+  --chart-2: oklch(0.65 0.17 155);   /* emerald */
+  --chart-3: oklch(0.76 0.15 75);    /* amber */
+  --chart-4: oklch(0.64 0.15 210);   /* sky */
+  --chart-5: oklch(0.60 0.21 330);   /* magenta */
 
-  /* ── Sidebar ──────────────────────────────────────────── */
-  --sidebar: oklch(0.99 0.005 265);
-  --sidebar-foreground: oklch(0.24 0.03 265);
+  /* Sidebar */
+  --sidebar: oklch(0.99 0.004 265);
+  --sidebar-foreground: oklch(0.22 0.03 265);
 
-  --sidebar-primary: oklch(0.55 0.19 275);
-  --sidebar-primary-foreground: oklch(0.99 0.005 275);
+  --sidebar-primary: oklch(0.52 0.20 275);
+  --sidebar-primary-foreground: oklch(0.99 0.004 275);
 
-  --sidebar-accent: oklch(0.95 0.02 280);
-  --sidebar-accent-foreground: oklch(0.34 0.10 280);
+  --sidebar-accent: oklch(0.94 0.025 280);
+  --sidebar-accent-foreground: oklch(0.32 0.12 280);
 
-  --sidebar-border: oklch(0.91 0.014 265);
-  --sidebar-ring: oklch(0.60 0.18 275);
+  --sidebar-border: oklch(0.90 0.012 265);
+  --sidebar-ring: oklch(0.58 0.19 285);
 
-  /* ── Gold · warm accent for "premium" moments ────────── */
-  --gold: oklch(0.78 0.15 80);
-  --gold-foreground: oklch(0.34 0.10 65);
+  /* Gold */
+  --gold: oklch(0.76 0.15 80);
+  --gold-foreground: oklch(0.32 0.10 65);
 }
 
 /* ===============================================================
    DARK MODE
-   Atmospheric navy-violet, not flat slate
+   Deep indigo-night · brighter brand · visible structure
    =============================================================== */
 
 .dark {
-  /* ── Core surfaces ─────────────────────────────────────
-     Background has real chroma so it reads as "deep indigo
-     night" instead of "grey." */
-  --background: oklch(0.155 0.025 270);
-  --foreground: oklch(0.97 0.008 270);
+  /* Core surfaces — 4 clear steps from bg to surface-3 */
+  --background: oklch(0.145 0.020 270);
+  --foreground: oklch(0.98 0.006 270);
 
-  --card: oklch(0.20 0.028 270);
-  --card-foreground: oklch(0.97 0.008 270);
+  --card: oklch(0.195 0.024 270);
+  --card-foreground: oklch(0.98 0.006 270);
 
-  --popover: oklch(0.22 0.03 270);
-  --popover-foreground: oklch(0.97 0.008 270);
+  --popover: oklch(0.225 0.028 270);
+  --popover-foreground: oklch(0.98 0.006 270);
 
-  /* ── Layered surfaces ─────────────────────────────────── */
-  --surface-1: oklch(0.22 0.03 270);
-  --surface-2: oklch(0.25 0.032 270);
-  --surface-3: oklch(0.28 0.034 270);
+  /* Layered surfaces — visibly distinct */
+  --surface-1: oklch(0.225 0.026 270);
+  --surface-2: oklch(0.255 0.030 270);
+  --surface-3: oklch(0.290 0.034 270);
 
-  /* ── Brand · brighter in dark so it pops ─────────────── */
-  --primary: oklch(0.72 0.17 275);
-  --primary-foreground: oklch(0.17 0.03 275);
+  /* Brand — brighter than light mode so it pops on dark */
+  --primary: oklch(0.74 0.17 275);
+  --primary-foreground: oklch(0.155 0.03 275);
 
-  --brand-from: oklch(0.74 0.18 290);
-  --brand-via: oklch(0.72 0.17 275);
-  --brand-to: oklch(0.74 0.15 235);
+  /* Gradient stops — same hue journey as light, brighter */
+  --brand-from: oklch(0.76 0.18 300);
+  --brand-via:  oklch(0.74 0.17 275);
+  --brand-to:   oklch(0.78 0.14 235);
 
-  /* ── Secondary ───────────────────────────────────────── */
-  --secondary: oklch(0.26 0.03 270);
-  --secondary-foreground: oklch(0.95 0.01 270);
+  /* Secondary */
+  --secondary: oklch(0.26 0.028 270);
+  --secondary-foreground: oklch(0.96 0.010 270);
 
-  /* ── Muted ───────────────────────────────────────────── */
-  --muted: oklch(0.25 0.028 270);
-  --muted-foreground: oklch(0.72 0.02 270);
+  /* Muted */
+  --muted: oklch(0.245 0.026 270);
+  --muted-foreground: oklch(0.74 0.020 270);   /* ~7:1 on card */
 
-  /* ── Accent ──────────────────────────────────────────── */
-  --accent: oklch(0.30 0.06 285);
-  --accent-foreground: oklch(0.92 0.04 285);
+  /* Accent */
+  --accent: oklch(0.305 0.06 285);
+  --accent-foreground: oklch(0.94 0.04 285);
 
-  /* ── Destructive ─────────────────────────────────────── */
-  --destructive: oklch(0.68 0.20 25);
+  /* Destructive — deeper, not lighter */
+  --destructive: oklch(0.62 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
 
-  /* ── Borders · faint chroma so they're not just white/10 ─ */
-  --border: oklch(0.80 0.04 275 / 14%);
-  --input: oklch(0.80 0.04 275 / 18%);
-  --ring: oklch(0.70 0.15 275);
+  /* Borders — solid, visible, no alpha games */
+  --border: oklch(0.32 0.02 270);
+  --input: oklch(0.36 0.025 270);
+  --ring: oklch(0.72 0.16 285);   /* warmer than primary → focus pops */
 
-  /* ── Financial states ─────────────────────────────────── */
-  --success: oklch(0.72 0.16 155);
-  --success-foreground: oklch(0.85 0.10 155);
+  /* States — solid, on-solid text, soft tint, on-tint text */
+  --success: oklch(0.68 0.16 155);
+  --success-foreground: oklch(0.16 0.03 155);
+  --success-soft: oklch(0.30 0.055 155);
+  --success-soft-foreground: oklch(0.88 0.13 155);
 
-  --warning: oklch(0.80 0.15 75);
-  --warning-foreground: oklch(0.88 0.09 75);
+  --warning: oklch(0.78 0.15 75);
+  --warning-foreground: oklch(0.20 0.05 70);
+  --warning-soft: oklch(0.32 0.06 75);
+  --warning-soft-foreground: oklch(0.90 0.12 80);
 
-  --info: oklch(0.72 0.14 235);
-  --info-foreground: oklch(0.85 0.08 235);
+  --info: oklch(0.70 0.14 235);
+  --info-foreground: oklch(0.16 0.03 235);
+  --info-soft: oklch(0.30 0.055 235);
+  --info-soft-foreground: oklch(0.88 0.12 235);
 
-  /* ── Charts ──────────────────────────────────────────── */
+  /* Charts — same hue family as light, adjusted for dark */
   --chart-1: oklch(0.74 0.17 275);
   --chart-2: oklch(0.74 0.15 155);
-  --chart-3: oklch(0.82 0.15 75);
+  --chart-3: oklch(0.82 0.14 75);
   --chart-4: oklch(0.74 0.14 210);
   --chart-5: oklch(0.74 0.17 330);
 
-  /* ── Sidebar ──────────────────────────────────────────── */
-  --sidebar: oklch(0.18 0.028 270);
-  --sidebar-foreground: oklch(0.96 0.008 270);
+  /* Sidebar */
+  --sidebar: oklch(0.175 0.024 270);
+  --sidebar-foreground: oklch(0.97 0.008 270);
 
-  --sidebar-primary: oklch(0.72 0.17 275);
-  --sidebar-primary-foreground: oklch(0.17 0.03 275);
+  --sidebar-primary: oklch(0.74 0.17 275);
+  --sidebar-primary-foreground: oklch(0.155 0.03 275);
 
-  --sidebar-accent: oklch(0.27 0.04 280);
-  --sidebar-accent-foreground: oklch(0.95 0.01 280);
+  --sidebar-accent: oklch(0.28 0.04 280);
+  --sidebar-accent-foreground: oklch(0.95 0.010 280);
 
-  --sidebar-border: oklch(0.80 0.04 275 / 12%);
-  --sidebar-ring: oklch(0.70 0.15 275);
+  --sidebar-border: oklch(0.30 0.02 270);
+  --sidebar-ring: oklch(0.72 0.16 285);
 
-  /* ── Gold ────────────────────────────────────────────── */
+  /* Gold */
   --gold: oklch(0.80 0.14 80);
   --gold-foreground: oklch(0.90 0.09 75);
 }
@@ -299,120 +308,94 @@
       "rlig" 1,
       "calt" 1;
 
-    /* ── Ambient background wash ──────────────────────────
-       Two very soft radial gradients give the page depth
-       without a hard "gradient" look. Barely visible, but
-       stops the background from reading as flat #FAFAFA. */
+    /* Ambient wash — perceptible but not a gradient
+       Light: 12–14% tint. Dark: 10–12% (chroma on dark reads stronger). */
     background-image:
       radial-gradient(
         1200px 600px at 0% -10%,
-        color-mix(in oklch, var(--brand-from) 8%, transparent),
+        color-mix(in oklch, var(--brand-from) 14%, transparent),
         transparent 60%
       ),
       radial-gradient(
         900px 500px at 100% 0%,
-        color-mix(in oklch, var(--brand-to) 6%, transparent),
+        color-mix(in oklch, var(--brand-to) 12%, transparent),
         transparent 55%
       );
     background-attachment: fixed;
   }
 
-  /* ── Typography ───────────────────────────────────────── */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  .dark body {
+    background-image:
+      radial-gradient(
+        1200px 600px at 0% -10%,
+        color-mix(in oklch, var(--brand-from) 12%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        900px 500px at 100% 0%,
+        color-mix(in oklch, var(--brand-to) 10%, transparent),
+        transparent 55%
+      );
+  }
+
+  /* Typography */
+  h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
     color: var(--foreground);
     letter-spacing: -0.025em;
     font-weight: 650;
   }
 
-  h1 {
-    letter-spacing: -0.035em;
-  }
+  h1 { letter-spacing: -0.035em; }
+  h2 { letter-spacing: -0.03em; }
+  p  { line-height: 1.65; }
 
-  h2 {
-    letter-spacing: -0.03em;
-  }
-
-  p {
-    line-height: 1.65;
-  }
-
-  /* ── Interactive ─────────────────────────────────────── */
+  /* Interactive */
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
 
-  button,
-  input,
-  textarea,
-  select {
+  button, input, textarea, select {
     font: inherit;
   }
 
-  /* ── Selection · uses brand tint ─────────────────────── */
+  /* Selection */
   ::selection {
-    background: color-mix(
-      in oklch,
-      var(--primary) 22%,
-      transparent
-    );
+    background: color-mix(in oklch, var(--primary) 25%, transparent);
     color: var(--foreground);
   }
 
-  /* ── Focus ───────────────────────────────────────────── */
+  /* Focus */
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
 
-  /* ── Scrollbar ───────────────────────────────────────── */
+  /* Scrollbar */
   * {
     scrollbar-width: thin;
     scrollbar-color:
-      color-mix(in oklch, var(--foreground) 18%, transparent)
+      color-mix(in oklch, var(--foreground) 20%, transparent)
       transparent;
   }
 
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: color-mix(
-      in oklch,
-      var(--foreground) 18%,
-      transparent
-    );
+    background: color-mix(in oklch, var(--foreground) 20%, transparent);
     border-radius: 999px;
   }
-
   ::-webkit-scrollbar-thumb:hover {
-    background: color-mix(
-      in oklch,
-      var(--foreground) 28%,
-      transparent
-    );
+    background: color-mix(in oklch, var(--foreground) 30%, transparent);
   }
 }
 
 /* ===============================================================
    UTILITIES
-   Brand gradient + elevation helpers
    =============================================================== */
 
 @layer utilities {
-  /* Gradient text - for hero headlines */
   .text-brand-gradient {
     background-image: linear-gradient(
       135deg,
@@ -425,7 +408,6 @@
     color: transparent;
   }
 
-  /* Gradient fill - for CTAs / hero cards */
   .bg-brand-gradient {
     background-image: linear-gradient(
       135deg,
@@ -435,28 +417,38 @@
     );
   }
 
-  /* Soft glow behind primary CTA */
   .shadow-brand {
     box-shadow:
-      0 1px 2px color-mix(in oklch, var(--primary) 12%, transparent),
-      0 8px 24px -8px color-mix(in oklch, var(--primary) 45%, transparent);
+      0 1px 2px color-mix(in oklch, var(--primary) 14%, transparent),
+      0 8px 24px -8px color-mix(in oklch, var(--primary) 50%, transparent);
   }
 
-  /* Layered elevation - used on cards that should lift */
+  .dark .shadow-brand {
+    box-shadow:
+      0 1px 2px color-mix(in oklch, var(--primary) 20%, transparent),
+      0 10px 28px -8px color-mix(in oklch, var(--primary) 60%, transparent);
+  }
+
   .shadow-elevated {
     box-shadow:
       0 1px 2px color-mix(in oklch, var(--foreground) 6%, transparent),
-      0 8px 28px -12px color-mix(in oklch, var(--foreground) 18%, transparent);
+      0 8px 28px -12px color-mix(in oklch, var(--foreground) 22%, transparent);
   }
 
-  /* Hairline top highlight on cards - instant "modern" feel */
+  .dark .shadow-elevated {
+    box-shadow:
+      0 1px 2px color-mix(in oklch, black 30%, transparent),
+      0 8px 28px -12px color-mix(in oklch, black 50%, transparent);
+  }
+
+  /* Hairline top highlight — modern card feel */
   .ring-hairline {
     box-shadow: inset 0 1px 0 0
-      color-mix(in oklch, white 55%, transparent);
+      color-mix(in oklch, white 60%, transparent);
   }
 
   .dark .ring-hairline {
     box-shadow: inset 0 1px 0 0
-      color-mix(in oklch, white 6%, transparent);
+      color-mix(in oklch, white 8%, transparent);
   }
 }

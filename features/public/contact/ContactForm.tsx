@@ -90,14 +90,14 @@ export default function ContactForm() {
 
   if (status === "success") {
     return (
-      <Card className="rounded-2xl border-white/60 bg-white/80 shadow-xl shadow-indigo-500/10 backdrop-blur-xl">
+      <Card className="rounded-2xl border-border/70 bg-card/90 shadow-xl shadow-indigo-500/10 backdrop-blur-xl">
         <CardContent className="flex flex-col items-center gap-3 px-4 py-10 text-center">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30">
             <CheckCircle2 className="h-6 w-6" />
           </span>
           <div>
-            <p className="text-[15px] font-semibold text-slate-900">Message captured</p>
-            <p className="mt-1 max-w-[300px] text-[13px] leading-5 text-slate-500">
+            <p className="text-[15px] font-semibold text-foreground">Message captured</p>
+            <p className="mt-1 max-w-[300px] text-[13px] leading-5 text-muted-foreground">
               This is a demo form, so it isn&apos;t connected to a live inbox yet. For a
               real reply, email us directly using one of the addresses on the left.
             </p>
@@ -116,8 +116,8 @@ export default function ContactForm() {
   }
 
   return (
-    <Card className="rounded-2xl border-white/60 bg-white/80 shadow-xl shadow-indigo-500/10 backdrop-blur-xl">
-      <CardHeader className="border-b border-slate-100/80 px-4 py-3">
+    <Card className="rounded-2xl border-border/70 bg-card/90 shadow-xl shadow-indigo-500/10 backdrop-blur-xl">
+      <CardHeader className="border-b border-border px-4 py-3">
         <CardTitle className="text-[15px] font-semibold">
           Send us a message
         </CardTitle>
@@ -139,7 +139,7 @@ export default function ContactForm() {
                   onChange={update("name")}
                   aria-invalid={!!errors.name}
                   aria-describedby={errors.name ? "name-error" : undefined}
-                  className="h-9 rounded-md border-slate-200 bg-white/70 text-[13px] focus-visible:border-[#226de8] focus-visible:ring-1 focus-visible:ring-[#226de8]/30"
+                  className="h-9 rounded-md border-input bg-background text-[13px] focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/30"
                 />
               }
             />
@@ -158,7 +158,7 @@ export default function ContactForm() {
                   onChange={update("email")}
                   aria-invalid={!!errors.email}
                   aria-describedby={errors.email ? "email-error" : undefined}
-                  className="h-9 rounded-md border-slate-200 bg-white/70 text-[13px] focus-visible:border-[#226de8] focus-visible:ring-1 focus-visible:ring-[#226de8]/30"
+                  className="h-9 rounded-md border-input bg-background text-[13px] focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/30"
                 />
               }
             />
@@ -177,7 +177,7 @@ export default function ContactForm() {
                 onChange={update("subject")}
                 aria-invalid={!!errors.subject}
                 aria-describedby={errors.subject ? "subject-error" : undefined}
-                className="h-9 rounded-md border-slate-200 bg-white/70 text-[13px] focus-visible:border-[#226de8] focus-visible:ring-1 focus-visible:ring-[#226de8]/30"
+                className="h-9 rounded-md border-input bg-background text-[13px] focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/30"
               />
             }
           />
@@ -197,15 +197,15 @@ export default function ContactForm() {
                   onChange={update("message")}
                   aria-invalid={!!errors.message}
                   aria-describedby={errors.message ? "message-error" : undefined}
-                  className="min-h-20 resize-y rounded-md border-slate-200 bg-white/70 text-[13px] focus-visible:border-[#226de8] focus-visible:ring-1 focus-visible:ring-[#226de8]/30"
+                  className="min-h-20 resize-y rounded-md border-input bg-background text-[13px] focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/30"
                 />
               }
             />
             <p
               className={`text-right text-[10px] ${
                 values.message.length >= MESSAGE_MAX
-                  ? "font-medium text-amber-600"
-                  : "text-slate-400"
+                  ? "font-medium text-amber-600 dark:text-amber-300"
+                  : "text-muted-foreground"
               }`}
             >
               {values.message.length} / {MESSAGE_MAX}
@@ -230,7 +230,7 @@ export default function ContactForm() {
             )}
           </Button>
 
-          <p className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+          <p className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
             <LockKeyhole className="h-3 w-3 shrink-0" />
             Your info is only used to respond to this message.
           </p>
@@ -258,7 +258,7 @@ function Field({
       </Label>
       {input}
       {error && (
-        <p id={`${id}-error`} role="alert" className="text-[11px] font-medium text-red-600">
+        <p id={`${id}-error`} role="alert" className="text-[11px] font-medium text-red-600 dark:text-red-300">
           {error}
         </p>
       )}

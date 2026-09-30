@@ -53,7 +53,7 @@ const topics: Topic[] = [
 
 export default function Contact() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-background via-background to-muted/50">
       <div className="pointer-events-none absolute -top-40 -left-40 h-[400px] w-[400px] rounded-full bg-blue-400/20 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-40 -right-40 h-[400px] w-[400px] rounded-full bg-purple-400/20 blur-3xl" />
 
@@ -63,11 +63,11 @@ export default function Contact() {
       >
         {/* Heading */}
         <div className="mx-auto max-w-xl text-center">
-          <h1 className="text-2xl font-semibold tracking-tight text-[#071337] sm:text-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             Let&apos;s move your career forward.
           </h1>
 
-          <p className="mt-2 text-sm leading-6 text-slate-500">
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Have a question, need support, or want to explore how JobTrail can
             help? We&apos;re here for you.
           </p>
@@ -89,20 +89,20 @@ export default function Contact() {
 
 function Topics() {
   return (
-    <Card className="w-full rounded-2xl border-white/60 bg-white/80 shadow-xl shadow-indigo-500/10 backdrop-blur-xl lg:w-[320px] lg:shrink-0">
-      <CardHeader className="border-b border-slate-100/80 px-4 py-3">
-        <CardTitle className="text-sm font-semibold text-slate-900">
+    <Card className="w-full rounded-2xl border-border/70 bg-card/90 shadow-xl shadow-indigo-500/10 backdrop-blur-xl lg:w-[320px] lg:shrink-0">
+      <CardHeader className="border-b border-border px-4 py-3">
+        <CardTitle className="text-sm font-semibold text-card-foreground">
           How can we help?
         </CardTitle>
       </CardHeader>
 
       <CardContent className="px-3 pb-3">
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-border">
           {topics.map(({ Icon, title, copy, email, tone }) => (
             <a
               key={title}
               href={`mailto:${email}`}
-              className="group flex items-center gap-3 px-1 py-3 transition-colors first:pt-3 last:pb-1 hover:bg-slate-50/60"
+              className="group flex items-center gap-3 px-1 py-3 transition-colors first:pt-3 last:pb-1 hover:bg-accent/50"
             >
               <span
                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${tone} text-white shadow-md`}
@@ -111,20 +111,20 @@ function Topics() {
               </span>
 
               <span className="min-w-0 flex-1">
-                <span className="block text-xs font-semibold text-slate-900">
+                <span className="block text-xs font-semibold text-foreground">
                   {title}
                 </span>
 
-                <span className="mt-0.5 block text-[11px] text-slate-500">
+                <span className="mt-0.5 block text-[11px] text-muted-foreground">
                   {copy}
                 </span>
 
-                <span className="mt-0.5 block truncate text-[11px] font-medium text-[#1467dc]">
+                <span className="mt-0.5 block truncate text-[11px] font-medium text-primary">
                   {email}
                 </span>
               </span>
 
-              <ChevronRight className="h-4 w-4 shrink-0 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-blue-500" />
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
             </a>
           ))}
         </div>

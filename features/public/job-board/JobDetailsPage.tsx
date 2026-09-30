@@ -151,10 +151,10 @@ export default function JobDetailsPage() {
                 <span
                   className={`flex items-center gap-1.5 rounded-md px-2 py-1 font-medium ${
                     isClosed
-                      ? "bg-slate-100 text-slate-600"
+                      ? "bg-muted text-muted-foreground"
                       : deadlineSoon !== null && deadlineSoon <= 7
-                        ? "bg-red-100 text-red-700 border border-red-200"
-                        : "bg-orange-50 text-orange-700 border border-orange-200"
+                        ? "border border-destructive/30 bg-destructive/10 text-destructive"
+                        : "border border-warning/30 bg-warning/10 text-warning-foreground"
                   }`}
                 >
                   <CalendarClock className="h-4 w-4" />
@@ -181,11 +181,11 @@ export default function JobDetailsPage() {
             )}
             {/* Inline email callout — visible at the top for email-apply jobs */}
             {applyEmail && (
-              <div className="mt-5 flex flex-wrap items-center gap-2 rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2.5">
-                <Mail className="h-4 w-4 shrink-0 text-blue-600" />
-                <span className="text-[13px] text-slate-700">
+              <div className="mt-5 flex flex-wrap items-center gap-2 rounded-lg border border-info/20 bg-info/10 px-3 py-2.5">
+                <Mail className="h-4 w-4 shrink-0 text-info" />
+                <span className="text-[13px] text-foreground">
                   Apply by email to{" "}
-                  <span className="font-semibold text-blue-700">
+                  <span className="font-semibold text-info">
                     {applyEmail}
                   </span>
                 </span>
@@ -194,7 +194,7 @@ export default function JobDetailsPage() {
                   variant="ghost"
                   size="sm"
                   onClick={copyEmail}
-                  className="ml-auto h-7 gap-1 px-2 text-[11px] font-medium text-blue-700 hover:bg-blue-100/60"
+                  className="ml-auto h-7 gap-1 px-2 text-[11px] font-medium text-info hover:bg-info/15"
                 >
                   <Copy className="h-3.5 w-3.5" />
                   {copied ? "Copied" : "Copy"}
@@ -292,7 +292,7 @@ export default function JobDetailsPage() {
           <aside className="h-fit rounded-xl border bg-card p-4 lg:sticky lg:top-6">
             {/* Closed banner (applies to any apply method) */}
             {isClosed && (
-              <div className="mb-3 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-center text-[12px] text-slate-500">
+              <div className="mb-3 rounded-lg border border-dashed border-border bg-muted/50 p-3 text-center text-[12px] text-muted-foreground">
                 Applications closed
                 {deadline ? ` on ${deadline}` : ""}.
               </div>
@@ -312,20 +312,20 @@ export default function JobDetailsPage() {
 
             {/* Email apply + active: plain email + copy button */}
             {applyEmail && !isClosed && (
-              <div className="rounded-lg border border-blue-200 bg-blue-50/60 p-3">
-                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-blue-700">
+                <div className="rounded-lg border border-info/20 bg-info/10 p-3">
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-info">
                   <Mail className="h-3.5 w-3.5" />
                   Apply via email
                 </div>
 
-                <p className="mt-1.5 select-all break-all text-[13px] font-semibold text-blue-700">
+                <p className="mt-1.5 select-all break-all text-[13px] font-semibold text-info">
                   {applyEmail}
                 </p>
 
-                <div className="mt-2.5 border-t border-blue-200/60 pt-2 text-[11px] leading-relaxed text-blue-900/80">
+                <div className="mt-2.5 border-t border-info/20 pt-2 text-[11px] leading-relaxed text-muted-foreground">
                   Please send your{" "}
-                  <strong className="font-medium text-blue-950">CV</strong> and{" "}
-                  <strong className="font-medium text-blue-950">
+                  <strong className="font-medium text-foreground">CV</strong> and{" "}
+                  <strong className="font-medium text-foreground">
                     cover letter
                   </strong>{" "}
                   directly to this address.
@@ -336,7 +336,7 @@ export default function JobDetailsPage() {
                   variant="outline"
                   size="sm"
                   onClick={copyEmail}
-                  className="mt-3 h-8 w-full gap-1 bg-white text-[11px] font-medium hover:bg-blue-50"
+                  className="mt-3 h-8 w-full gap-1 bg-background text-[11px] font-medium hover:bg-muted"
                 >
                   <Copy className="h-3.5 w-3.5" />
                   {copied ? "Copied to clipboard" : "Copy email address"}
@@ -349,8 +349,8 @@ export default function JobDetailsPage() {
               !isClosed &&
               deadlineSoon !== null &&
               deadlineSoon <= 7 && (
-                <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-900">
-                  <div className="flex items-center gap-1.5 font-semibold uppercase tracking-wide text-amber-700">
+                <div className="mt-3 rounded-lg border border-warning/30 bg-warning/10 p-3 text-[11px] leading-relaxed text-warning-foreground">
+                  <div className="flex items-center gap-1.5 font-semibold uppercase tracking-wide text-warning-foreground">
                     <CalendarClock className="h-3.5 w-3.5" />
                     Deadline
                   </div>
