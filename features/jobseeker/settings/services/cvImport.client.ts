@@ -1,10 +1,15 @@
 import axiosInstance from "@/lib/axiosInstance";
 
 export interface CvImportResult {
+  /** Confidence score from the AI, 0–1. */
   confidence: number;
+  /** Non-fatal issues the parser wants the user to double-check. */
   warnings: string[];
+  /** Original filename the user uploaded. */
   fileName: string;
+  /** Absolute URL of the stored file (used for audit / re-open). */
   storedUrl: string;
+
   contact: {
     fullName: string;
     title: string;
@@ -15,8 +20,10 @@ export interface CvImportResult {
     linkedin: string;
     github: string;
   };
+
   summary: string;
   skills: string[];
+
   experience: Array<{
     company: string;
     role: string;
@@ -26,6 +33,7 @@ export interface CvImportResult {
     current: boolean;
     bullets: string[];
   }>;
+
   education: Array<{
     school: string;
     degree: string;
@@ -34,6 +42,7 @@ export interface CvImportResult {
     endDate: string;
     notes: string;
   }>;
+
   certifications: Array<{
     name: string;
     issuer: string;
@@ -42,14 +51,25 @@ export interface CvImportResult {
   }>;
 }
 
+interface CvImportApiResponse {
+  success: boolean;
+  data: CvImportResult;
+  message?: string;
+}
+
 export async function importCv(file: File): Promise<CvImportResult> {
   const formData = new FormData();
   formData.append("file", file);
-  const { data } = await axiosInstance.post<{ success: boolean; data: CvImportResult; message?: string }>(
+
+  const { data } = await axiosInstance.post<CvImportApiResponse>(
     "/profile/import-cv",
     formData,
     { headers: { "Content-Type": "multipart/form-data" } },
   );
-  if (!data.success) throw new Error(data.message || "CV import failed.");
+
+  if (!data.success) {
+    throw new Error(data.message || "CV import failed.");
+  }
+
   return data.data;
 }
