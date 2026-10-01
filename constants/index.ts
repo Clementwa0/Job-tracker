@@ -84,194 +84,22 @@ export const interviewStatus: { value: InterviewStatus; label: string; className
 ];
 
 
+import type { ResumeTemplate } from "@/types/resume-builder";
+
+export const RESUME_TEMPLATES = [
+  { id: "aurora", name: "Aurora", description: "Modern professional", category: "Professional", recommended: true },
+  { id: "atlas", name: "Atlas", description: "Technical two-column", category: "Technology" },
+  { id: "vertex", name: "Vertex", description: "Developer focused", category: "Technology" },
+  { id: "horizon", name: "Horizon", description: "Executive & corporate", category: "Corporate" },
+  { id: "mono", name: "Mono", description: "Minimal & ATS-friendly", category: "Minimal" },
+  { id: "impact", name: "Impact", description: "Achievement focused", category: "Professional" },
+] as const satisfies readonly { id: ResumeTemplate; name: string; description: string; category: string; recommended?: boolean }[];
+
 export const TEMPLATE_STYLES = {
-  modern: {
-    padding: "0.75in 0.75in",
-
-    fontFamily:
-      "'Inter', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif",
-
-    fontSize: "12px",
-    lineHeight: 1.65,
-
-    nameSize: "32px",
-    nameWeight: 800,
-    nameSpacing: "-0.03em",
-    nameTransform: "uppercase",
-
-    roleSize: "13px",
-    roleWeight: 500,
-
-    headerAlign: "left",
-    headerBorder: "accent",
-
-    sectionGap: "22px",
-
-    headingStyle: "accent",
-    headingSize: "11px",
-    headingWeight: 700,
-    headingTracking: "0.18em",
-
-    itemGap: "14px",
-
-    bulletStyle: "disc",
-    bulletIndent: "18px",
-
-    dividerOpacity: 0.12,
-
-    contactGap: "14px",
-
-    cardStyle: "soft",
-  },
-
-  classic: {
-    padding: "0.75in 0.75in",
-
-    fontFamily: "'Source Serif 4', Georgia, 'Times New Roman', serif",
-
-    fontSize: "12px",
-    lineHeight: 1.5,
-
-    nameSize: "34px",
-    nameWeight: 600,
-    nameSpacing: "-0.01em",
-    nameTransform: "none",
-
-    roleSize: "13px",
-    roleWeight: 500,
-
-    headerAlign: "center",
-    headerBorder: "thin",
-
-    sectionGap: "15px",
-
-    headingStyle: "rule",
-    headingSize: "12px",
-    headingWeight: 900,
-    headingTracking: "0.28em",
-
-    itemGap: "12px",
-
-    bulletStyle: "disc",
-    bulletIndent: "18px",
-
-    dividerOpacity: 0.18,
-
-    contactGap: "12px",
-
-    cardStyle: "clean",
-  },
-
-  compact: {
-    padding: "0.45in 0.55in",
-
-    fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif",
-
-    fontSize: "9.8px",
-    lineHeight: 1.45,
-
-    nameSize: "23px",
-    nameWeight: 800,
-    nameSpacing: "-0.04em",
-    nameTransform: "none",
-    roleSize: "11px",
-    roleWeight: 600,
-
-    headerAlign: "left",
-    headerBorder: "thin",
-
-    sectionGap: "12px",
-
-    headingStyle: "muted",
-    headingSize: "10px",
-    headingWeight: 700,
-    headingTracking: "0.14em",
-
-    itemGap: "10px",
-
-    bulletStyle: "dash",
-    bulletIndent: "14px",
-
-    dividerOpacity: 0.1,
-
-    contactGap: "10px",
-
-    cardStyle: "minimal",
-  },
-
-  executive: {
-    padding: "0.75in 0.2in",
-
-    fontFamily: "'Cormorant Garamond', 'Libre Baskerville', Georgia, serif",
-
-    fontSize: "11.8px",
-    lineHeight: 1.5,
-
-    nameSize: "38px",
-    nameWeight: 500,
-    nameTransform: "uppercase",
-    nameSpacing: "0",
-
-    roleSize: "15px",
-    roleWeight: 500,
-
-    headerAlign: "center",
-    headerBorder: "double",
-
-    sectionGap: "24px",
-
-    headingStyle: "executive",
-    headingSize: "11px",
-    headingWeight: 700,
-    headingTracking: "0.38em",
-
-    itemGap: "16px",
-
-    bulletStyle: "square",
-    bulletIndent: "20px",
-
-    dividerOpacity: 0.22,
-
-    contactGap: "16px",
-
-    cardStyle: "luxury",
-  },
-
-  minimal: {
-    padding: "0.75in 0.8in",
-
-    fontFamily: "'Inter', 'Manrope', ui-sans-serif, system-ui, sans-serif",
-
-    fontSize: "10.8px",
-    lineHeight: 1.6,
-
-    nameSize: "24px",
-    nameWeight: 600,
-    nameSpacing: "-0.02em",
-    nameTransform: "none",
-
-    roleSize: "12px",
-    roleWeight: 500,
-
-    headerAlign: "left",
-    headerBorder: "none",
-
-    sectionGap: "18px",
-
-    headingStyle: "muted",
-    headingSize: "10px",
-    headingWeight: 700,
-    headingTracking: "0.24em",
-
-    itemGap: "12px",
-
-    bulletStyle: "dash",
-    bulletIndent: "16px",
-
-    dividerOpacity: 0.08,
-
-    contactGap: "12px",
-
-    cardStyle: "flat",
-  },
+  aurora: { headingSize: "11px", headingWeight: 700, headingTracking: "0.12em", sectionGap: "18px", itemGap: "10px", bulletIndent: "18px", bulletStyle: "disc" as const },
+  atlas: { headingSize: "10px", headingWeight: 800, headingTracking: "0.14em", sectionGap: "15px", itemGap: "9px", bulletIndent: "16px", bulletStyle: "disc" as const },
+  vertex: { headingSize: "10px", headingWeight: 800, headingTracking: "0.08em", sectionGap: "15px", itemGap: "9px", bulletIndent: "16px", bulletStyle: "disc" as const },
+  horizon: { headingSize: "10px", headingWeight: 700, headingTracking: "0.18em", sectionGap: "20px", itemGap: "11px", bulletIndent: "17px", bulletStyle: "disc" as const },
+  mono: { headingSize: "10px", headingWeight: 700, headingTracking: "0.06em", sectionGap: "13px", itemGap: "8px", bulletIndent: "16px", bulletStyle: "disc" as const },
+  impact: { headingSize: "10px", headingWeight: 800, headingTracking: "0.1em", sectionGap: "16px", itemGap: "10px", bulletIndent: "16px", bulletStyle: "disc" as const },
 } as const;

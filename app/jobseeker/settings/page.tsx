@@ -1,4 +1,4 @@
-import SettingsPage from "@/features/jobseeker/settings/SettingsPage";
+import SettingsPage from "@/features/jobseeker/profile/SettingsPage";
 
 export default function Page() {
   return <SettingsPage />;

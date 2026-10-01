@@ -55,14 +55,20 @@ export interface ResumeCertification {
 export interface ResumeLanguage {
   id: string;
   name: string;
-  level: string; // e.g. "Native", "Fluent", "B2"
+  level: string;
 }
 
-export type ResumeTemplate = "modern" | "classic" | "compact" | "executive" | "minimal";
+export type ResumeTemplate =
+  | "aurora"
+  | "atlas"
+  | "vertex"
+  | "horizon"
+  | "mono"
+  | "impact";
 
 export interface ResumeMeta {
   id: string;
-  name: string; // e.g. "Backend roles 2026"
+  name: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -82,7 +88,7 @@ export interface ResumeData {
 }
 
 export const EMPTY_RESUME: ResumeData = {
-  template: "modern",
+  template: "aurora",
   accent: "#2563eb",
   contact: {
     fullName: "",
@@ -107,32 +113,23 @@ export function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-/**
- * Merge a partial / legacy resume payload into a full ResumeData.
- * Tolerates missing arrays and missing meta - used by importJSON
- * and the AI parser response.
- */
-export function normalizeResume(partial: Partial<ResumeData> & Record<string, unknown>): ResumeData {
-  const ensureId = <T extends { id?: string }>(arr: T[] | undefined): (T & { id: string })[] =>
-    (arr || []).map((x) => ({ ...x, id: x.id || uid() }));
+export function normalizeResume(partial?: Partial<ResumeData> & Record<string, unknown>): ResumeData {
+  const source = partial || {};
+  const ensureId = <T extends { id?: string }>(items: T[] | undefined) =>
+    (Array.isArray(items) ? items : []).map((item) => ({ ...item, id: item.id || uid() }));
+
   return {
     ...EMPTY_RESUME,
-    ...partial,
-    contact: { ...EMPTY_RESUME.contact, ...(partial.contact || {}) },
-    experience: ensureId(partial.experience as ResumeExperience[] | undefined).map((e) => ({
-      ...e,
-      bullets: Array.isArray(e.bullets) ? e.bullets : [],
-    })),
-    education: ensureId(partial.education as ResumeEducation[] | undefined),
-    projects: ensureId(partial.projects as ResumeProject[] | undefined).map((p) => ({
-      ...p,
-      tech: Array.isArray(p.tech) ? p.tech : [],
-    })),
-    skills: ensureId(partial.skills as ResumeSkillsGroup[] | undefined).map((s) => ({
-      ...s,
-      items: Array.isArray(s.items) ? s.items : [],
-    })),
-    certifications: ensureId(partial.certifications as ResumeCertification[] | undefined),
-    languages: ensureId(partial.languages as ResumeLanguage[] | undefined),
+    ...source,
+    template: ["aurora", "atlas", "vertex", "horizon", "mono", "impact"].includes(String(source.template))
+      ? (source.template as ResumeTemplate)
+      : "aurora",
+    contact: { ...EMPTY_RESUME.contact, ...(source.contact || {}) },
+    experience: ensureId(source.experience as ResumeExperience[] | undefined).map((x) => ({ ...x, bullets: Array.isArray(x.bullets) ? x.bullets : [] })),
+    education: ensureId(source.education as ResumeEducation[] | undefined),
+    projects: ensureId(source.projects as ResumeProject[] | undefined).map((x) => ({ ...x, tech: Array.isArray(x.tech) ? x.tech : [] })),
+    skills: ensureId(source.skills as ResumeSkillsGroup[] | undefined).map((x) => ({ ...x, items: Array.isArray(x.items) ? x.items : [] })),
+    certifications: ensureId(source.certifications as ResumeCertification[] | undefined),
+    languages: ensureId(source.languages as ResumeLanguage[] | undefined),
   };
 }

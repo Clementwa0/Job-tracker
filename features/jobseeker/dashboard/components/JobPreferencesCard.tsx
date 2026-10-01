@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Briefcase, ChevronRight, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { useJobs } from "@/features/jobseeker/jobs/hooks/JobContext";
-import { useProfile } from "@/features/jobseeker/settings/hooks/useProfile";
+import { useProfile } from "@/features/jobseeker/profile/hooks/useProfile";
 import { labelize } from "@/lib/profile/options";
 
 function topValues(values: string[], limit = 2) {

@@ -20,9 +20,21 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useProfile } from "@/features/jobseeker/settings/hooks/useProfile";
-import type { ProfileUpdate } from "@/features/jobseeker/settings/services/profile.client";
-import { importCv, type CvImportResult } from "@/features/jobseeker/settings/services/cvImport.client";
+import { useProfile } from "@/features/jobseeker/profile/hooks/useProfile";
+import type { ProfileUpdate } from "@/features/jobseeker/profile/services/profile.client";
+import { importCv } from "@/features/jobseeker/profile/services/cvImport.client";
+import CvImportReview from "@/features/jobseeker/profile/components/CvImportReview";
+import {
+  applyImportReview,
+  buildImportReview,
+  MAX_PROFILE_SKILLS,
+  previewYears,
+  setItemSelected,
+  setSectionSelected,
+  type CvImportReview as CvReview,
+  type ProfileSnapshot,
+  type ReviewSection,
+} from "@/features/jobseeker/profile/lib/cvImportMerge";
 import { getApiErrorMessage } from "@/lib/apiError";
 import { JOB_TYPE_OPTIONS, WORK_MODE_OPTIONS, labelize } from "@/lib/profile/options";
 import type { CertificationEntry, EducationEntry, ProfileResponse, WorkExperienceEntry } from "@/types/profile";
@@ -36,8 +48,6 @@ const numberOrNull = (value: string): number | null => {
   const number = Number(trimmed);
   return Number.isFinite(number) ? number : null;
 };
-
-const MAX_PROFILE_SKILLS = 40;
 
 function Field({ label, hint, id, children }: { label: string; hint?: string; id?: string; children: ReactNode }) {
   const generatedId = useId();
@@ -180,7 +190,7 @@ function SettingsForm({ initial }: { initial: ProfileResponse }) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [status, setStatus] = useState<{ ok: boolean; message: string } | null>(null);
-  const [cvImport, setCvImport] = useState<CvImportResult | null>(null);
+  const [cvReview, setCvReview] = useState<{ fileName: string; review: CvReview } | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -213,9 +223,10 @@ function SettingsForm({ initial }: { initial: ProfileResponse }) {
 
     setIsImporting(true);
     setImportError(null);
-    setCvImport(null);
+    setCvReview(null);
     try {
-      setCvImport(await importCv(file));
+      const parsed = await importCv(file);
+      setCvReview({ fileName: parsed.fileName, review: buildImportReview(parsed, snapshot()) });
     } catch (error) {
       setImportError(getApiErrorMessage(error));
     } finally {
@@ -223,72 +234,35 @@ function SettingsForm({ initial }: { initial: ProfileResponse }) {
     }
   };
 
+  const snapshot = (): ProfileSnapshot => ({
+    name, headline, location, phone, bio, website, linkedinUrl, githubUrl,
+    years, skills, education, certifications, workExperience,
+    targetRoles: splitList(targetRoles),
+  });
+
   const applyCvImport = () => {
-    if (!cvImport) return;
-    const contact = cvImport.contact;
-    if (contact.fullName) update(setName, contact.fullName);
-    if (contact.title) update(setHeadline, contact.title);
-    if (contact.location) update(setLocation, contact.location);
-    if (contact.phone) update(setPhone, contact.phone);
-    if (contact.website) update(setWebsite, contact.website);
-    if (contact.linkedin) update(setLinkedinUrl, contact.linkedin);
-    if (contact.github) update(setGithubUrl, contact.github);
-    if (cvImport.summary) update(setBio, cvImport.summary);
-    const importedSkills = Array.from(
-      new Map(
-        [...skills, ...cvImport.skills]
-          .map((skill) => skill.trim())
-          .filter(Boolean)
-          .map((skill) => [skill.toLowerCase(), skill]),
-      ).values(),
-    );
-    const skillsWereTruncated = importedSkills.length > MAX_PROFILE_SKILLS;
-    if (importedSkills.length) update(setSkills, importedSkills.slice(0, MAX_PROFILE_SKILLS));
+    if (!cvReview) return;
+    const { patch, notes } = applyImportReview(cvReview.review, snapshot());
+    if (patch.name !== undefined) update(setName, patch.name);
+    if (patch.headline !== undefined) update(setHeadline, patch.headline);
+    if (patch.location !== undefined) update(setLocation, patch.location);
+    if (patch.phone !== undefined) update(setPhone, patch.phone);
+    if (patch.bio !== undefined) update(setBio, patch.bio);
+    if (patch.website !== undefined) update(setWebsite, patch.website);
+    if (patch.linkedinUrl !== undefined) update(setLinkedinUrl, patch.linkedinUrl);
+    if (patch.githubUrl !== undefined) update(setGithubUrl, patch.githubUrl);
+    if (patch.skills) update(setSkills, patch.skills);
+    if (patch.workExperience) update(setWorkExperience, patch.workExperience);
+    if (patch.education) update(setEducation, patch.education);
+    if (patch.certifications) update(setCertifications, patch.certifications);
+    if (patch.targetRoles) update(setTargetRoles, patch.targetRoles.join(", "));
+    if (patch.years !== undefined) update(setYears, patch.years);
 
-    const importedEducation = cvImport.education.map((item) => ({
-      institution: item.school,
-      degree: item.degree,
-      fieldOfStudy: item.field,
-      startDate: item.startDate,
-      endDate: item.endDate,
-      currentlyStudying: false,
-    }));
-    if (importedEducation.length) update(setEducation, [...education, ...importedEducation]);
-
-    const importedCertifications = cvImport.certifications.map((item) => ({
-      name: item.name,
-      issuer: item.issuer,
-      issueDate: item.date,
-      expiryDate: "",
-      credentialId: "",
-      credentialUrl: item.url,
-    }));
-    if (importedCertifications.length) update(setCertifications, [...certifications, ...importedCertifications]);
-
-    const roles = splitList(cvImport.experience.map((item) => item.role).join(", "));
-    if (roles.length) update(setTargetRoles, Array.from(new Map([...splitList(targetRoles), ...roles].map((role) => [role.toLowerCase(), role])).values()).join(", "));
-    const importedExperience = cvImport.experience.map((item) => ({
-      jobTitle: item.role,
-      company: item.company,
-      location: item.location,
-      startDate: item.startDate,
-      endDate: item.endDate,
-      currentlyWorking: item.current,
-      description: item.bullets.join("\n"),
-    }));
-    if (importedExperience.length) update(setWorkExperience, [...workExperience, ...importedExperience]);
-    const years = cvImport.experience
-      .map((item) => ({ start: Date.parse(`${item.startDate || ""}-01`), end: item.current ? Date.now() : Date.parse(`${item.endDate || ""}-01`) }))
-      .filter((item) => Number.isFinite(item.start) && Number.isFinite(item.end))
-      .reduce((total, item) => total + Math.max(0, item.end - item.start), 0);
-    if (years > 0) update(setYears, String(Math.floor(years / (365.25 * 24 * 60 * 60 * 1000))));
-
-    setCvImport(null);
+    const changed = Object.keys(patch).length > 0;
+    setCvReview(null);
     setStatus({
       ok: true,
-      message: skillsWereTruncated
-        ? `CV details added. Only the first ${MAX_PROFILE_SKILLS} skills were kept; review them before saving.`
-        : "CV details added to the form. Review them, then save your changes.",
+      message: [changed ? "CV details added to the form. Review and edit them, then save your changes." : "Nothing was selected, so your profile is unchanged.", ...notes].join(" "),
     });
   };
 
@@ -387,31 +361,16 @@ function SettingsForm({ initial }: { initial: ProfileResponse }) {
           </div>
           <p className="mt-2 text-[11px] text-muted-foreground">Supported formats: PDF, DOCX · Maximum size: 5 MB</p>
           {importError && <p role="alert" className="mt-2 text-xs text-destructive">{importError}</p>}
-          {cvImport && (
-            <div className="mt-4 space-y-3 border-t border-border pt-3">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-semibold">Review extracted information</p>
-                <Button type="button" variant="ghost" size="icon" onClick={() => setCvImport(null)} aria-label="Cancel CV import">
-                  <X />
-                </Button>
-              </div>
-              <div className="grid gap-2 text-xs sm:grid-cols-2">
-                <p><span className="font-medium">Name:</span> {cvImport.contact.fullName || "Not found"}</p>
-                <p><span className="font-medium">Email:</span> {cvImport.contact.email || "Not found"}</p>
-                <p><span className="font-medium">Headline:</span> {cvImport.contact.title || "Not found"}</p>
-                <p><span className="font-medium">Location:</span> {cvImport.contact.location || "Not found"}</p>
-                <p><span className="font-medium">Skills:</span> {cvImport.skills.join(", ") || "Not found"}</p>
-                <p><span className="font-medium">Experience:</span> {cvImport.experience.length ? `${cvImport.experience.length} role(s)` : "Not found"}</p>
-                <p className="sm:col-span-2"><span className="font-medium">Summary:</span> {cvImport.summary || "Not found"}</p>
-                <p className="sm:col-span-2"><span className="font-medium">Education:</span> {cvImport.education.map((item) => [item.degree, item.field, item.school].filter(Boolean).join(" · ")).join(", ") || "Not found"}</p>
-                <p className="sm:col-span-2"><span className="font-medium">Certifications:</span> {cvImport.certifications.map((item) => [item.name, item.issuer].filter(Boolean).join(" · ")).join(", ") || "Not found"}</p>
-              </div>
-              {cvImport.warnings.length > 0 && <p className="text-[11px] text-muted-foreground">Some details may need review: {cvImport.warnings.join(" ")}</p>}
-              <div className="flex gap-2">
-                <Button type="button" onClick={applyCvImport}>Apply to Profile</Button>
-                <Button type="button" variant="ghost" onClick={() => setCvImport(null)}>Cancel</Button>
-              </div>
-            </div>
+          {cvReview && (
+            <CvImportReview
+              fileName={cvReview.fileName}
+              review={cvReview.review}
+              yearsPreview={previewYears(cvReview.review, snapshot())}
+              onToggleItem={(id, selected) => setCvReview((prev) => prev && { ...prev, review: setItemSelected(prev.review, id, selected) })}
+              onToggleSection={(section: ReviewSection, selected) => setCvReview((prev) => prev && { ...prev, review: setSectionSelected(prev.review, section, selected) })}
+              onApply={applyCvImport}
+              onCancel={() => setCvReview(null)}
+            />
           )}
         </div>
         <div className="grid gap-4 sm:grid-cols-2">

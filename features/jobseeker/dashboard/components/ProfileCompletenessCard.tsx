@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { useProfile } from "@/features/jobseeker/settings/hooks/useProfile";
+import { useProfile } from "@/features/jobseeker/profile/hooks/useProfile";
 
 const VISIBLE_ITEMS = 2;
 

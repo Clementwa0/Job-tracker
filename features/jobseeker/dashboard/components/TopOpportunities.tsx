@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useRecommendations } from "@/features/jobseeker/settings/hooks/useRecommendations";
+import { useRecommendations } from "@/features/jobseeker/profile/hooks/useRecommendations";
 import { labelize } from "@/lib/profile/options";
 
 const deadlineLabel = (daysLeft: number | null) => {

@@ -2,6 +2,7 @@
 
 import { Download, Printer, RotateCcw, Undo2, Redo2, FileDown, Palette, LayoutTemplate, Check } from "lucide-react";
 import type { ResumeData, ResumeTemplate } from "@/types/resume-builder";
+import { RESUME_TEMPLATES } from "@/constants/index";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import {
@@ -27,16 +28,11 @@ interface Props {
   savedAt?: number | null;
 }
 
-const TEMPLATES: {
-  id: ResumeTemplate;
-  label: string;
-}[] = [
-  { id: "modern", label: "Modern" },
-  { id: "classic", label: "Classic" },
-  { id: "compact", label: "Compact" },
-  { id: "executive", label: "Executive" },
-  { id: "minimal", label: "Minimal" },
-];
+const TEMPLATES = RESUME_TEMPLATES.map((template) => ({
+  id: template.id,
+  label: template.name,
+  description: template.description,
+}));
 
 const ACCENTS = [
   { hex: "#2563eb", name: "Royal Blue" },
@@ -61,7 +57,8 @@ export default function ResumeToolbar({
 }: Props) {
   const [exporting, setExporting] = useState(false);
 
-  const activeTemplateLabel = TEMPLATES.find((t) => t.id === data.template)?.label || "Select Template";
+  const activeTemplate = TEMPLATES.find((t) => t.id === data.template);
+  const activeTemplateLabel = activeTemplate?.label || "Select Template";
   const activeAccentColor = ACCENTS.find((a) => a.hex === data.accent)?.hex || "#2563eb";
 
   const exportPdf = async () => {
@@ -148,7 +145,7 @@ export default function ResumeToolbar({
               <LayoutTemplate className="h-4 w-4 text-muted-foreground" />
               <span className="text-xs font-medium">Layout: <b>{activeTemplateLabel}</b></span>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
+            <DropdownMenuContent align="start" className="w-64">
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Choose Layout</DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -159,6 +156,7 @@ export default function ResumeToolbar({
                     className="flex items-center justify-between text-xs cursor-pointer py-2"
                   >
                     {t.label}
+                    <span className="ml-2 truncate text-[10px] text-muted-foreground">{t.description}</span>
                     {data.template === t.id && <Check className="h-3.5 w-3.5 text-foreground" />}
                   </DropdownMenuItem>
                 ))}
