@@ -50,6 +50,52 @@ export interface JobseekerProfile {
   salaryCurrency: string;
 }
 
+/** Structured result of parsing an uploaded CV (server → import review UI). */
+export interface ParsedCv {
+  confidence: number;
+  warnings: string[];
+  contact: {
+    fullName: string;
+    title: string;
+    email: string;
+    phone: string;
+    location: string;
+    website: string;
+    linkedin: string;
+    github: string;
+  };
+  summary: string;
+  skills: string[];
+  experience: Array<{
+    company: string;
+    role: string;
+    location: string;
+    /** `YYYY-MM` or empty when the CV gave no usable date. */
+    startDate: string;
+    endDate: string;
+    current: boolean;
+    bullets: string[];
+  }>;
+  education: Array<{
+    school: string;
+    degree: string;
+    field: string;
+    startDate: string;
+    endDate: string;
+    /** True when the CV marks the programme as ongoing (present / expected). */
+    current: boolean;
+    notes: string;
+  }>;
+  certifications: Array<{
+    name: string;
+    issuer: string;
+    date: string;
+    url: string;
+  }>;
+  /** Only roles the CV explicitly says the candidate is seeking - never past job titles. */
+  targetRoles: string[];
+}
+
 export interface CompletenessItem {
   key: string;
   label: string;
