@@ -12,9 +12,6 @@ import {
   validateCvFile,
 } from "@/lib/profile/cvImport";
 
-// The uploaded CV is parsed in memory and never written to disk: files under
-// /public are served to anyone with the URL, and the import only needs the text.
-
 const fail = (message: string, status: number) =>
   NextResponse.json({ success: false, message }, { status });
 
@@ -26,7 +23,8 @@ export async function POST(request: Request) {
 
   const formData = await request.formData().catch(() => null);
   const file = formData?.get("file");
-  if (!file || !(file instanceof File)) return fail("No CV file provided.", 400);
+  if (!file || !(file instanceof File))
+    return fail("No CV file provided.", 400);
 
   try {
     const head = new Uint8Array(await file.slice(0, 8).arrayBuffer());
@@ -55,23 +53,44 @@ export async function POST(request: Request) {
       });
     } catch (error) {
       // Log only the error type: provider messages can echo request content.
-      console.error("CV analysis request failed:", error instanceof Error ? error.name : "unknown error");
-      throw new CvImportError("We couldn't analyze your CV right now. Please try again in a moment.", 502);
+      console.error(
+        "CV analysis request failed:",
+        error instanceof Error ? error.name : "unknown error",
+      );
+      throw new CvImportError(
+        "We couldn't analyze your CV right now. Please try again in a moment.",
+        502,
+      );
     }
 
     if (!aiResult.resume || typeof aiResult.resume !== "object") {
-      throw new CvImportError("We couldn't understand the analysis of this CV. Please try again or use another file.", 422);
+      throw new CvImportError(
+        "We couldn't understand the analysis of this CV. Please try again or use another file.",
+        422,
+      );
     }
 
-    const parsed = normalizeParsedCv(aiResult, { allowTargetRoles: hasExplicitTargetRoleStatement(text) });
+    const parsed = normalizeParsedCv(aiResult, {
+      allowTargetRoles: hasExplicitTargetRoleStatement(text),
+    });
     if (isEmptyParsedCv(parsed)) {
-      throw new CvImportError("We couldn't find any profile information in this CV. Please check the file and try again.", 422);
+      throw new CvImportError(
+        "We couldn't find any profile information in this CV. Please check the file and try again.",
+        422,
+      );
     }
 
-    return NextResponse.json({ success: true, data: { ...parsed, fileName: file.name } });
+    return NextResponse.json({
+      success: true,
+      data: { ...parsed, fileName: file.name },
+    });
   } catch (error) {
-    if (error instanceof CvImportError) return fail(error.message, error.status);
-    console.error("CV import failed:", error instanceof Error ? error.name : "unknown error");
+    if (error instanceof CvImportError)
+      return fail(error.message, error.status);
+    console.error(
+      "CV import failed:",
+      error instanceof Error ? error.name : "unknown error",
+    );
     return fail("We couldn't import this CV. Please try another file.", 422);
   }
 }
