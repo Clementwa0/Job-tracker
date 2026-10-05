@@ -1,5 +1,5 @@
-import { ResumesDashboard } from "@/features/jobseeker/resumes";
+import ResumesPage from "@/features/jobseeker/resumes/ResumesPage";
 
-export default function ResumesRoute() {
-  return <ResumesDashboard />;
+export default function Page() {
+  return <ResumesPage />;
 }

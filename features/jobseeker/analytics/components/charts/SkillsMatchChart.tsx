@@ -22,7 +22,7 @@ const SkillsMatchChart = ({ data }: { data: SkillDatum[] }) => (
     {data.length === 0 ? (
       <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-border px-4">
         <p className="text-center text-xs text-muted-foreground sm:text-sm">
-          Match a resume to a job to see top matched skills
+          Add job match details to see top matched skills
         </p>
       </div>
     ) : (

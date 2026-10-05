@@ -5,13 +5,12 @@ import {
   isValidElement,
   useEffect,
   useId,
-  useRef,
   useState,
   type FormEvent,
   type ReactElement,
   type ReactNode,
 } from "react";
-import { FileUp, Loader2, Plus, Save, Trash2, X } from "lucide-react";
+import { Loader2, Plus, Save, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,22 +21,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useProfile } from "@/features/jobseeker/profile/hooks/useProfile";
 import type { ProfileUpdate } from "@/features/jobseeker/profile/services/profile.client";
-import { importCv } from "@/features/jobseeker/profile/services/cvImport.client";
-import CvImportReview from "@/features/jobseeker/profile/components/CvImportReview";
-import {
-  applyImportReview,
-  buildImportReview,
-  MAX_PROFILE_SKILLS,
-  previewYears,
-  setItemSelected,
-  setSectionSelected,
-  type CvImportReview as CvReview,
-  type ProfileSnapshot,
-  type ReviewSection,
-} from "@/features/jobseeker/profile/lib/cvImportMerge";
 import { getApiErrorMessage } from "@/lib/apiError";
 import { JOB_TYPE_OPTIONS, WORK_MODE_OPTIONS, labelize } from "@/lib/profile/options";
 import type { CertificationEntry, EducationEntry, ProfileResponse, WorkExperienceEntry } from "@/types/profile";
+
+const MAX_PROFILE_SKILLS = 50;
 
 const splitList = (value: string): string[] =>
   [...new Map(value.split(/[,\n]/).map((v) => v.trim()).filter(Boolean).map((v) => [v.toLowerCase(), v])).values()];
@@ -190,10 +178,6 @@ function SettingsForm({ initial }: { initial: ProfileResponse }) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [status, setStatus] = useState<{ ok: boolean; message: string } | null>(null);
-  const [cvReview, setCvReview] = useState<{ fileName: string; review: CvReview } | null>(null);
-  const [isImporting, setIsImporting] = useState(false);
-  const [importError, setImportError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const update = <T,>(setter: (value: T) => void, value: T) => {
     setter(value);
@@ -210,61 +194,6 @@ function SettingsForm({ initial }: { initial: ProfileResponse }) {
     window.addEventListener("beforeunload", warnOnUnload);
     return () => window.removeEventListener("beforeunload", warnOnUnload);
   }, [isDirty]);
-
-  const handleCvFile = async (file: File) => {
-    if (!/\.(pdf|docx)$/i.test(file.name)) {
-      setImportError("Please choose a PDF or DOCX file.");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setImportError("Your CV must be 5 MB or smaller.");
-      return;
-    }
-
-    setIsImporting(true);
-    setImportError(null);
-    setCvReview(null);
-    try {
-      const parsed = await importCv(file);
-      setCvReview({ fileName: parsed.fileName, review: buildImportReview(parsed, snapshot()) });
-    } catch (error) {
-      setImportError(getApiErrorMessage(error));
-    } finally {
-      setIsImporting(false);
-    }
-  };
-
-  const snapshot = (): ProfileSnapshot => ({
-    name, headline, location, phone, bio, website, linkedinUrl, githubUrl,
-    years, skills, education, certifications, workExperience,
-    targetRoles: splitList(targetRoles),
-  });
-
-  const applyCvImport = () => {
-    if (!cvReview) return;
-    const { patch, notes } = applyImportReview(cvReview.review, snapshot());
-    if (patch.name !== undefined) update(setName, patch.name);
-    if (patch.headline !== undefined) update(setHeadline, patch.headline);
-    if (patch.location !== undefined) update(setLocation, patch.location);
-    if (patch.phone !== undefined) update(setPhone, patch.phone);
-    if (patch.bio !== undefined) update(setBio, patch.bio);
-    if (patch.website !== undefined) update(setWebsite, patch.website);
-    if (patch.linkedinUrl !== undefined) update(setLinkedinUrl, patch.linkedinUrl);
-    if (patch.githubUrl !== undefined) update(setGithubUrl, patch.githubUrl);
-    if (patch.skills) update(setSkills, patch.skills);
-    if (patch.workExperience) update(setWorkExperience, patch.workExperience);
-    if (patch.education) update(setEducation, patch.education);
-    if (patch.certifications) update(setCertifications, patch.certifications);
-    if (patch.targetRoles) update(setTargetRoles, patch.targetRoles.join(", "));
-    if (patch.years !== undefined) update(setYears, patch.years);
-
-    const changed = Object.keys(patch).length > 0;
-    setCvReview(null);
-    setStatus({
-      ok: true,
-      message: [changed ? "CV details added to the form. Review and edit them, then save your changes." : "Nothing was selected, so your profile is unchanged.", ...notes].join(" "),
-    });
-  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -329,50 +258,12 @@ function SettingsForm({ initial }: { initial: ProfileResponse }) {
         <h1 className="font-display text-xl font-semibold tracking-tight">Profile &amp; Preferences</h1>
         <p className="mt-1 text-xs text-muted-foreground">
           This powers your profile completeness and the jobs recommended to you. Skills,
-          experience and education are also read from your resumes.
+          experience and education are managed in your profile.
         </p>
       </div>
 
       <Card className="space-y-4 border-border p-5 shadow-none">
         <h2 className="font-display text-base font-semibold tracking-tight">Profile</h2>
-        <div className="rounded-lg border border-dashed border-border bg-muted/20 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium">Import your CV</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Import your CV to quickly fill your profile. You can review and edit the extracted information before saving.
-              </p>
-            </div>
-            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isImporting}>
-              {isImporting ? <Loader2 className="animate-spin" /> : <FileUp />}
-              {isImporting ? "Analyzing your CV…" : "Upload CV"}
-            </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              className="hidden"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) void handleCvFile(file);
-                event.target.value = "";
-              }}
-            />
-          </div>
-          <p className="mt-2 text-[11px] text-muted-foreground">Supported formats: PDF, DOCX · Maximum size: 5 MB</p>
-          {importError && <p role="alert" className="mt-2 text-xs text-destructive">{importError}</p>}
-          {cvReview && (
-            <CvImportReview
-              fileName={cvReview.fileName}
-              review={cvReview.review}
-              yearsPreview={previewYears(cvReview.review, snapshot())}
-              onToggleItem={(id, selected) => setCvReview((prev) => prev && { ...prev, review: setItemSelected(prev.review, id, selected) })}
-              onToggleSection={(section: ReviewSection, selected) => setCvReview((prev) => prev && { ...prev, review: setSectionSelected(prev.review, section, selected) })}
-              onApply={applyCvImport}
-              onCancel={() => setCvReview(null)}
-            />
-          )}
-        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Full name">
             <Input name="name" autoComplete="name" value={name} onChange={(e) => update(setName, e.target.value)} required maxLength={100} />

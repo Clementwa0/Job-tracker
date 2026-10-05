@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function Home() {
   return (
-    <SectionWrapper>
+    <>
       {/* Homepage Hero */}
       <section id="hero" aria-label="Hero">
         <HeroSection />
@@ -20,6 +20,6 @@ export default function Home() {
         <LandingPreview />
       </section>
 
-    </SectionWrapper>
+    </>
   );
 }

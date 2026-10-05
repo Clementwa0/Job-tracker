@@ -7,6 +7,4 @@ export { default as Analytics } from "@/features/jobseeker/analytics/AnalyticsPa
 export { default as AddJob } from "@/features/jobseeker/applications/AddApplicationPage";
 export { default as EditJob } from "@/features/jobseeker/applications/EditApplicationPage";
 export { default as Calendar } from "@/features/jobseeker/calendar/CalendarPage";
-export { default as CVReview } from "@/features/jobseeker/cv-review/CvReviewPage";
 export { default as InterviewList } from "@/features/jobseeker/interviews/InterviewsPage";
-export { default as ResumesDashboard } from "@/features/jobseeker/resumes/ResumesPage";

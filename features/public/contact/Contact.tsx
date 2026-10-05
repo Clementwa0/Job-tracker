@@ -1,66 +1,20 @@
 import {
-  BriefcaseBusiness,
   ChevronRight,
-  Handshake,
-  Mail,
-  UserRound,
-  type LucideIcon,
 } from "lucide-react";
 
 import { SectionWrapper } from "@/components/shared/public/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import ContactForm from "./ContactForm";
-
-type Topic = {
-  Icon: LucideIcon;
-  title: string;
-  copy: string;
-  email: string;
-  tone: string;
-};
-
-const topics: Topic[] = [
-  {
-    Icon: Mail,
-    title: "General",
-    copy: "Questions about JobTrail?",
-    email: "hello@jobtrail.com",
-    tone: "from-blue-500 to-indigo-500",
-  },
-  {
-    Icon: UserRound,
-    title: "Job seekers",
-    copy: "Need help finding a job?",
-    email: "support@jobtrail.com",
-    tone: "from-emerald-500 to-teal-500",
-  },
-  {
-    Icon: BriefcaseBusiness,
-    title: "Employers",
-    copy: "Post a job or find talent?",
-    email: "employers@jobtrail.com",
-    tone: "from-violet-500 to-purple-600",
-  },
-  {
-    Icon: Handshake,
-    title: "Partnerships",
-    copy: "Partner or integrate with us?",
-    email: "partnerships@jobtrail.com",
-    tone: "from-amber-500 to-orange-500",
-  },
-];
+import { topics } from ".";
 
 export default function Contact() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-background via-background to-muted/50">
-      <div className="pointer-events-none absolute -top-40 -left-40 h-[400px] w-[400px] rounded-full bg-blue-400/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 h-[400px] w-[400px] rounded-full bg-purple-400/20 blur-3xl" />
+      {/* Decorative blurs — smaller on mobile, larger on desktop */}
+      <div className="pointer-events-none absolute -left-32 -top-32 h-64 w-64 rounded-full bg-blue-400/20 blur-3xl sm:-left-40 sm:-top-40 sm:h-[400px] sm:w-[400px]" />
+      <div className="pointer-events-none absolute -bottom-32 -right-32 h-64 w-64 rounded-full bg-purple-400/20 blur-3xl sm:-bottom-40 sm:-right-40 sm:h-[400px] sm:w-[400px]" />
 
-      <SectionWrapper
-        className="relative z-10"
-        spacingClassName="py-8 sm:py-10 lg:py-14"
-      >
         {/* Heading */}
         <div className="mx-auto max-w-xl text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
@@ -73,23 +27,22 @@ export default function Contact() {
           </p>
         </div>
 
-        {/* Content */}
+        {/* Content: form first on mobile, topics first on desktop */}
         <div className="mx-auto mt-8 flex w-full max-w-4xl flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <div className="order-2 w-full lg:order-1 lg:sticky lg:top-24">
+          <div className="order-2 w-full lg:order-1 lg:sticky lg:top-24 lg:w-[320px] lg:shrink-0">
             <Topics />
           </div>
           <div className="order-1 w-full lg:order-2 lg:max-w-[420px]">
             <ContactForm />
           </div>
         </div>
-      </SectionWrapper>
     </main>
   );
 }
 
 function Topics() {
   return (
-    <Card className="w-full rounded-2xl border-border/70 bg-card/90 shadow-xl shadow-indigo-500/10 backdrop-blur-xl lg:w-[320px] lg:shrink-0">
+    <Card className="w-full rounded-2xl border-border/70 bg-card/90 shadow-xl shadow-indigo-500/10 backdrop-blur-xl">
       <CardHeader className="border-b border-border px-4 py-3">
         <CardTitle className="text-sm font-semibold text-card-foreground">
           How can we help?

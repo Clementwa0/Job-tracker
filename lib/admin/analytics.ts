@@ -1,9 +1,12 @@
 import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { auditLogs, companies, jobPostings, jobs, users } from "@/lib/db/schema";
+import { toAppRole } from "@/lib/auth/roles";
 import type { AdminAnalytics, AdminAnalyticsCharts, AdminAnalyticsOverview, AdminAnalyticsPeriod } from "@/types/admin";
 
 const PERIOD_DAYS: Record<AdminAnalyticsPeriod, number> = { "7d": 7, "30d": 30, "90d": 90, "12m": 365, all: 36500 };
+
+const STATUS_LABELS: Record<string, string> = { published: "Published", pending_review: "Pending review", draft: "Draft", closed: "Closed" };
 
 function countBy(values: string[]) {
   const counts: Record<string, number> = {};
@@ -50,7 +53,8 @@ export async function getAdminAnalytics(): Promise<AdminAnalytics> {
     db.select({ count: sql<number>`count(*)::int` }).from(jobs),
     db.select().from(auditLogs).orderBy(desc(auditLogs.createdAt)).limit(10),
   ]);
-  const byRole = countBy(userRows.map((row) => row.role));
+  // The DB calls jobseekers "jobseeker"; the rest of the app (and this API's consumers) says "user".
+  const byRole = countBy(userRows.map((row) => toAppRole(row.role)));
   const byJobStatus = countBy(jobRows.map((row) => row.status));
   const byCompanyStatus = countBy(companyRows.map((row) => row.status));
   return {
@@ -70,11 +74,12 @@ export async function getAdminCharts(period: AdminAnalyticsPeriod): Promise<Admi
     db.select({ createdAt: users.createdAt }).from(users).where(and(eq(users.role, "employer"), gte(users.createdAt, since))),
   ]);
   const top = (values: string[]) => Object.entries(countBy(values)).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, count]) => ({ name, count }));
-  const daily = (dates: (Date | null)[]) => top(dates.map((date) => date?.toISOString().slice(0, 10) ?? "")).sort((a, b) => a.name.localeCompare(b.name)).map(({ name, count }) => ({ date: name, count }));
-  const statuses = top(jobRows.map((row) => row.status));
+  // Every day in the period, oldest first - not `top()`, which keeps only the 5 busiest.
+  const daily = (dates: (Date | null)[]) => Object.entries(countBy(dates.map((date) => date?.toISOString().slice(0, 10) ?? ""))).sort(([a], [b]) => a.localeCompare(b)).map(([date, count]) => ({ date, count }));
+  const statuses = Object.entries(countBy(jobRows.map((row) => row.status)));
   return {
     period,
-    jobStatusDistribution: statuses.map(({ name, count }) => ({ name, value: count, status: name })),
+    jobStatusDistribution: statuses.map(([status, value]) => ({ name: STATUS_LABELS[status] ?? status, value, status })),
     jobsOverTime: daily(jobRows.map((row) => row.createdAt)),
     userGrowth: daily(userRows.map((row) => row.createdAt)).map(({ date, count }) => ({ period: date, count })),
     employerGrowth: daily(employerRows.map((row) => row.createdAt)).map(({ date, count }) => ({ period: date, count })),

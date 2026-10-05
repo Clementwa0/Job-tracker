@@ -2,6 +2,8 @@ import axiosInstance from "@/lib/axiosInstance";
 import type { ApiSuccessResponse } from "@/types/api";
 import type {
   AdminAnalytics,
+  AdminApplication,
+  AdminListSummary,
   AdminAnalyticsCharts,
   AdminAnalyticsOverview,
   AdminAnalyticsPeriod,
@@ -22,16 +24,26 @@ export interface ListUsersParams {
 
 export interface ListJobsParams {
   status?: string;
-  createdBy?: string;
+  q?: string;
   page?: number;
   limit?: number;
 }
 
 export interface ListCompaniesParams {
   status?: string;
+  q?: string;
   page?: number;
   limit?: number;
 }
+
+export interface ListApplicationsParams {
+  status?: string;
+  q?: string;
+  page?: number;
+  limit?: number;
+}
+
+type ListResponse<T> = ApiSuccessResponse<T[]> & { meta: PaginatedMeta; summary?: AdminListSummary };
 
 export const adminService = {
   async getAnalytics(): Promise<AdminAnalytics> {
@@ -79,10 +91,8 @@ export const adminService = {
   },
 
   async listJobs(params?: ListJobsParams) {
-    const { data } = await axiosInstance.get<
-      ApiSuccessResponse<AdminJobPosting[]> & { meta: PaginatedMeta }
-    >("/admin/jobs", { params });
-    return { jobs: data.data ?? [], meta: data.meta };
+    const { data } = await axiosInstance.get<ListResponse<AdminJobPosting>>("/admin/jobs", { params });
+    return { jobs: data.data ?? [], meta: data.meta, summary: data.summary ?? {} };
   },
 
   async approveJob(id: string) {
@@ -107,11 +117,16 @@ export const adminService = {
     return data.data;
   },
 
+  async reopenJob(id: string) {
+    const { data } = await axiosInstance.patch<ApiSuccessResponse<AdminJobPosting>>(
+      `/admin/jobs/${id}/reopen`,
+    );
+    return data.data;
+  },
+
   async listCompanies(params?: ListCompaniesParams) {
-    const { data } = await axiosInstance.get<
-      ApiSuccessResponse<AdminCompany[]> & { meta: PaginatedMeta }
-    >("/admin/companies", { params });
-    return { companies: data.data ?? [], meta: data.meta };
+    const { data } = await axiosInstance.get<ListResponse<AdminCompany>>("/admin/companies", { params });
+    return { companies: data.data ?? [], meta: data.meta, summary: data.summary ?? {} };
   },
 
   async updateCompanyStatus(id: string, status: "pending" | "approved" | "suspended") {
@@ -120,6 +135,11 @@ export const adminService = {
       { status },
     );
     return data.data;
+  },
+
+  async listApplications(params?: ListApplicationsParams) {
+    const { data } = await axiosInstance.get<ListResponse<AdminApplication>>("/admin/applications", { params });
+    return { applications: data.data ?? [], meta: data.meta };
   },
 
   async listAuditLogs(params?: { page?: number; limit?: number }) {

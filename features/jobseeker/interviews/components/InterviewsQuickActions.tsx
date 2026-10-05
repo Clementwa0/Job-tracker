@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 
 const SECONDARY_ACTIONS = [
   { href: "/jobseeker/settings", label: "Update Availability", icon: CalendarClock },
-  { href: "/jobseeker/cv-review", label: "Interview Preparation", icon: ClipboardList },
   { href: "/jobseeker/calendar", label: "View Calendar", icon: CalendarClock },
 ];
 

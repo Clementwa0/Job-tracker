@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import { AuthProvider } from "@/features/auth/hooks/AuthContext";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { Inter, Roboto } from "next/font/google";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +35,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>{children}</AuthProvider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

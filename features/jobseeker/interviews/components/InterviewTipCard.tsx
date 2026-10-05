@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { Lightbulb, ArrowRight } from "lucide-react";
+import { Lightbulb } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const InterviewTipCard = () => {
@@ -16,13 +15,6 @@ const InterviewTipCard = () => {
         Research the company, practice common questions, and be ready to showcase your skills and experience.
       </p>
 
-      <Link
-        href="/jobseeker/cv-review"
-        className="mt-4 flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
-      >
-        View Full Guide
-        <ArrowRight className="h-3.5 w-3.5" />
-      </Link>
     </Card>
   );
 };

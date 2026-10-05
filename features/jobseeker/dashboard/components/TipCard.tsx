@@ -10,9 +10,9 @@ import { toast } from "sonner";
 import { tipService, type Tip } from "@/features/jobseeker/dashboard/services/tip.client";
 
 const fallbackTip: Tip = {
-  title: "Tailor your resume",
+  title: "Tailor each application",
   description:
-    "Mirror keywords from the job description in your resume. Recruiters scan quickly-make it count.",
+    "Mirror relevant keywords from the job description in your application. Recruiters scan quickly-make it count.",
 };
 
 const TipCard = () => {

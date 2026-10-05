@@ -18,9 +18,6 @@ async function resolveFileField(
 
 async function resolveJobFiles(job: Partial<Job>): Promise<Partial<Job>> {
   const resolved = { ...job };
-  if (job.resumeFile !== undefined) {
-    resolved.resumeFile = (await resolveFileField(job.resumeFile)) ?? null;
-  }
   if (job.coverLetterFile !== undefined) {
     resolved.coverLetterFile = (await resolveFileField(job.coverLetterFile)) ?? null;
   }

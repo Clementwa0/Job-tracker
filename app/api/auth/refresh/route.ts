@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { adminUsers, sessions, users } from "@/lib/db/schema";
+import { adminUsers, employerProfiles, sessions, users } from "@/lib/db/schema";
 import { getRefreshCookie, setRefreshCookie, clearRefreshCookie } from "@/lib/auth/cookies";
 import {
   verifyRefreshToken,
@@ -12,6 +12,12 @@ import {
 } from "@/lib/auth/jwt";
 import { sha256 } from "@/lib/auth/hash";
 import { toAppRole } from "@/lib/auth/roles";
+import {
+  fromAdminRow,
+  fromUserRow,
+  serializeUser,
+  type SerializableUser,
+} from "@/lib/auth/serializeUser";
 import { isUuid } from "@/lib/uuid";
 
 export async function POST() {
@@ -48,7 +54,7 @@ export async function POST() {
       return NextResponse.json({ success: false, message: "Session expired." }, { status: 401 });
     }
 
-    let subject: { id: string; role: TokenPayload["role"]; suspended: boolean } | null;
+    let subject: { id: string; role: TokenPayload["role"]; suspended: boolean; account: SerializableUser } | null;
     if (isAdmin) {
       const [admin] = await db
         .select()
@@ -56,7 +62,12 @@ export async function POST() {
         .where(eq(adminUsers.id, payload.sub))
         .limit(1);
       subject = admin
-        ? { id: admin.id, role: "admin", suspended: admin.accountStatus === "suspended" }
+        ? {
+            id: admin.id,
+            role: "admin",
+            suspended: admin.accountStatus === "suspended",
+            account: fromAdminRow(admin),
+          }
         : null;
     } else {
       const [user] = await db
@@ -64,8 +75,22 @@ export async function POST() {
         .from(users)
         .where(eq(users.id, payload.sub))
         .limit(1);
+      let employerCompanyId: string | null = null;
+      if (user && toAppRole(user.role) === "employer") {
+        const [profile] = await db
+          .select({ companyId: employerProfiles.companyId })
+          .from(employerProfiles)
+          .where(eq(employerProfiles.userId, user.id))
+          .limit(1);
+        employerCompanyId = profile?.companyId ?? null;
+      }
       subject = user
-        ? { id: user.id, role: toAppRole(user.role), suspended: user.accountStatus === "suspended" }
+        ? {
+            id: user.id,
+            role: toAppRole(user.role),
+            suspended: user.accountStatus === "suspended",
+            account: fromUserRow(user, employerCompanyId),
+          }
         : null;
     }
 
@@ -89,7 +114,10 @@ export async function POST() {
 
     await setRefreshCookie(newRefreshToken);
 
-    return NextResponse.json({ success: true, data: { token: newAccessToken } });
+    return NextResponse.json({
+      success: true,
+      data: { token: newAccessToken, user: serializeUser(subject.account) },
+    });
   } catch {
     await clearRefreshCookie();
     return NextResponse.json({ success: false, message: "Invalid session." }, { status: 401 });

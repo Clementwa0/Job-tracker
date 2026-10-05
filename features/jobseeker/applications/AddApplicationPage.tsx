@@ -33,7 +33,6 @@ const INITIAL_JOB: Job = {
   jobPostingUrl: "",
   notes: "",
   interviews: [] as Interview[],
-  resumeFile: null,
   salaryRange: "",
   companyLogo: "",
   workMode: "",

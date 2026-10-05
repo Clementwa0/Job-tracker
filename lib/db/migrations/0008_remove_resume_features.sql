@@ -1,0 +1,2 @@
+ALTER TABLE "jobs" DROP COLUMN IF EXISTS "resume_file";
+DROP TABLE IF EXISTS "resumes" CASCADE;

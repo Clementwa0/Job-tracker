@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import {
-  FileUp,
   ListChecks,
   Search,
   UserRound,
@@ -21,11 +20,6 @@ const ACTIONS = [
     href: "/jobseeker/applications",
     label: "Applications",
     icon: ListChecks,
-  },
-  {
-    href: "/jobseeker/resumes",
-    label: "Upload Resume",
-    icon: FileUp,
   },
   {
     href: "/jobseeker/settings",

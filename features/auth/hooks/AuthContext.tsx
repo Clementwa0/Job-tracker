@@ -9,14 +9,20 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import axiosInstance from "@/lib/axiosInstance";
-import { tokenStorage } from "@/lib/security/tokenStorage";
-import { userStorage } from "@/lib/security/userStorage";
-import { roleStorage } from "@/lib/auth/roleStorage";
+import { authService } from "@/lib/auth/authService";
 import { authEvents } from "@/lib/auth/authEvents";
-import { adminAuthService } from "@/features/admin/services/adminAuthService";
-import type { LoginRequest, User } from "@/types/auth";
+import {
+  clearAccessToken,
+  purgeLegacyAuthStorage,
+  setAccessToken,
+} from "@/lib/auth/session";
+import type { User } from "@/types/auth";
 
+/**
+ * The single client-side source of truth for authentication. Everything in the
+ * UI reads the session through `useAuth()`; nothing is persisted in browser
+ * storage (see lib/auth/session.ts for the token strategy).
+ */
 interface AuthContextValue {
   /** The signed-in user, or null. Populated for all three roles (user, employer, admin). */
   user: User | null;
@@ -27,8 +33,8 @@ interface AuthContextValue {
   logout: () => Promise<void>;
   /** Admin-only email/password login. Never usable for jobseeker/employer accounts. */
   loginAdmin: (email: string, password: string) => Promise<User>;
-  /** Persists a freshly-issued session (used by the Google SSO flow after sign-in). */
-  setSession: (user: User, token: string) => void;
+  /** Google SSO login for jobseekers ("user") and employers. Resolves with the signed-in user. */
+  loginWithGoogle: (idToken: string, role: "user" | "employer") => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -38,38 +44,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const clearSession = useCallback(() => {
-    tokenStorage.removeToken();
-    userStorage.clear();
-    roleStorage.clear();
+    clearAccessToken();
     setUser(null);
   }, []);
 
-  const setSession = useCallback((nextUser: User, token: string) => {
-    tokenStorage.setToken(token);
-    userStorage.set(nextUser);
+  const startSession = useCallback((nextUser: User, token: string) => {
+    setAccessToken(token);
     setUser(nextUser);
   }, []);
 
-  // On mount, silently try to restore the session from the httpOnly refresh
-  // cookie. This is the only trustworthy signal that a session still
-  // exists - the cached user below is just for an instant, optimistic UI.
+  // On mount, restore the session from the httpOnly refresh cookie. The server
+  // is the only source of truth: a valid cookie yields a fresh access token and
+  // the current user; anything else means signed out.
   useEffect(() => {
     let cancelled = false;
+    purgeLegacyAuthStorage();
 
     async function restoreSession() {
-      const cachedUser = userStorage.get();
-      if (cachedUser) setUser(cachedUser);
-
       try {
-        const { data } = await axiosInstance.post("/auth/refresh");
-        const token = data?.data?.token as string | undefined;
+        const { user: restored } = await authService.refresh();
         if (cancelled) return;
-
-        if (token) {
-          tokenStorage.setToken(token);
-        } else {
-          clearSession();
-        }
+        if (restored) setUser(restored);
+        else clearSession();
       } catch {
         if (!cancelled) clearSession();
       } finally {
@@ -81,8 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
-  }, []);
+  }, [clearSession]);
 
   // The axios interceptor emits this when a request comes back 401 and the
   // refresh attempt itself fails, so the whole app can react consistently.
@@ -90,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await axiosInstance.post("/auth/logout");
+      await authService.logout();
     } finally {
       clearSession();
     }
@@ -98,13 +93,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginAdmin = useCallback(
     async (email: string, password: string) => {
-      const credentials: LoginRequest = { email, password };
-      const response = await adminAuthService.login(credentials);
-      setSession(response.data.user, response.data.token);
-      roleStorage.set("admin");
+      const response = await authService.adminLogin({ email, password });
+      startSession(response.data.user, response.data.token);
       return response.data.user;
     },
-    [setSession],
+    [startSession],
+  );
+
+  const loginWithGoogle = useCallback(
+    async (idToken: string, role: "user" | "employer") => {
+      const response = await authService.googleSignIn(idToken, role);
+      startSession(response.data.user, response.data.token);
+      return response.data.user;
+    },
+    [startSession],
   );
 
   const value = useMemo<AuthContextValue>(
@@ -114,9 +116,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       logout,
       loginAdmin,
-      setSession,
+      loginWithGoogle,
     }),
-    [user, isLoading, logout, loginAdmin, setSession],
+    [user, isLoading, logout, loginAdmin, loginWithGoogle],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

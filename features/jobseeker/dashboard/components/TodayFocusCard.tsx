@@ -6,7 +6,6 @@ import { CalendarCheck2, ChevronRight, FileSearch, MailQuestion, Sparkles } from
 import { Card } from "@/components/ui/card";
 import { useJobs } from "@/features/jobseeker/jobs/hooks/JobContext";
 import { useInterviews } from "@/features/jobseeker/interviews/hooks/useInterviews";
-import { useResumesIndex } from "@/features/jobseeker/resumes/hooks/useResumes";
 import { isPopulatedJobId } from "@/types/interview";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -24,7 +23,6 @@ type Tile = {
 const TodayFocusCard = () => {
   const { jobs } = useJobs();
   const { interviews } = useInterviews();
-  const { items: resumes } = useResumesIndex();
 
   const tiles = useMemo<Tile[]>(() => {
     const now = Date.now();
@@ -80,30 +78,8 @@ const TodayFocusCard = () => {
       cta: "View Jobs",
     });
 
-    if (resumes.length === 0) {
-      out.push({
-        key: "cv",
-        icon: Sparkles,
-        iconClass: "bg-gold/15 text-gold-foreground dark:text-gold",
-        title: "Build your CV",
-        subtitle: "Get an ATS-ready resume",
-        href: "/jobseeker/resumes",
-        cta: "Build CV",
-      });
-    } else {
-      out.push({
-        key: "cv",
-        icon: Sparkles,
-        iconClass: "bg-gold/15 text-gold-foreground dark:text-gold",
-        title: "Check your CV health",
-        subtitle: "Improve your ATS score",
-        href: "/jobseeker/cv-review",
-        cta: "Improve CV",
-      });
-    }
-
     return out.slice(0, 4);
-  }, [jobs, interviews, resumes]);
+  }, [jobs, interviews]);
 
   return (
     <Card className="border-border p-4 shadow-none">

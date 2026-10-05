@@ -383,7 +383,6 @@ const DUPLICATED_FIELDS = [
   "contactEmail",
   "contactPhone",
   "recruiterLinkedIn",
-  "resumeFile",
   "coverLetterFile",
   "jobPostingUrl",
   "jobDescription",

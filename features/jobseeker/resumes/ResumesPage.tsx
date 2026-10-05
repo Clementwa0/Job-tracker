@@ -1,276 +1,173 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, FilePlus2, Copy, Trash2, Pencil, Search, FileText, MoreVertical, Check, X } from "lucide-react";
-import { useResumesIndex } from "@/features/jobseeker/resumes/hooks/useResumes";
-import { toast } from "@/hooks/use-toast";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { Check, Copy, FilePlus2, FileUp, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { ResumeImportPanel } from "./components";
+import { Card } from "@/components/ui/card";
+import axiosInstance from "@/lib/axiosInstance";
+import { getApiErrorMessage } from "@/lib/apiError";
+import { ScaledResume } from "@/features/jobseeker/resumes/components/templates";
+import { scoreResume } from "@/lib/resume/ats";
+import { useResumes } from "@/lib/resume/storage";
+import { EMPTY_RESUME, SAMPLE_RESUME, TEMPLATES, normalizeResume, type ResumeData } from "@/lib/resume/types";
+import type { ApiSuccessResponse } from "@/types/api";
 
-export default function ResumesDashboard() {
-  const { items, createBlank, createFromData, duplicate, rename, remove } = useResumesIndex();
-  const [query, setQuery] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editName, setEditName] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+const IMPORT_STAGES = [
+  "Reading CV...",
+  "Understanding your experience...",
+  "Improving resume content...",
+  "Optimizing for ATS...",
+  "Preparing your resume...",
+] as const;
+
+type ImportResponse = ApiSuccessResponse<Record<string, unknown>> & {
+  improvements?: { experience?: boolean; summary?: boolean; skills?: boolean };
+};
+
+export default function ResumesPage() {
+  const { resumes, ready, create, remove, duplicate } = useResumes();
   const router = useRouter();
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [importing, setImporting] = useState(false);
+  const [stage, setStage] = useState(0);
 
-  const filtered = useMemo(() => {
-    if (!query) return items;
-    const q = query.toLowerCase();
-    return items.filter((m) => m.name.toLowerCase().includes(q));
-  }, [items, query]);
+  // The import is a single request, so the stages advance on a timer and hold on the last one until it returns.
+  useEffect(() => {
+    if (!importing) return;
+    const timer = window.setInterval(() => setStage((current) => Math.min(current + 1, IMPORT_STAGES.length - 1)), 2500);
+    return () => window.clearInterval(timer);
+  }, [importing]);
 
-  const newBlank = async () => {
-    const meta = await createBlank("Untitled resume");
-    if (meta) router.push(`/jobseeker/resumes/${meta.id}`);
+  const start = (sample: boolean, template = SAMPLE_RESUME.template) => {
+    const selected = TEMPLATES.find((item) => item.id === template)!;
+    const base = sample
+      ? { ...SAMPLE_RESUME, template, accent: selected.accent }
+      : { ...EMPTY_RESUME, template, accent: selected.accent };
+    const id = create(base, sample ? `${selected.name} resume` : "Untitled resume");
+    router.push(`/jobseeker/resumes/${id}`);
   };
 
-  const handleStartRename = (id: string, currentName: string) => {
-    setEditingId(id);
-    setEditName(currentName);
-  };
-
-  const handleSaveRename = (id: string) => {
-    if (editName.trim()) {
-      rename(id, editName.trim());
-      toast({ title: "Renamed", description: "Your resume name was updated." });
+  const importResume = async (file?: File) => {
+    if (!file) return;
+    if (!/\.(pdf|docx|txt)$/i.test(file.name)) {
+      toast.error("Choose a PDF, DOCX, or TXT file.");
+      return;
     }
-    setEditingId(null);
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Resume files must be 5 MB or smaller.");
+      return;
+    }
+
+    setStage(0);
+    setImporting(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const response = await axiosInstance.post<ImportResponse>("/resumes/import", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const resume = normalizeResume(response.data.data as Partial<ResumeData> & Record<string, unknown>);
+      const baseName = file.name.replace(/\.[^.]+$/, "").trim() || "Imported resume";
+      const id = create(resume, baseName);
+      const { improvements } = response.data;
+      const summary = [
+        improvements?.experience && "✓ Experience improved",
+        improvements?.summary && "✓ Summary improved",
+        improvements?.skills && "✓ Skills organized",
+        `✓ ATS check complete (score ${scoreResume(resume).score}/100)`,
+      ].filter(Boolean).join("\n");
+      toast.success("Resume imported. Review the details before downloading.", {
+        description: <span className="whitespace-pre-line">{summary}</span>,
+        duration: 10_000,
+      });
+      router.push(`/jobseeker/resumes/${id}`);
+    } catch (error) {
+      toast.error(getApiErrorMessage(error), { action: { label: "Retry", onClick: () => void importResume(file) } });
+    } finally {
+      setImporting(false);
+      if (fileInput.current) fileInput.current.value = "";
+    }
   };
 
   return (
-    <div>
-      <div className="mx-auto max-w-6xl space-y-6">
-
-        {/* Header */}
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-5">
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">My Resumes</h1>
-            <p className="text-sm text-muted-foreground dark:text-muted-foreground mt-1">
-              Create, tailor, and version multiple ATS-friendly resumes.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <div className="relative w-full sm:w-64">
-              <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground dark:text-muted-foreground" />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search resumes..."
-                aria-label="Search resumes"
-                className="pl-9 h-10 text-sm bg-card border-border shadow-xs"
-              />
-            </div>
-            <Button onClick={newBlank} size="sm" className="h-10 font-medium text-sm gap-1.5 shadow-xs shrink-0">
-              <Plus className="h-4 w-4 stroke-[2.5]" /> New Resume
-            </Button>
-          </div>
-        </header>
-
-        {/* Import panel */}
-        <div className="rounded-2xl border border-border/80 bg-card/40 p-1 shadow-xs bg-card/30 backdrop-blur-xs">
-          <ResumeImportPanel
-            onParsed={async (resume, meta) => {
-              const created = await createFromData(resume, meta.fileName.replace(/\.[^.]+$/, ""));
-              if (created) router.push(`/jobseeker/resumes/${created.id}`);
-            }}
-          />
+    <main className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6 sm:py-10">
+      <section className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="max-w-2xl">
+          <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">Resume builder</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Create, edit, and download resumes with six professional templates and a built-in ATS checklist.
+          </p>
         </div>
+        <div className="flex flex-wrap gap-2">
+          <input ref={fileInput} type="file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" className="hidden" onChange={(event) => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ""; void importResume(file); }} />
+          <Button variant="outline" onClick={() => fileInput.current?.click()} disabled={importing}>{importing ? <Loader2 className="animate-spin" /> : <FileUp />}{importing ? "Importing…" : "Import a resume"}</Button>
+          <Button onClick={() => start(false)}><FilePlus2 /> Create a resume</Button>
+        </div>
+      </section>
 
-        {/* Grid */}
-        {filtered.length === 0 ? (
-          <EmptyState onCreate={newBlank} isSearchFiltered={!!query} />
-        ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((m) => (
-              <article
-                key={m.id}
-                className="group relative flex flex-col justify-between rounded-xl border border-border bg-card p-4.5 shadow-xs transition-all duration-200 hover:border-muted-foreground/40 hover:shadow-md"
-              >
-                <div className="space-y-3.5">
-                  <div className="flex items-start justify-between gap-2">
-                    {/* Card body */}
-                    {editingId === m.id ? (
-                      <div
-                        className="flex items-center gap-1.5 flex-1 min-w-0"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground bg-card">
-                          <FileText className="h-5 w-5" />
-                        </div>
-                        <Input
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          className="h-10 text-sm px-2"
-                          autoFocus
-                          aria-label="Resume name"
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") handleSaveRename(m.id);
-                            if (e.key === "Escape") setEditingId(null);
-                          }}
-                        />
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          aria-label="Save name"
-                          className="h-10 w-10 text-emerald-600"
-                          onClick={() => handleSaveRename(m.id)}
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          aria-label="Cancel rename"
-                          className="h-10 w-10 text-destructive"
-                          onClick={() => setEditingId(null)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <Link href={`/jobseeker/resumes/${m.id}`} className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                          <FileText className="h-5 w-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="truncate text-sm font-semibold tracking-tight text-foreground">
-                            {m.name}
-                          </h3>
-                          <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5">
-                            Updated {new Date(m.updatedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                          </p>
-                        </div>
-                      </Link>
-                    )}
-
-                    {/* Row actions */}
-                    {editingId !== m.id && (
-                      <div className="shrink-0">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            render={
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                aria-label={`More actions for ${m.name}`}
-                                className="h-10 w-10 text-muted-foreground hover:text-foreground dark:text-muted-foreground"
-                              />
-                            }
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-40">
-                            <DropdownMenuItem onClick={() => handleStartRename(m.id, m.name)} className="text-sm cursor-pointer gap-2">
-                              <Pencil className="h-4 w-4 text-muted-foreground" /> Rename
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={async () => {
-                                const created = await duplicate(m.id);
-                                if (created) toast({ title: "Duplicated", description: `Created copy: ${created.name}` });
-                              }}
-                              className="text-sm cursor-pointer gap-2"
-                            >
-                              <Copy className="h-4 w-4 text-muted-foreground" /> Duplicate
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => setDeleteTarget({ id: m.id, name: m.name })}
-                              className="text-sm cursor-pointer text-destructive focus:bg-destructive/10 gap-2"
-                            >
-                              <Trash2 className="h-4 w-4" /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-4 border-t border-border pt-3 border-border/50 flex items-center justify-end">
-                  <Link href={`/jobseeker/resumes/${m.id}`} className="text-xs font-semibold text-primary hover:underline">
-                    Open builder →
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Delete confirmation */}
-      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this resume?</AlertDialogTitle>
-            <AlertDialogDescription>
-              “{deleteTarget?.name}” will be removed. This can&apos;t be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={async () => {
-                if (deleteTarget) await remove(deleteTarget.id);
-                setDeleteTarget(null);
-              }}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
-}
-
-interface EmptyStateProps {
-  onCreate: () => void;
-  isSearchFiltered: boolean;
-}
-
-function EmptyState({ onCreate, isSearchFiltered }: EmptyStateProps) {
-  return (
-    <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center shadow-xs max-w-md mx-auto my-8">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-muted-foreground bg-card dark:text-muted-foreground">
-        <FilePlus2 className="h-6 w-6" />
-      </div>
-      <h3 className="mt-4 text-base font-semibold text-foreground">
-        {isSearchFiltered ? "No resumes match your search" : "No resumes yet"}
-      </h3>
-      <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground max-w-xs mx-auto leading-normal">
-        {isSearchFiltered
-          ? "Try a different search, or clear the box to see everything."
-          : "Start a blank resume or import an existing one to get going."}
-      </p>
-      {!isSearchFiltered && (
-        <Button onClick={onCreate} size="sm" className="mt-5 h-10 font-medium text-sm gap-1.5">
-          <Plus className="h-4 w-4 stroke-[2.5]" /> Create your first resume
-        </Button>
+      {importing && (
+        <div role="status" aria-live="polite" className="fixed inset-0 z-50 grid place-items-center bg-background/80 px-4 backdrop-blur-sm">
+          <Card className="w-full max-w-sm space-y-3 p-6 shadow-lg">
+            <h2 className="font-display text-lg font-semibold">Rebuilding your resume</h2>
+            <ul className="space-y-2 text-sm">
+              {IMPORT_STAGES.map((label, index) => (
+                <li key={label} className={`flex items-center gap-2 ${index > stage ? "text-muted-foreground/60" : ""}`}>
+                  {index < stage ? <Check className="size-4 text-success" /> : index === stage ? <Loader2 className="size-4 animate-spin text-primary" /> : <span className="size-4" />}
+                  {label}
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </div>
       )}
-    </div>
+
+      {ready && resumes.length > 0 && (
+        <section>
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Your resumes</h2>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {resumes.map((resume) => {
+              const id = resume.meta!.id;
+              return (
+                <Card key={id} className="overflow-hidden border-border p-3 shadow-none">
+                  <Link href={`/jobseeker/resumes/${id}`} className="resume-paper block overflow-hidden rounded-md shadow-md transition-transform hover:-translate-y-0.5">
+                    <ScaledResume data={resume} width={420} />
+                  </Link>
+                  <div className="flex items-start justify-between gap-2 px-1 pt-3">
+                    <Link href={`/jobseeker/resumes/${id}`} className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold">{resume.meta!.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {TEMPLATES.find((template) => template.id === resume.template)?.name} · Updated {new Date(resume.meta!.updatedAt).toLocaleDateString()}
+                      </span>
+                    </Link>
+                    <div className="flex shrink-0">
+                      <Button size="icon-sm" variant="ghost" aria-label={`Duplicate ${resume.meta!.name}`} onClick={() => duplicate(id)}><Copy /></Button>
+                      <Button size="icon-sm" variant="ghost" aria-label={`Delete ${resume.meta!.name}`} onClick={() => { if (window.confirm("Delete this resume?")) remove(id); }}><Trash2 /></Button>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      <section>
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Start with a template</h2>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {TEMPLATES.map((template) => (
+            <button key={template.id} onClick={() => start(true, template.id)} className="group min-w-0 text-left">
+              <div className="resume-paper overflow-hidden rounded-md shadow-md transition-transform group-hover:-translate-y-0.5">
+                <ScaledResume data={{ ...SAMPLE_RESUME, template: template.id, accent: template.accent }} width={420} />
+              </div>
+              <span className="mt-3 block font-display text-lg font-semibold">{template.name}</span>
+              <span className="text-sm text-muted-foreground">{template.tagline}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+    </main>
   );
 }

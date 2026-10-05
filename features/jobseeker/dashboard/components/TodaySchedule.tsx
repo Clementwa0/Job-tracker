@@ -8,7 +8,6 @@ import {
   Mail,
   Plus,
   Search,
-  FileUp,
   Zap,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -144,13 +143,6 @@ const TodaySchedule = () => {
           >
             <Plus className="h-3.5 w-3.5" />
             Add Application
-          </Link>
-          <Link
-            href="/jobseeker/resumes"
-            className="flex items-center justify-center gap-1.5 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium hover:bg-muted"
-          >
-            <FileUp className="h-3.5 w-3.5" />
-            Upload Resume
           </Link>
         </div>
       </div>

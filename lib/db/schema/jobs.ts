@@ -68,7 +68,6 @@ export const jobs = pgTable(
     contactPhone: text("contact_phone").notNull().default(""),
     recruiterLinkedIn: text("recruiter_linkedin").notNull().default(""),
 
-    resumeFile: text("resume_file"),
     coverLetterFile: text("cover_letter_file"),
 
     jobPostingUrl: text("job_posting_url").notNull().default(""),

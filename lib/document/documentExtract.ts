@@ -14,10 +14,11 @@ export async function extractPdfText(file: File): Promise<string> {
   const pdf = await pdfjs.getDocument({ data: buf }).promise;
   let text = "";
 
-  for (let p = 1; p <= pdf.numPages; p++) {
+  for (let p = 1; p <= Math.min(pdf.numPages, 15); p++) {
     const page = await pdf.getPage(p);
     const content = await page.getTextContent();
     text += content.items.map((it) => ("str" in it ? it.str : "")).join(" ") + "\n\n";
+    if (text.length >= 30_000) break;
   }
 
   return text.trim();

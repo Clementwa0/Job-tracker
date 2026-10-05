@@ -9,7 +9,6 @@ import { interviews } from "./interviews";
 import { jobPostings } from "./job-postings";
 import { jobActivity, jobAttachments, jobReminders, jobs } from "./jobs";
 import { notifications } from "./notifications";
-import { resumes } from "./resumes";
 import { savedJobs } from "./saved-jobs";
 import { sessions } from "./sessions";
 import { userAccounts } from "./user-accounts";
@@ -31,7 +30,6 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   jobs: many(jobs),
   savedJobs: many(savedJobs),
   interviews: many(interviews),
-  resumes: many(resumes),
   notifications: many(notifications),
   createdCompanies: many(companies),
   createdJobPostings: many(jobPostings),
@@ -165,13 +163,6 @@ export const interviewsRelations = relations(interviews, ({ one }) => ({
   job: one(jobs, {
     fields: [interviews.jobId],
     references: [jobs.id],
-  }),
-}));
-
-export const resumesRelations = relations(resumes, ({ one }) => ({
-  user: one(users, {
-    fields: [resumes.userId],
-    references: [users.id],
   }),
 }));
 

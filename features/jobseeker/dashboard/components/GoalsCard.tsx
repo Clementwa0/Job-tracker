@@ -13,7 +13,7 @@ const GoalsCard = () => {
   const goals = useMemo(() => {
     return [
       { label: "Apply to 5 jobs this week", done: stats.appliedLast7Days >= 5 },
-      { label: "Update CV and portfolio", done: false },
+      { label: "Update profile and portfolio", done: false },
       {
         label: stats.interviews > 0 ? "Prepare for your interview" : "Book a mock interview",
         done: false,

@@ -52,27 +52,6 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
     ],
   },
   {
-    id: "resumes",
-    title: "Resumes & CV review",
-    items: [
-      {
-        question: "How many resumes can I create?",
-        answer:
-          "You can build multiple resume versions from the Resumes page, which is useful for tailoring your CV to different roles or industries.",
-      },
-      {
-        question: "What does CV Review check for?",
-        answer:
-          "CV Review looks at formatting, clarity, and common gaps (like missing contact details or vague bullet points) and gives you suggestions you can apply directly.",
-      },
-      {
-        question: "Can I export my resume as a PDF?",
-        answer:
-          "Yes, from the resume editor's toolbar you can export to PDF or download an image of the current version.",
-      },
-    ],
-  },
-  {
     id: "account",
     title: "Account & privacy",
     items: [
@@ -81,9 +60,9 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
         answer: "Head to Settings to update your account details, including your email and password.",
       },
       {
-        question: "Who can see my applications and resumes?",
+        question: "Who can see my applications?",
         answer:
-          "Your applications, interviews, and resumes are private to your account. Employers only see what you actively submit through a job application.",
+          "Your applications and interviews are private to your account. Employers only see what you actively submit through a job application.",
       },
       {
         question: "How do I delete my account?",

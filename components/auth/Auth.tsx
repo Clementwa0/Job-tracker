@@ -5,8 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { ArrowRight, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
 import { JourneyPanel, signupNodes } from "./JourneyPanel";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { authService } from "@/lib/auth/authService";
-import { useGoogleAuth } from "@/lib/auth/useGoogleAuth";
+import { useGoogleAuth } from "@/features/auth/hooks/useGoogleAuth";
 
 function GoogleIcon() {
   return (
@@ -43,7 +42,6 @@ export default function AuthPage() {
   const redirectTo = searchParams.get("redirect");
 
   const { handleCredential, error, isLoading } = useGoogleAuth({
-    signIn: authService.googleSignIn,
     role: "user",
     redirectTo,
   });

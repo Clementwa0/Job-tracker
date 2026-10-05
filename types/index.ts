@@ -28,4 +28,3 @@ export type {
 } from "./interview";
 export { isPopulatedJobId } from "./interview";
 
-export type { CVFeedback, UploadedFile } from "./resume.types";
