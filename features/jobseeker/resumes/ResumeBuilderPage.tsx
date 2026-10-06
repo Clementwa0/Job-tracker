@@ -502,9 +502,10 @@ export function ResumePreview({
   }, []);
 
   useEffect(() => {
+    const doc = exportRef.current;
+    if (!doc) return;
+
     const measure = () => {
-      const doc = exportRef.current;
-      if (!doc) return;
       const contentHeight = doc.scrollHeight;
       const pageHeight = PAGE_H + PAGE_GAP;
       const count = Math.max(1, Math.ceil(contentHeight / pageHeight));
@@ -514,7 +515,7 @@ export function ResumePreview({
 
     measure();
     const observer = new ResizeObserver(measure);
-    if (exportRef.current) observer.observe(exportRef.current);
+    observer.observe(doc);
     return () => observer.disconnect();
   }, [exportRef, onPageCount, data]);
 
