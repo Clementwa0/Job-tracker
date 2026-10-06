@@ -207,7 +207,11 @@ export default function ResumeBuilderPage({ id }: { id: string }) {
             onChange={(event) =>
               update({
                 ...data,
-                meta: { ...data.meta, name: event.target.value },
+                meta: {
+                  id: data.meta?.id ?? id,
+                  ...data.meta,
+                  name: event.target.value,
+                },
               })
             }
             className="h-6 min-w-0 max-w-56 border-0 bg-transparent px-1 text-sm font-bold shadow-none focus-visible:ring-1"
@@ -499,75 +503,39 @@ export function ResumePreview({
 
   useEffect(() => {
     const measure = () => {
-      const page =
-        exportRef.current?.querySelector<HTMLElement>(".resume-page");
-      const count = Math.max(1, page?.getClientRects().length ?? 1);
+      const doc = exportRef.current;
+      if (!doc) return;
+      const contentHeight = doc.scrollHeight;
+      const pageHeight = PAGE_H + PAGE_GAP;
+      const count = Math.max(1, Math.ceil(contentHeight / pageHeight));
       setPageCount(count);
       onPageCount(count);
     };
-    const target = exportRef.current;
-    const frame = window.requestAnimationFrame(measure);
-    if (!target) return () => window.cancelAnimationFrame(frame);
-    const observer = new ResizeObserver(measure);
-    observer.observe(target);
-    return () => {
-      window.cancelAnimationFrame(frame);
-      observer.disconnect();
-    };
-  }, [data, onPageCount, exportRef]);
 
-  const flowWidth = pageCount * PAGE_W + Math.max(0, pageCount - 1) * PAGE_GAP;
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (exportRef.current) observer.observe(exportRef.current);
+    return () => observer.disconnect();
+  }, [exportRef, onPageCount, data]);
+
   return (
     <div
       ref={shellRef}
-      className={`resume-print-shell relative h-full min-h-0 overflow-auto bg-transparent pb-24 pt-5 sm:p-8 lg:block ${visible ? "block" : "hidden"}`}
+      className={`h-full overflow-y-auto p-4 sm:p-8 ${visible ? "" : "invisible"}`}
     >
-      <div className="resume-preview-viewport resume-preview-viewport--vertical relative">
+      <div
+        style={{
+          width: PAGE_W * scale,
+          height: (PAGE_H + PAGE_GAP) * pageCount * scale,
+          margin: "0 auto",
+        }}
+      >
         <div
-          className="flex flex-col items-center"
-          style={{ gap: PAGE_GAP * scale }}
-        >
-          {Array.from({ length: pageCount }, (_, page) => (
-            <div
-              key={page}
-              aria-hidden={page > 0}
-              style={{
-                width: PAGE_W * scale,
-                height: PAGE_H * scale,
-                overflow: "hidden",
-                flexShrink: 0,
-              }}
-            >
-              <div
-                className="resume-flow overflow-hidden rounded-sm shadow-2xl ring-1 ring-border"
-                style={{
-                  width: flowWidth,
-                  height: PAGE_H,
-                  columnCount: pageCount,
-                  columnWidth: PAGE_W,
-                  columnGap: PAGE_GAP,
-                  transform: `scale(${scale}) translateX(${-page * (PAGE_W + PAGE_GAP)}px)`,
-                  transformOrigin: "top left",
-                }}
-              >
-                <ResumeDocument data={data} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div aria-hidden="true" className="resume-export-source">
-        <div
-          ref={(element) => {
-            exportRef.current = element;
-          }}
-          className="resume-flow"
+          ref={exportRef}
           style={{
-            width: flowWidth,
-            height: PAGE_H,
-            columnCount: pageCount,
-            columnWidth: PAGE_W,
-            columnGap: PAGE_GAP,
+            width: PAGE_W,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
           }}
         >
           <ResumeDocument data={data} />
