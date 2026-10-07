@@ -1,16 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PageHeader from "@/components/shared/dashboard/PageHeader";
 import AdminPagination from "@/features/admin/components/AdminPagination";
-import { AdminEmptyState } from "@/features/admin/components/AdminListStates";
+import {
+  AdminEmptyState,
+  AdminErrorState,
+  AdminTableSkeleton,
+} from "@/features/admin/components/AdminListStates";
 import { JobStatusBadge, JobTypeBadge } from "@/features/admin/components/JobBadges";
-import { useAdminPagination } from "@/features/admin/hooks/useAdminPagination";
-import { useAdminJobs } from "@/features/admin/dummy/adminDummyStore";
+import { useAdminList, type AdminListQuery } from "@/features/admin/hooks/useAdminList";
 import AdminJobActions from "@/features/admin/jobs/AdminJobActions";
 import AdminJobDetailsDialog from "@/features/admin/jobs/AdminJobDetailsDialog";
+import { adminService } from "@/features/admin/services/admin.client";
 import type { AdminJobPosting } from "@/types/admin";
 
 const STATUS_OPTIONS = [
@@ -28,33 +32,20 @@ const formatDate = (date?: string) => {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
+const EMPTY_SUMMARY: { pendingReview?: number } = {};
+
+async function fetchJobs({ page, limit, q, status }: AdminListQuery) {
+  const { jobs, meta, summary } = await adminService.listJobs({ page, limit, q, status });
+  return { items: jobs, meta, summary };
+}
+
 export default function AdminJobsView() {
-  const allJobs = useAdminJobs();
-  const { page, limit, setPage, setLimit } = useAdminPagination();
-  const [q, setQ] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const list = useAdminList<AdminJobPosting, { pendingReview?: number }>(fetchJobs, EMPTY_SUMMARY);
+  const { items, meta, loading, error, reload, q, setQ, statusFilter, setStatusFilter } = list;
   const [viewingJob, setViewingJob] = useState<AdminJobPosting | null>(null);
 
-  const filtered = useMemo(() => {
-    return allJobs.filter((job) => {
-      if (statusFilter !== "all" && job.status !== statusFilter) return false;
-      if (
-        q &&
-        !job.title.toLowerCase().includes(q.toLowerCase()) &&
-        !job.company?.name.toLowerCase().includes(q.toLowerCase())
-      ) {
-        return false;
-      }
-      return true;
-    });
-  }, [allJobs, statusFilter, q]);
-
-  const total = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-  const currentPage = Math.min(page, totalPages);
-  const paged = filtered.slice((currentPage - 1) * limit, currentPage * limit);
-
-  const pendingCount = allJobs.filter((j) => j.status === "pending_review").length;
+  const pendingCount = list.summary.pendingReview ?? 0;
+  const initialLoad = loading && items.length === 0;
 
   return (
     <div className="space-y-6">
@@ -88,7 +79,11 @@ export default function AdminJobsView() {
         </Select>
       </div>
 
-      {paged.length === 0 ? (
+      {error && items.length === 0 ? (
+        <AdminErrorState message={error} onRetry={reload} />
+      ) : initialLoad ? (
+        <AdminTableSkeleton cols={6} />
+      ) : items.length === 0 ? (
         <AdminEmptyState
           title="No jobs match your filters"
           description="Try a different search term or status."
@@ -108,7 +103,7 @@ export default function AdminJobsView() {
                 </tr>
               </thead>
               <tbody>
-                {paged.map((job) => (
+                {items.map((job) => (
                   <tr key={job.id} className="border-t border-border/60">
                     <td className="px-4 py-3">
                       <button
@@ -129,7 +124,7 @@ export default function AdminJobsView() {
                       {formatDate(job.publishedAt ?? job.createdAt)}
                     </td>
                     <td className="px-4 py-3">
-                      <AdminJobActions job={job} onView={setViewingJob} />
+                      <AdminJobActions job={job} onView={setViewingJob} onChanged={reload} />
                     </td>
                   </tr>
                 ))}
@@ -138,11 +133,12 @@ export default function AdminJobsView() {
           </div>
 
           <AdminPagination
-            meta={{ page: currentPage, limit, total, totalPages }}
-            page={currentPage}
-            limit={limit}
-            onPageChange={setPage}
-            onLimitChange={setLimit}
+            meta={meta}
+            page={list.page}
+            limit={list.limit as 10 | 20 | 50 | 100}
+            onPageChange={list.setPage}
+            onLimitChange={list.setLimit}
+            loading={loading}
           />
         </>
       )}

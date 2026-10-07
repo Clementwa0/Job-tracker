@@ -62,7 +62,7 @@ export const useDashboardSummary = () => {
     else if (rejected >= 5) {
       mood = "warning";
       message = "Don't give up - adjust your strategy";
-      subtitle = "Consider improving CV or targeting better roles.";
+      subtitle = "Consider updating your profile or targeting better roles.";
     } 
     else {
       mood = "balanced";

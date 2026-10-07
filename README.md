@@ -48,7 +48,6 @@ All routes require a signed-in job seeker; every query is scoped to that account
 | Applications | `GET/POST /api/jobs`, `GET/PUT/DELETE /api/jobs/:id`, `POST /api/jobs/:id/{duplicate,archive,activity}`, `POST /api/jobs/bulk/{update,delete}` |
 | Stats & analytics | `GET /api/jobs/stats`, `GET /api/jobs/analytics/summary` |
 | Interviews | `GET/POST /api/interviews`, `GET/PUT/DELETE /api/interviews/:id`, `GET /api/interviews/job/:jobId` |
-| Resumes | `GET/POST /api/resumes`, `GET/PUT/DELETE /api/resumes/:id` |
 | Saved jobs | `GET/POST /api/saved-jobs`, `GET/PUT/DELETE /api/saved-jobs/:slug` |
 | Notifications | `GET /api/notifications`, `GET /api/notifications/unread-count`, `PATCH /api/notifications/:id/read`, `PATCH /api/notifications/read-all` |
 | Files | `POST /api/upload` |

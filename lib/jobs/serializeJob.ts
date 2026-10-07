@@ -48,7 +48,6 @@ export function serializeJob(job: JobWithChildren): Record<string, unknown> {
     contactEmail: job.contactEmail,
     contactPhone: job.contactPhone,
     recruiterLinkedIn: job.recruiterLinkedIn,
-    resumeFile: job.resumeFile,
     coverLetterFile: job.coverLetterFile,
     attachments: job.attachments.map((a) => ({
       _id: a.id,

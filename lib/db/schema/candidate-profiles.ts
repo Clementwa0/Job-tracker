@@ -14,7 +14,7 @@ import { users } from "./users";
  * future migration to a surrogate id doesn't require an app-visible change.
  *
  * Structured profile data is kept here alongside the user's direct
- * contact/links and job-search preferences. Resume data remains separate;
+ * contact/links and job-search preferences.
  * the dashboard's profile-completeness score and job recommendations combine
  * both sources.
  */

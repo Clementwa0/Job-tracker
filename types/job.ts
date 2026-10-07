@@ -83,7 +83,6 @@ export interface BackendJob {
   contactEmail?: string;
   contactPhone?: string;
   recruiterLinkedIn?: string;
-  resumeFile?: string | null;
   coverLetterFile?: string | null;
   attachments?: JobAttachment[];
   jobPostingUrl?: string;
@@ -121,7 +120,6 @@ export interface Job {
   applicationStatus: string;
   priority: JobPriority;
   tags: string[];
-  resumeFile: string | File | null;
   coverLetterFile: string | File | null;
   attachments: JobAttachment[];
   contactEmail: string;

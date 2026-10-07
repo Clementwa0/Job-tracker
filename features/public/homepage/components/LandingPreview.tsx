@@ -10,8 +10,6 @@ import {
   CalendarDays,
   ClipboardCheck,
   Compass,
-  FileCheck2,
-  FileText,
   HelpCircle,
   LayoutGrid,
   ListFilter,
@@ -304,8 +302,6 @@ function DashboardSidebar() {
     { icon: <BriefcaseBusiness className="h-3.5 w-3.5" />, label: "Applications", badge: "24" },
     { icon: <CalendarDays className="h-3.5 w-3.5" />, label: "Interviews", badge: "5" },
     { icon: <CalendarClock className="h-3.5 w-3.5" />, label: "Calendar" },
-    { icon: <FileText className="h-3.5 w-3.5" />, label: "Resumes" },
-    { icon: <FileCheck2 className="h-3.5 w-3.5" />, label: "CV Review" },
     { icon: <BarChart3 className="h-3.5 w-3.5" />, label: "Analytics" },
   ];
 
@@ -441,12 +437,6 @@ function TodayFocus() {
       title: "3 new matching jobs",
       action: "View Jobs",
     },
-    {
-      icon: <Sparkles className="h-3.5 w-3.5" />,
-      tone: "amber" as const,
-      title: "Polish your CV",
-      action: "Build CV",
-    },
   ];
 
   return (
@@ -537,7 +527,6 @@ function QuickActions() {
   const actions = [
     { icon: <Search className="h-3.5 w-3.5" />, label: "Browse jobs" },
     { icon: <ListFilter className="h-3.5 w-3.5" />, label: "View filters" },
-    { icon: <FileText className="h-3.5 w-3.5" />, label: "Upload CV" },
     { icon: <UserRound className="h-3.5 w-3.5" />, label: "Update profile" },
   ];
 

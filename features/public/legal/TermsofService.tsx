@@ -28,7 +28,7 @@ const sections = [
   {
     id: "job-seeker-accounts",
     title: "3. Job Seeker Accounts",
-    body: "Job seekers may use JobTrail to create profiles, discover job opportunities, submit applications, and communicate with employers through available platform features. You are responsible for the accuracy of your profile, CV, qualifications, employment history, contact information, and other information you submit. You must not submit false qualifications, fraudulent documents, misleading employment history, or information belonging to another person.",
+    body: "Job seekers may use JobTrail to create profiles, discover job opportunities, submit applications, and communicate with employers through available platform features. You are responsible for the accuracy of your profile, qualifications, employment history, contact information, and other information you submit. You must not submit false qualifications, fraudulent documents, misleading employment history, or information belonging to another person.",
   },
   {
     id: "employer-accounts",
@@ -48,7 +48,7 @@ const sections = [
   {
     id: "user-content",
     title: "7. User Content",
-    body: "You retain ownership of the information and content you submit to JobTrail, including your CV, profile information, job listings, descriptions, and other materials. By submitting User Content, you grant JobTrail a non-exclusive, worldwide, royalty-free license to host, store, reproduce, process, display, and distribute that content as reasonably necessary to provide, maintain, secure, and improve the Service. You remain responsible for ensuring that you have the necessary rights and permissions to submit your content.",
+    body: "You retain ownership of the information and content you submit to JobTrail, including your profile information, job listings, descriptions, and other materials. By submitting User Content, you grant JobTrail a non-exclusive, worldwide, royalty-free license to host, store, reproduce, process, display, and distribute that content as reasonably necessary to provide, maintain, secure, and improve the Service. You remain responsible for ensuring that you have the necessary rights and permissions to submit your content.",
   },
   {
     id: "prohibited-activities",

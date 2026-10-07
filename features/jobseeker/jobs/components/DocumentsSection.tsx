@@ -8,7 +8,7 @@ interface Props {
   setFormData: React.Dispatch<React.SetStateAction<Job>>;
 }
 
-type DocumentField = "resumeFile" | "coverLetterFile";
+type DocumentField = "coverLetterFile";
 
 const DocumentsSection = ({ formData, setFormData }: Props) => {
   const renderField = (label: string, field: DocumentField) => {
@@ -57,8 +57,7 @@ const DocumentsSection = ({ formData, setFormData }: Props) => {
         </span>
       </div>
       <div className="space-y-2 p-3">
-        {renderField("Resume / CV", "resumeFile")}
-        {renderField("Cover Letter", "coverLetterFile")}
+                {renderField("Cover Letter", "coverLetterFile")}
       </div>
     </div>
   );

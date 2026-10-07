@@ -1,9 +1,13 @@
 import axios from "axios";
 import { authEvents } from "@/lib/auth/authEvents";
-import { tokenStorage } from "@/lib/security/tokenStorage";
+import {
+  API_URL,
+  clearAccessToken,
+  getAccessToken,
+  refreshSession,
+} from "@/lib/auth/session";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
-
+/** The one API client. Attaches the access token and handles 401 -> refresh -> retry. */
 export const axiosInstance = axios.create({
   baseURL: API_URL,
   withCredentials: true,
@@ -14,7 +18,7 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = tokenStorage.getToken();
+    const token = getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,27 +27,15 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-let isRefreshing = false;
-let refreshQueue: Array<{
-  resolve: (token: string) => void;
-  reject: (error: unknown) => void;
-}> = [];
-
-function drainQueue(error: unknown, token: string | null = null) {
-  refreshQueue.forEach(({ resolve, reject }) => {
-    if (error) reject(error);
-    else if (token) resolve(token);
-  });
-  refreshQueue = [];
-}
-
+/** Endpoints where a 401 means "bad credentials/no session", not "expired token". */
 function isAuthEndpoint(url?: string) {
   if (!url) return false;
   return (
     url.includes("/auth/refresh") ||
     url.includes("/auth/login") ||
     url.includes("/auth/register") ||
-    url.includes("/auth/google")
+    url.includes("/auth/google") ||
+    url.includes("/admin/login")
   );
 }
 
@@ -56,43 +48,27 @@ axiosInstance.interceptors.response.use(
 
     const originalRequest = error.config;
     if (!originalRequest || originalRequest._retry || isAuthEndpoint(originalRequest.url)) {
-      tokenStorage.removeToken();
-      authEvents.emitUnauthorized();
+      // A rejected login must not be reported as an expired session, and a
+      // request that already retried once must not loop.
+      if (originalRequest && !isAuthEndpoint(originalRequest.url)) {
+        clearAccessToken();
+        authEvents.emitUnauthorized();
+      }
       return Promise.reject(error);
     }
 
-    if (isRefreshing) {
-      return new Promise<string>((resolve, reject) => {
-        refreshQueue.push({ resolve, reject });
-      }).then((token) => {
-        originalRequest.headers.Authorization = `Bearer ${token}`;
-        return axiosInstance(originalRequest);
-      });
-    }
-
+    // Retry at most once per request (_retry), so a persistent 401 can never loop.
     originalRequest._retry = true;
-    isRefreshing = true;
 
     try {
-      const { data } = await axios.post(
-        `${API_URL}/auth/refresh`,
-        {},
-        { withCredentials: true },
-      );
-      const newToken = data.data?.token as string;
-      if (!newToken) throw new Error("No token in refresh response");
-
-      tokenStorage.setToken(newToken);
-      drainQueue(null, newToken);
-      originalRequest.headers.Authorization = `Bearer ${newToken}`;
+      // Single-flight: concurrent 401s share one refresh call.
+      const { token } = await refreshSession();
+      originalRequest.headers.Authorization = `Bearer ${token}`;
       return axiosInstance(originalRequest);
-    } catch (refreshError) {
-      drainQueue(refreshError, null);
-      tokenStorage.removeToken();
+    } catch {
+      clearAccessToken();
       authEvents.emitUnauthorized();
-      return Promise.reject(refreshError);
-    } finally {
-      isRefreshing = false;
+      return Promise.reject(error);
     }
   },
 );

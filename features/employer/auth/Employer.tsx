@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
-import { employerAuthService } from "@/features/employer/auth/services/employerAuthService";
-import { useGoogleAuth } from "@/lib/auth/useGoogleAuth";
+import { useGoogleAuth } from "@/features/auth/hooks/useGoogleAuth";
 
 const footerLinks = [
   { label: "Job seeker?", cta: "Sign in here", href: "/account" },
@@ -16,7 +15,6 @@ export default function EmployerLogin() {
   const redirectTo = searchParams.get("redirect");
 
   const { handleCredential, error, isLoading } = useGoogleAuth({
-    signIn: employerAuthService.googleSignIn,
     role: "employer",
     redirectTo,
   });

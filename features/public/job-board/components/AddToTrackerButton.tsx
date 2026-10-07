@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { BriefcaseBusiness, Check, Loader2, LogIn, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -18,7 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/lib/apiError";
-import { tokenStorage } from "@/lib/security/tokenStorage";
+import { useAuth } from "@/features/auth/hooks/AuthContext";
 import { jobService } from "@/features/jobseeker/jobs/services/job.client";
 import { useAddPostingToTracker } from "@/features/jobseeker/jobs/hooks/useAddPostingToTracker";
 import type { PublicJobDetail, PublicJobListItem } from "@/types/jobPosting";
@@ -86,7 +86,7 @@ export default function AddToTrackerButton({ job, className, size = "sm" }: Prop
   const [isChecking, setIsChecking] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
 
-  const authed = useMemo(() => tokenStorage.isAuthenticated(), []);
+  const { isAuthenticated: authed, isLoading: authLoading } = useAuth();
   const returnPath = pathname || `/job-board/${job.slug}`;
   const company = job.company?.name ?? "Company";
 
@@ -136,7 +136,7 @@ export default function AddToTrackerButton({ job, className, size = "sm" }: Prop
   }, [authed, searchParams, router, returnPath, lookupTrackedId]);
 
   const handleClick = () => {
-    if (isChecking || isAdding || isRemoving) return;
+    if (authLoading || isChecking || isAdding || isRemoving) return;
     if (isTracked) return setDialog("remove");
     if (!authed) return setDialog("login");
     setDialog("confirm");

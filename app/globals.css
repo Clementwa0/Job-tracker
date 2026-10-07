@@ -4,6 +4,133 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Resume pagination: screen sheets use the same A4-sized template flow as print. */
+.resume-flow {
+  column-fill: auto;
+  column-rule: 0;
+}
+
+.resume-preview-viewport {
+  width: max-content;
+  max-width: none;
+  margin-inline: auto;
+}
+
+.resume-preview-viewport--vertical {
+  width: 100%;
+  max-width: 100%;
+}
+
+.resume-page {
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  box-shadow: 0 3px 18px rgb(15 23 42 / 18%);
+  break-inside: auto;
+  page-break-inside: auto;
+}
+
+.resume-page h2,
+.resume-page h3 {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+.resume-page article,
+.resume-page li {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.resume-measure {
+  position: fixed;
+  top: 0;
+  left: -20000px;
+  width: 794px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.resume-export-source {
+  position: fixed;
+  top: 0;
+  left: -20000px;
+  pointer-events: none;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@page resume {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .resume-print-shell,
+  .resume-print-shell * {
+    visibility: visible !important;
+  }
+
+  .resume-print-shell {
+    page: resume;
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    display: block !important;
+    width: 210mm !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .resume-preview-viewport {
+    width: 210mm !important;
+    height: auto !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  .resume-flow {
+    display: block !important;
+    width: 210mm !important;
+    height: auto !important;
+    column-count: auto !important;
+    column-width: auto !important;
+    column-gap: 0 !important;
+    column-fill: auto !important;
+    overflow: visible !important;
+  }
+
+  .resume-page {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    box-shadow: none !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  .resume-page article,
+  .resume-page li {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .resume-measure {
+    display: none !important;
+  }
+
+  .resume-export-source {
+    display: none !important;
+  }
+}
+
 /* ===============================================================
    DESIGN SYSTEM
    Modern Premium / High-contrast / Accessible

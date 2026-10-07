@@ -16,7 +16,6 @@ export { default as QuickActionsCard } from "./components/QuickActionsCard";
 export { default as TodayFocusCard } from "./components/TodayFocusCard";
 export { default as NextInterviewCard } from "./components/NextInterviewCard";
 export { default as FollowUpsCard } from "./components/FollowUpsCard";
-export { default as CvHealthCard } from "./components/CvHealthCard";
 export { default as CareerInsightCard } from "./components/CareerInsightCard";
 export { default as ProfileCompletenessCard } from "./components/ProfileCompletenessCard";
 export { default as SavedJobsCard } from "./components/SavedJobsCard";

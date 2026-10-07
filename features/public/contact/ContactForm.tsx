@@ -33,9 +33,7 @@ const initialValues: FormValues = { name: "", email: "", subject: "", message: "
 function validate(values: FormValues): FormErrors {
   const errors: FormErrors = {};
 
-  if (!values.name.trim()) {
-    errors.name = "Please enter your name.";
-  }
+  if (!values.name.trim()) errors.name = "Please enter your name.";
 
   if (!values.email.trim()) {
     errors.email = "Please enter your email.";
@@ -43,9 +41,7 @@ function validate(values: FormValues): FormErrors {
     errors.email = "Enter a valid email address.";
   }
 
-  if (!values.subject.trim()) {
-    errors.subject = "Please add a short subject.";
-  }
+  if (!values.subject.trim()) errors.subject = "Please add a short subject.";
 
   if (!values.message.trim()) {
     errors.message = "Please write a message.";
@@ -77,9 +73,7 @@ export default function ContactForm() {
     if (Object.keys(nextErrors).length > 0) return;
 
     setStatus("submitting");
-    window.setTimeout(() => {
-      setStatus("success");
-    }, 700);
+    window.setTimeout(() => setStatus("success"), 700);
   };
 
   const resetForm = () => {
@@ -258,7 +252,11 @@ function Field({
       </Label>
       {input}
       {error && (
-        <p id={`${id}-error`} role="alert" className="text-[11px] font-medium text-red-600 dark:text-red-300">
+        <p
+          id={`${id}-error`}
+          role="alert"
+          className="text-[11px] font-medium text-red-600 dark:text-red-300"
+        >
           {error}
         </p>
       )}

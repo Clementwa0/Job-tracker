@@ -10,7 +10,7 @@
 
 export interface CandidateSignals {
   skills: string[];
-  /** Target roles, then headline / resume title as fallbacks. */
+  /** Target roles, then the profile headline as a fallback. */
   roles: string[];
   location: string;
   preferredLocations: string[];

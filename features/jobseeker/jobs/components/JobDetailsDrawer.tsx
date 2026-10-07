@@ -169,9 +169,6 @@ const JobDetailsDrawer: React.FC<Props> = ({
   onDelete,
 }) => {
   if (!job) return null;
-  const resumeUrl = resolveApiAssetUrl(
-    typeof job.resumeFile === "string" ? job.resumeFile : null,
-  );
   const coverLetterUrl = resolveApiAssetUrl(
     typeof job.coverLetterFile === "string" ? job.coverLetterFile : null,
   );
@@ -329,15 +326,6 @@ const JobDetailsDrawer: React.FC<Props> = ({
 
             <TabsContent value="files" className="mt-0 space-y-2">
               <FileLink
-                label="Resume"
-                url={resumeUrl}
-                fileName={
-                  typeof job.resumeFile === "string"
-                    ? job.resumeFile.split("/").pop()
-                    : job.resumeFile?.name
-                }
-              />
-              <FileLink
                 label="Cover letter"
                 url={coverLetterUrl}
                 fileName={
@@ -346,7 +334,7 @@ const JobDetailsDrawer: React.FC<Props> = ({
                     : undefined
                 }
               />
-              {!resumeUrl && !coverLetterUrl && (job.attachments?.length ?? 0) === 0 && (
+              {!coverLetterUrl && (job.attachments?.length ?? 0) === 0 && (
                 <div className="py-10 text-center text-xs text-muted-foreground">
                   No files attached.
                 </div>

@@ -9,7 +9,7 @@
  *  - auth:       sessions (refresh tokens)
  *  - employers:  companies, job_postings
  *  - jobseekers: jobs (+ job_attachments / job_activity / job_reminders),
- *                saved_jobs, interviews, resumes
+ *                saved_jobs, interviews
  *  - platform:   notifications, audit_logs
  */
 export * from "./enums";
@@ -25,7 +25,6 @@ export * from "./job-postings";
 export * from "./jobs";
 export * from "./saved-jobs";
 export * from "./interviews";
-export * from "./resumes";
 export * from "./notifications";
 export * from "./audit-logs";
 export * from "./relations";

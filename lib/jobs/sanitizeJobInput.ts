@@ -46,7 +46,7 @@ const TEXT_FIELDS = [
   "notes",
 ] as const;
 
-const NULLABLE_TEXT_FIELDS = ["resumeFile", "coverLetterFile"] as const;
+const NULLABLE_TEXT_FIELDS = ["coverLetterFile"] as const;
 const DATE_FIELDS = ["applicationDate", "applicationDeadline"] as const;
 const SALARY_FIELDS = ["salaryMin", "salaryMax"] as const;
 

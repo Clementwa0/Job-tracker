@@ -1,97 +1,256 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Search, Sparkles, Trophy, UserRoundCheck } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BriefcaseBusiness,
+  CheckCircle2,
+  Clock3,
+  Search,
+  Sparkles,
+  Target,
+  Trophy,
+  UserRoundCheck,
+} from "lucide-react";
+
 import { SectionWrapper } from "@/components/shared/public/layout";
 import { milestones } from ".";
-import ProgressCard from "./ProgressCard";
-import RecentCard from "./RecentCard";
-import Benefit, { JobCard } from "./Jobcard";
-
-const visibleMilestones = [milestones[0], milestones[2], milestones[4]].filter(Boolean);
+import Benefit from "./Jobcard";
 
 export default function HeroSection() {
   return (
     <SectionWrapper
       id="product"
-      className="overflow-hidden bg-background"
-      containerClassName="relative px-5 lg:px-0 xl:min-h-[420px]"
-      spacingClassName="py-10 sm:py-12 lg:py-14"
+      className="relative overflow-hidden bg-background"
+      containerClassName="relative px-5 sm:px-6 lg:px-8 xl:px-0"
+      spacingClassName="py-12 sm:py-16 lg:py-20 xl:py-24"
     >
-      <div className="relative z-10 mx-auto w-full max-w-[500px] sm:mx-0">
-        {/* Badge - hidden on mobile for minimalism */}
-        <div className="hidden items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[13px] font-medium text-primary sm:inline-flex">
-          <Sparkles className="h-3.5 w-3.5 fill-primary" />
-          Your journey. Our platform. Endless opportunities.
-        </div>
+      {/* Background glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div className="absolute left-[5%] top-[10%] h-72 w-72 rounded-full bg-primary/[0.05] blur-3xl" />
 
-        <h1 className="text-[2rem] font-semibold leading-[1.08] tracking-[-1.4px] text-foreground sm:mt-5 sm:text-4xl md:text-[52px] md:tracking-[-2px]">
-          Your career
-          <br />
-          has a path<span className="text-primary">.</span>
-        </h1>
+        <div className="absolute right-[8%] top-[8%] h-96 w-96 rounded-full bg-violet-500/[0.045] blur-3xl" />
 
-        <p className="mt-3 max-w-[420px] text-[15px] leading-[1.6] text-muted-foreground sm:mt-4">
-          Find roles that fit, track every application, and move forward with clarity.
-        </p>
-
-        <div className="mt-7 flex flex-col gap-2.5 min-[420px]:flex-row sm:gap-3">
-          <Link
-            href="/job-board"
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 text-[14px] font-medium text-primary-foreground transition hover:bg-primary/90 min-[420px]:w-auto"
-          >
-            <Search className="h-4 w-4" />
-            Find jobs
-          </Link>
-          <Link
-            href="/account"
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-5 text-[14px] font-medium text-foreground transition hover:bg-muted min-[420px]:w-auto"
-          >
-            Get started <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-
-        {/* Benefits - plain list on mobile, grid on sm+ */}
-        <div className="mt-8 grid max-w-[520px] gap-3 text-[12px] text-muted-foreground sm:grid-cols-3">
-          <Benefit icon={<UserRoundCheck />} title="Personalized for you" sub="Smart job matching" />
-          <Benefit icon={<Trophy />} title="Track every step" sub="Real-time updates" />
-          <Benefit icon={<CheckCircle2 />} title="Plan your future" sub="Career insights" />
-        </div>
+        <div className="absolute bottom-0 right-[25%] h-64 w-64 rounded-full bg-blue-400/[0.035] blur-3xl" />
       </div>
 
-      {/* Decorative path + cards - xl only */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden max-w-full overflow-hidden xl:block">
-        <svg viewBox="0 0 1060 430" className="absolute left-[37%] top-[90px] h-[340px] w-[850px] max-w-none" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="path" x1="0" x2="1">
-              <stop stopColor="#4f96fa" />
-              <stop offset="1" stopColor="#7b4be6" />
-            </linearGradient>
-          </defs>
-          <path d="M35 305 C140 230 205 215 285 212 S440 175 500 175 S670 154 735 110 S910 75 1050 70" fill="none" stroke="url(#path)" strokeWidth="3" />
-          <path d="M35 305 C140 230 205 215 285 212 S440 175 500 175 S670 154 735 110 S910 75 1050 70" fill="none" stroke="#bbd4ff" strokeOpacity=".3" strokeWidth="10" />
-        </svg>
+      <div className="relative z-10 mx-auto grid w-full max-w-7xl items-center gap-14 lg:grid-cols-[0.88fr_1.12fr] lg:gap-12 xl:gap-16">
+        {/* =====================================================
+            LEFT — HERO CONTENT
+        ===================================================== */}
 
-        {visibleMilestones.map((item, i) => (
-          <div key={item.n} className={`absolute ${item.cls}`}>
-            <div className="mb-1 text-[12px] text-muted-foreground">{item.n}</div>
-            <div className="text-[14px] font-semibold" style={{ color: item.color }}>{item.title}</div>
-            <div className="mt-1 whitespace-pre-line text-[12px] leading-[1.35] text-muted-foreground">{item.text}</div>
-            <span className="absolute -bottom-[52px] left-6 flex h-7 w-7 items-center justify-center rounded-full border-[5px] border-background bg-background shadow-[0_2px_10px_rgba(28,74,180,.24)]">
-              <span className="h-3 w-3 rounded-full border-[3px] border-background" style={{ backgroundColor: item.color }} />
+        <div className="max-w-2xl">
+          {/* Eyebrow */}
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-3.5 py-2 text-[12px] font-medium text-primary shadow-sm">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10">
+              <Sparkles className="h-3 w-3 fill-current" />
             </span>
-            {i === visibleMilestones.length - 1 && (
-              <span className="absolute -bottom-[58px] left-6 flex h-10 w-10 items-center justify-center rounded-full bg-card text-primary shadow-[0_2px_12px_rgba(70,60,180,.3)]">
-                <ArrowRight className="h-4 w-4 -rotate-45" />
-              </span>
-            )}
-          </div>
-        ))}
 
-        <JobCard />
-        <ProgressCard />
-        <RecentCard />
+            <span>Your career. One clear path.</span>
+          </div>
+
+          {/* Heading */}
+          <h1 className="max-w-[680px] text-[2.65rem] font-semibold leading-[0.98] tracking-[-2.6px] text-foreground sm:text-5xl md:text-[4.2rem] lg:text-[4.35rem] xl:text-[4.7rem]">
+            Your career
+            <br />
+            has a{" "}
+            <span className="relative inline-block text-primary">
+              path
+              <span
+                aria-hidden="true"
+                className="absolute -bottom-1 left-0 h-2 w-full rounded-full bg-primary/10"
+              />
+            </span>
+            <span className="text-primary">.</span>
+          </h1>
+
+          {/* Description */}
+          <p className="mt-6 max-w-[540px] text-[15px] leading-7 text-muted-foreground sm:text-base">
+            Find opportunities that fit your goals, build a stronger career
+            profile, track every application, and know what to do next.
+          </p>
+
+          {/* CTAs */}
+          <div className="mt-8 flex flex-col gap-3 min-[440px]:flex-row">
+            <Link
+              href="/job-board"
+              className="group inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-[14px] font-semibold text-primary-foreground shadow-[0_8px_30px_rgba(59,130,246,0.18)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-[0_12px_34px_rgba(59,130,246,0.24)]"
+            >
+              <Search className="h-4 w-4" />
+
+              Find jobs
+
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+
+            <Link
+              href="/account"
+              className="group inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-border/80 bg-background/80 px-6 text-[14px] font-semibold text-foreground backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/20 hover:bg-muted/60"
+            >
+              Get started
+
+              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+
+          {/* Benefits */}
+          <div className="mt-9 grid max-w-[600px] grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+            <Benefit
+              icon={<UserRoundCheck />}
+              title="Personalized"
+              sub="Jobs matched to you"
+            />
+
+            <Benefit
+              icon={<Trophy />}
+              title="Stay organized"
+              sub="Track every application"
+            />
+
+            <Benefit
+              icon={<CheckCircle2 />}
+              title="Move forward"
+              sub="Know your next step"
+            />
+          </div>
+        </div>
+
+        {/* =====================================================
+            RIGHT — CLEAN CAREER VISUAL
+        ===================================================== */}
+
+        <div className="relative">
+          {/* Soft decorative grid */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -inset-10 rounded-[3rem] opacity-30"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, hsl(var(--border) / 0.28) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border) / 0.28) 1px, transparent 1px)",
+              backgroundSize: "34px 34px",
+              maskImage:
+                "radial-gradient(ellipse at center, black 15%, transparent 72%)",
+              WebkitMaskImage:
+                "radial-gradient(ellipse at center, black 15%, transparent 72%)",
+            }}
+          />
+
+          {/* Main visual */}
+          <div className="relative mx-auto w-full max-w-[650px]">
+            {/* =================================================
+                CAREER MILESTONES
+            ================================================= */}
+
+            <div className="relative mt-5 rounded-[1.5rem] border border-border/60 bg-card/80 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur-xl sm:p-5">
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    Career path
+                  </div>
+
+                  <div className="mt-1 text-[14px] font-semibold text-foreground">
+                    Your next moves
+                  </div>
+                </div>
+
+                <div className="rounded-full bg-primary/10 px-2.5 py-1 text-[9px] font-semibold text-primary">
+                  {milestones.length} steps
+                </div>
+              </div>
+
+              {/* Timeline */}
+              <div className="relative">
+                {/* Timeline line */}
+                <div
+                  aria-hidden="true"
+                  className="absolute left-[13px] top-3 bottom-3 w-px bg-border"
+                />
+
+                <div className="space-y-3">
+                  {milestones.map((item, index) => {
+                    const isLast = index === milestones.length - 1;
+
+                    return (
+                      <div
+                        key={item.n}
+                        className="group relative flex gap-3"
+                      >
+                        {/* Number */}
+                        <div
+                          className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white shadow-sm ring-4 ring-card"
+                          style={{
+                            backgroundColor: item.color,
+                          }}
+                        >
+                          {item.n}
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex min-w-0 flex-1 items-center justify-between gap-3 rounded-xl border border-transparent px-2 py-1.5 transition-colors group-hover:border-border/60 group-hover:bg-background/60">
+                          <div className="min-w-0">
+                            <div
+                              className="text-[10px] font-semibold sm:text-[11px]"
+                              style={{
+                                color: item.color,
+                              }}
+                            >
+                              {item.title}
+                            </div>
+
+                            <p className="mt-0.5 text-[9px] leading-4 text-muted-foreground">
+                              {item.text}
+                            </p>
+                          </div>
+
+                          {!isLast && (
+                            <ArrowRight className="hidden h-3.5 w-3.5 shrink-0 text-muted-foreground/40 sm:block" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </SectionWrapper>
+  );
+}
+
+/* =========================================================
+   MINI STAT
+========================================================= */
+
+function MiniStat({
+  icon,
+  value,
+  label,
+}: {
+  icon: React.ReactNode;
+  value: string;
+  label: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border/50 bg-background/60 p-3">
+      <div className="flex items-center gap-1.5 text-muted-foreground">
+        <span className="text-primary [&_svg]:h-3.5 [&_svg]:w-3.5">
+          {icon}
+        </span>
+
+        <span className="text-[9px]">
+          {label}
+        </span>
+      </div>
+
+      <div className="mt-1.5 text-[17px] font-semibold tracking-tight text-foreground">
+        {value}
+      </div>
+    </div>
   );
 }

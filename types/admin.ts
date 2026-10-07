@@ -1,3 +1,5 @@
+import type { ApplicationStatusValue } from "@/lib/db/schema/application-status";
+
 export interface AdminUser {
   id: string;
   name: string;
@@ -36,7 +38,8 @@ export interface AdminJobPosting {
   company?: { id: string; name: string; slug: string };
 }
 
-export type AdminApplicationStatus = "submitted" | "under_review" | "shortlisted" | "rejected";
+/** Mirrors the jobseeker-side application statuses (lib/db/schema/application-status.ts). */
+export type AdminApplicationStatus = ApplicationStatusValue;
 
 export interface AdminApplication {
   id: string;
@@ -114,4 +117,10 @@ export interface AdminAnalyticsCharts {
   employerGrowth: { period: string; count: number }[];
   topCategories: { name: string; count: number }[];
   topLocations: { name: string; count: number }[];
+}
+
+/** Extra counts returned alongside a list so page headers don't need a second request. */
+export interface AdminListSummary {
+  pendingReview?: number;
+  pending?: number;
 }

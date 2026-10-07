@@ -37,7 +37,7 @@ const sections: Section[] = [
     title: "2. Information We Collect",
     body: [
       "Account information may include your name, email address, profile information, authentication information, and other details you provide when creating or accessing an account.",
-      "Job seeker information may include your CV or resume, cover letters, education, skills, work experience, career preferences, applications, saved jobs, interview information, and other information you choose to provide.",
+      "Job seeker information may include cover letters, education, skills, work experience, career preferences, applications, saved jobs, interview information, and other information you choose to provide.",
       "Employer information may include your name, company name, business information, contact details, job descriptions, recruitment requirements, and other information submitted when using employer features.",
       "Application information may include information you submit when applying for a position, including documents and information contained in your application materials.",
       "Technical and usage information may include browser type, device information, IP address, pages visited, features used, approximate activity times, and other technical information collected automatically when you interact with JobTrail.",
@@ -48,7 +48,7 @@ const sections: Section[] = [
     id: "how-we-collect",
     title: "3. How We Collect Information",
     body: [
-      "We collect information directly from you when you create an account, complete your profile, upload a CV, submit an application, publish a job, contact us, or otherwise provide information through JobTrail.",
+      "We collect information directly from you when you create an account, complete your profile, submit an application, publish a job, contact us, or otherwise provide information through JobTrail.",
       "Some information is collected automatically when you use the platform, including technical, device, security, and usage information.",
       "Where you choose to authenticate using a third-party identity provider, such as Google, we may receive information that the provider makes available to us in accordance with your authorization and that provider's policies.",
     ],

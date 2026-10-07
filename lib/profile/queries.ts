@@ -1,10 +1,10 @@
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { candidateProfiles, resumes, users, type CandidateProfile } from "@/lib/db/schema";
+import { candidateProfiles, users, type CandidateProfile } from "@/lib/db/schema";
 import type { JobseekerProfile, ProfileResponse } from "@/types/profile";
 import { computeCompleteness } from "@/lib/profile/completeness";
-import { pickBestResume, type JobseekerContext } from "@/lib/profile/context";
+import type { JobseekerContext } from "@/lib/profile/context";
 import type { ProfilePatch } from "@/lib/profile/sanitizeProfileInput";
 
 /** Stored row (or nothing yet) → the plain shape the API/UI use. */
@@ -32,39 +32,14 @@ export function toProfile(row: CandidateProfile | undefined): JobseekerProfile {
   };
 }
 
-/** Loads the user, their profile row and the facts from their best resume. */
+/** Loads the user and their candidate profile. */
 export async function loadJobseekerContext(userId: string): Promise<JobseekerContext | null> {
   const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
   if (!user) return null;
-
-  const [profileRow] = await db
-    .select()
-    .from(candidateProfiles)
-    .where(eq(candidateProfiles.userId, userId))
-    .limit(1);
-
-  const resumeRows = await db
-    .select({
-      contact: resumes.contact,
-      summary: resumes.summary,
-      experience: resumes.experience,
-      education: resumes.education,
-      skills: resumes.skills,
-      updatedAt: resumes.updatedAt,
-    })
-    .from(resumes)
-    .where(eq(resumes.userId, userId))
-    .orderBy(desc(resumes.updatedAt));
-
+  const [profileRow] = await db.select().from(candidateProfiles).where(eq(candidateProfiles.userId, userId)).limit(1);
   return {
-    user: {
-      name: user.name,
-      email: user.email,
-      emailVerified: user.emailVerified,
-      picture: user.picture,
-    },
+    user: { name: user.name, email: user.email, emailVerified: user.emailVerified, picture: user.picture },
     profile: toProfile(profileRow),
-    resume: pickBestResume(resumeRows),
   };
 }
 
@@ -80,7 +55,6 @@ export async function getProfileResponse(userId: string): Promise<ProfileRespons
     completeness: computeCompleteness({
       user: ctx.user,
       profile: ctx.profile,
-      resume: ctx.resume,
     }),
   };
 }

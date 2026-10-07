@@ -27,7 +27,6 @@ export function mapBackendJobToFrontend(job: BackendJob): Job {
     applicationStatus: (job.applicationStatus ?? "applied").toLowerCase(),
     priority: job.priority ?? "medium",
     tags: job.tags ?? [],
-    resumeFile: job.resumeFile ?? null,
     coverLetterFile: job.coverLetterFile ?? null,
     attachments: (job.attachments ?? []) as JobAttachment[],
     contactEmail: job.contactEmail ?? "",
@@ -101,9 +100,6 @@ export function mapFrontendJobToBackend(
   if (job.salaryMax !== undefined) payload.salaryMax = job.salaryMax;
   if (job.isArchived !== undefined) payload.isArchived = job.isArchived;
 
-  if (job.resumeFile !== undefined && typeof job.resumeFile === "string") {
-    payload.resumeFile = job.resumeFile;
-  }
   if (job.coverLetterFile !== undefined && typeof job.coverLetterFile === "string") {
     payload.coverLetterFile = job.coverLetterFile;
   }

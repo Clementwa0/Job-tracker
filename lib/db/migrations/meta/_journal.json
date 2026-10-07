@@ -57,6 +57,13 @@
       "when": 1790101656478,
       "tag": "0007_fancy_moondragon",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791158400000,
+      "tag": "0008_remove_resume_features",
+      "breakpoints": true
     }
   ]
 }

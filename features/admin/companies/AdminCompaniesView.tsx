@@ -1,16 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import PageHeader from "@/components/shared/dashboard/PageHeader";
 import AdminPagination from "@/features/admin/components/AdminPagination";
-import { AdminEmptyState } from "@/features/admin/components/AdminListStates";
-import { useAdminPagination } from "@/features/admin/hooks/useAdminPagination";
-import { useAdminCompanies } from "@/features/admin/dummy/adminDummyStore";
+import {
+  AdminEmptyState,
+  AdminErrorState,
+  AdminTableSkeleton,
+} from "@/features/admin/components/AdminListStates";
+import { useAdminList, type AdminListQuery } from "@/features/admin/hooks/useAdminList";
 import AdminCompanyActions from "@/features/admin/companies/AdminCompanyActions";
+import { adminService } from "@/features/admin/services/admin.client";
 import type { AdminCompany } from "@/types/admin";
 
 const STATUS_STYLES: Record<AdminCompany["status"], string> = {
@@ -41,26 +44,19 @@ const formatDate = (date?: string) => {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
+const EMPTY_SUMMARY: { pending?: number } = {};
+
+async function fetchCompanies({ page, limit, q, status }: AdminListQuery) {
+  const { companies, meta, summary } = await adminService.listCompanies({ page, limit, q, status });
+  return { items: companies, meta, summary };
+}
+
 export default function AdminCompaniesView() {
-  const allCompanies = useAdminCompanies();
-  const { page, limit, setPage, setLimit } = useAdminPagination();
-  const [q, setQ] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const list = useAdminList<AdminCompany, { pending?: number }>(fetchCompanies, EMPTY_SUMMARY);
+  const { items, meta, loading, error, reload, q, setQ, statusFilter, setStatusFilter } = list;
 
-  const filtered = useMemo(() => {
-    return allCompanies.filter((c) => {
-      if (statusFilter !== "all" && c.status !== statusFilter) return false;
-      if (q && !c.name.toLowerCase().includes(q.toLowerCase())) return false;
-      return true;
-    });
-  }, [allCompanies, statusFilter, q]);
-
-  const total = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-  const currentPage = Math.min(page, totalPages);
-  const paged = filtered.slice((currentPage - 1) * limit, currentPage * limit);
-
-  const pendingCount = allCompanies.filter((c) => c.status === "pending").length;
+  const pendingCount = list.summary.pending ?? 0;
+  const initialLoad = loading && items.length === 0;
 
   return (
     <div className="space-y-6">
@@ -94,7 +90,11 @@ export default function AdminCompaniesView() {
         </Select>
       </div>
 
-      {paged.length === 0 ? (
+      {error && items.length === 0 ? (
+        <AdminErrorState message={error} onRetry={reload} />
+      ) : initialLoad ? (
+        <AdminTableSkeleton cols={5} />
+      ) : items.length === 0 ? (
         <AdminEmptyState
           title="No companies match your filters"
           description="Try a different search term or status."
@@ -113,7 +113,7 @@ export default function AdminCompaniesView() {
                 </tr>
               </thead>
               <tbody>
-                {paged.map((company) => (
+                {items.map((company) => (
                   <tr key={company.id} className="border-t border-border/60">
                     <td className="px-4 py-3">
                       <p className="font-medium">{company.name}</p>
@@ -125,7 +125,7 @@ export default function AdminCompaniesView() {
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{formatDate(company.createdAt)}</td>
                     <td className="px-4 py-3">
-                      <AdminCompanyActions company={company} />
+                      <AdminCompanyActions company={company} onChanged={reload} />
                     </td>
                   </tr>
                 ))}
@@ -134,11 +134,12 @@ export default function AdminCompaniesView() {
           </div>
 
           <AdminPagination
-            meta={{ page: currentPage, limit, total, totalPages }}
-            page={currentPage}
-            limit={limit}
-            onPageChange={setPage}
-            onLimitChange={setLimit}
+            meta={meta}
+            page={list.page}
+            limit={list.limit as 10 | 20 | 50 | 100}
+            onPageChange={list.setPage}
+            onLimitChange={list.setLimit}
+            loading={loading}
           />
         </>
       )}

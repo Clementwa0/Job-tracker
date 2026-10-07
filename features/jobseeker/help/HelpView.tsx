@@ -31,7 +31,7 @@ export default function HelpView() {
           Help &amp; Support
         </h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Answers to common questions about applications, interviews, resumes, and your account.
+          Answers to common questions about applications, interviews, and your account.
         </p>
       </div>
 

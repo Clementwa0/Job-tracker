@@ -323,12 +323,7 @@ export default function JobDetailsPage() {
                 </p>
 
                 <div className="mt-2.5 border-t border-info/20 pt-2 text-[11px] leading-relaxed text-muted-foreground">
-                  Please send your{" "}
-                  <strong className="font-medium text-foreground">CV</strong> and{" "}
-                  <strong className="font-medium text-foreground">
-                    cover letter
-                  </strong>{" "}
-                  directly to this address.
+                  Please send your application and cover letter directly to this address.
                 </div>
 
                 <Button

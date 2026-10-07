@@ -273,7 +273,7 @@ export function useAnalyticsData(period: Period = "30d") {
         description:
           topSkills.length > 0
             ? "These show up most often in your matched applications."
-            : "Run resume matching on a job to surface your top skills here.",
+            : "Add match details to your applications to surface your top skills here.",
       },
       {
         icon: "lightbulb" as const,

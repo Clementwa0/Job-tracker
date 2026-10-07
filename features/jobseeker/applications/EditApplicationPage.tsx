@@ -37,7 +37,6 @@ const emptyJob: Job = {
   source: "",
   notes: "",
   interviews: [],
-  resumeFile: null,
   companyLogo: "",
   workMode: "",
   salaryMin: null,

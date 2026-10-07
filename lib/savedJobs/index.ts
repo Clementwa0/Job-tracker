@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/features/auth/hooks/AuthContext";
 import { getApiErrorMessage } from "@/lib/apiError";
 import { useResource } from "@/lib/client/useResource";
-import { migrateLegacySavedJobs } from "@/lib/legacyLocalData";
+import { migrateLegacySavedJobs } from "@/lib/migrations/legacyLocalData";
 import { savedJobService } from "@/lib/savedJobs/service";
 import type { SavedJob, SaveJobInput } from "@/lib/savedJobs/types";
 

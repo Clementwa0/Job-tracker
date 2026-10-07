@@ -9,7 +9,7 @@ import { LOGIN_PATHS, DASHBOARD_PATHS, type UserRole } from "@/lib/auth/redirect
 
 function roleRequiredFor(pathname: string): UserRole | null {
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") return "admin";
-  if (pathname.startsWith("/employer/dashboard")) return "employer";
+  if (pathname === "/employer" || pathname.startsWith("/employer/dashboard")) return "employer";
   if (pathname.startsWith("/jobseeker")) return "user";
   return null;
 }
@@ -48,5 +48,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/employer/dashboard/:path*", "/jobseeker/:path*"],
+  matcher: ["/admin/:path*", "/employer", "/employer/dashboard/:path*", "/jobseeker/:path*"],
 };
