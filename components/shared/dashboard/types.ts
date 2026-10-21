@@ -7,6 +7,7 @@ export interface DashboardNavItem {
   title: string;
   href: string;
   icon: LucideIcon;
+  /** Match the path exactly (use for dashboard roots so they don't stay active on sub-pages). */
   exact?: boolean;
 }
 

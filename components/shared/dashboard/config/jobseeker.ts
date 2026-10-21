@@ -33,9 +33,8 @@ export const jobseekerConfig: DashboardConfig = {
     {
       label: "Discover",
       items: [
-        { title: "Browse Jobs", href: "/job-board", icon: Search },
-        { title: "Recommended Jobs", href: "/jobseeker/recommended", icon: BrainCircuit }
-      ],
+        {title: "Recommended Jobs", href: "/jobseeker/recommended", icon: BrainCircuit},  
+        { title: "Browse Jobs", href: "/job-board", icon: Search }],
 
     },
     {

@@ -40,7 +40,7 @@ import type {
 
 import { cn } from "@/lib/utils";
 
-const PAGE_SIZE = 100;
+const PAGE_SIZE = 20;
 
 interface Result {
   key: string;

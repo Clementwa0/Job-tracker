@@ -1,5 +1,5 @@
-import { TopOpportunities } from "@/features/jobseeker/dashboard";
+import TopOpportunities from "@/features/jobseeker/jobs/components/TopOpportunities";
 
-export default function Recommendedjobs() {
-    return <TopOpportunities/>
-}
+export default function RecommendedJobsPage() {
+    return <TopOpportunities variant="page" />;
+}   
