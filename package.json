@@ -13,7 +13,8 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:create-admin": "tsx scripts/create-admin.ts",
-    "db:seed-jobs": "tsx scripts/seed-job-postings.ts"
+    "db:seed-jobs": "tsx scripts/seed-job-postings.ts",
+    "db:ingest-jobs": "tsx scripts/ingest-scraped-jobs.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
