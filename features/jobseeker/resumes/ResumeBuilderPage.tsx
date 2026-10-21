@@ -141,7 +141,7 @@ export default function ResumeBuilderPage({ id }: { id: string }) {
               </div>
             </TabsContent>
             <TabsContent value="ats" className="mt-4"><AtsPanel data={data} /></TabsContent>
-            <TabsContent value="match" className="mt-4"><JobMatchPanel data={data} onChange={update} /></TabsContent>
+            <TabsContent value="match" className="mt-4"><JobMatchPanel data={data} /></TabsContent>
           </Tabs>
         </aside>
         <Preview data={data} visible={mobileView === "preview"} />
