@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  BrainCircuit,
   BriefcaseBusiness,
   CalendarDays,
   FileText,
@@ -31,7 +32,11 @@ export const jobseekerConfig: DashboardConfig = {
     },
     {
       label: "Discover",
-      items: [{ title: "Browse Jobs", href: "/job-board", icon: Search }],
+      items: [
+        { title: "Browse Jobs", href: "/job-board", icon: Search },
+        { title: "Recommended Jobs", href: "/jobseeker/recommended", icon: BrainCircuit }
+      ],
+
     },
     {
       label: "Account",

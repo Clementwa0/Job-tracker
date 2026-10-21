@@ -14,13 +14,9 @@ const deadlineLabel = (daysLeft: number | null) => {
   return `${daysLeft} ${daysLeft === 1 ? "day" : "days"} left`;
 };
 
-/**
- * Personalised recommendations: open postings ranked by how well they fit the
- * user's skills, target roles, location, experience, salary and preferences.
- * Jobs already applied to (and closed ones) are filtered out by the API.
- */
+
 const TopOpportunities = () => {
-  const { data, isLoading } = useRecommendations(4);
+  const { data, isLoading } = useRecommendations();
   const jobs = data?.jobs ?? [];
 
   return (

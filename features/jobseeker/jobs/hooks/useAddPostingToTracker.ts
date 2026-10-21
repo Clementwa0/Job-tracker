@@ -27,6 +27,7 @@ function salaryRangeLabel(
 export function buildTrackerPayloadFromPosting(job: PublicJobDetail | PublicJobListItem): JobPayload {
   const currency = job.salaryCurrency || "KES";
   const detail = "applyMethod" in job;
+  const isLiveExternalJob = job.id.startsWith("scraper-");
   return {
     jobTitle: job.title,
     companyName: job.company?.name || "",
@@ -38,8 +39,10 @@ export function buildTrackerPayloadFromPosting(job: PublicJobDetail | PublicJobL
     applicationDeadline: job.applicationDeadline || "",
     applicationStatus: "applied",
     source: "manual",
-    jobPostingId: job.id,
-    jobPostingUrl: `/jobs/${job.slug}`,
+    // External source listings are deliberately not persisted as job_postings.
+    // A user-created tracker entry may retain a link, but no FK to a local posting.
+    jobPostingId: isLiveExternalJob ? undefined : job.id,
+    jobPostingUrl: isLiveExternalJob ? `/job-board/${job.slug}` : `/jobs/${job.slug}`,
     jobDescription: detail ? job.description : "",
     salaryMin: job.salaryMin ?? null,
     salaryMax: job.salaryMax ?? null,

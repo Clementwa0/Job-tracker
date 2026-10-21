@@ -11,21 +11,43 @@ export type ProfileUpdate = Partial<JobseekerProfile> & { name?: string };
 
 export const profileService = {
   async get(): Promise<ProfileResponse> {
-    const { data } = await axiosInstance.get<ApiSuccessResponse<ProfileResponse>>("/profile");
+    const { data } =
+      await axiosInstance.get<ApiSuccessResponse<ProfileResponse>>(
+        "/profile",
+      );
+
     return data.data;
   },
 
   async update(patch: ProfileUpdate): Promise<ProfileResponse> {
-    const { data } = await axiosInstance.put<ApiSuccessResponse<ProfileResponse>>("/profile", patch);
+    const { data } =
+      await axiosInstance.put<ApiSuccessResponse<ProfileResponse>>(
+        "/profile",
+        patch,
+      );
+
     return data.data;
   },
 };
 
+/** Fetch personalised job recommendations with match scores. */
 export const recommendationService = {
-  async list(limit = 4): Promise<RecommendationsResponse> {
-    const { data } = await axiosInstance.get<ApiSuccessResponse<RecommendationsResponse>>(
-      `/recommendations?limit=${limit}`,
+  async list(limit = 20): Promise<RecommendationsResponse> {
+    const normalizedLimit = Math.max(
+      1,
+      Math.min(100, Math.floor(limit)),
     );
+
+    const { data } =
+      await axiosInstance.get<ApiSuccessResponse<RecommendationsResponse>>(
+        "/recommendations",
+        {
+          params: {
+            limit: normalizedLimit,
+          },
+        },
+      );
+
     return data.data;
   },
 };
