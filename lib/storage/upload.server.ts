@@ -8,6 +8,7 @@ import {
 } from "@/lib/storage/cloudinary.server";
 
 export const MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024;
+export const MAX_DOCUMENT_SIZE_BYTES = 3 * 1024 * 1024;
 
 /** Every asset lives under this folder, then a per-user subfolder. */
 const FOLDER = "jobtrail";
@@ -57,13 +58,20 @@ const FILE_TYPES: Record<
 
 export class UploadValidationError extends Error {}
 
-export async function storeUploadedFile(file: File, userId: string, privateFile = false) {
+export async function storeUploadedFile(file: File, userId: string) {
   if (file.size === 0) throw new UploadValidationError("The file is empty.");
   if (file.size > MAX_UPLOAD_SIZE_BYTES) throw new UploadValidationError("File exceeds 5MB.");
 
   const extension = path.extname(file.name).toLowerCase();
   const spec = FILE_TYPES[file.type] || Object.values(FILE_TYPES).find((candidate) => candidate.ext === extension);
   if (!spec) throw new UploadValidationError("Unsupported file type.");
+  if (extension !== spec.ext && !(spec.ext === ".jpg" && extension === ".jpeg")) {
+    throw new UploadValidationError("File extension does not match the declared file type.");
+  }
+
+  if (spec.resourceType === "raw" && file.size > MAX_DOCUMENT_SIZE_BYTES) {
+    throw new UploadValidationError("Document files must be 3 MB or smaller.");
+  }
 
   const bytes = Buffer.from(await file.arrayBuffer());
   if (!spec.matches(bytes)) throw new UploadValidationError("The file's contents don't match its type.");
@@ -78,7 +86,6 @@ export async function storeUploadedFile(file: File, userId: string, privateFile 
     bytes,
     publicId,
     resourceType: spec.resourceType,
-    deliveryType: privateFile ? "authenticated" : "upload",
     mimeType,
     filename: file.name,
   });
@@ -90,7 +97,10 @@ export async function storeUploadedFile(file: File, userId: string, privateFile 
     name: file.name,
     type: mimeType,
     size: file.size,
-    bytes,
+    resourceType: uploaded.resourceType,
+    format: uploaded.format,
+    originalFilename: uploaded.originalFilename,
+    uploadedAt: uploaded.uploadedAt,
   };
 }
 
@@ -103,27 +113,4 @@ export async function deleteUploadedFile(url: string, userId: string): Promise<b
   if (!parsed || !parsed.publicId.startsWith(`${FOLDER}/${userId}/`)) return false;
   await deleteFromCloudinary(parsed.publicId, parsed.resourceType);
   return true;
-}
-
-export async function deletePrivateUploadedFile(publicId: string, userId: string): Promise<boolean> {
-  const resourceType = privateUploadResourceType(publicId, userId);
-  if (!resourceType) return false;
-  await deleteFromCloudinary(publicId, resourceType, "authenticated");
-  return true;
-}
-
-export function privateUploadResourceType(
-  publicId: string,
-  userId: string,
-): CloudinaryResourceType | null {
-  const prefix = `${FOLDER}/${userId}/`;
-  if (!publicId.startsWith(prefix)) return null;
-  const filename = publicId.slice(prefix.length);
-  if (/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(filename)) {
-    return "image";
-  }
-  if (/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}\.(?:pdf|doc|docx|txt)$/i.test(filename)) {
-    return "raw";
-  }
-  return null;
 }

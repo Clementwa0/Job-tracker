@@ -6,13 +6,18 @@ export interface UploadedFile {
   name: string;
   type: string;
   size: number;
+  publicId: string;
+  secureUrl: string;
+  resourceType: "image" | "raw";
+  format: string;
+  originalFilename: string;
+  uploadedAt: string;
 }
 
 export const uploadService = {
-  async uploadFile(file: File, options: { private?: boolean } = {}): Promise<string> {
+  async uploadFile(file: File): Promise<string> {
     const formData = new FormData();
     formData.append("file", file);
-    if (options.private) formData.append("private", "true");
 
     const { data } = await axiosInstance.post<ApiSuccessResponse<UploadedFile>>(
       "/upload",
@@ -26,22 +31,10 @@ export const uploadService = {
   /** Best-effort removal of a previously uploaded file; never throws. */
   async deleteFile(url: string): Promise<void> {
     try {
-      const parsed = new URL(url, window.location.origin);
-      const publicId = parsed.pathname === "/api/upload" ? parsed.searchParams.get("publicId") : null;
-      await axiosInstance.delete("/upload", { params: publicId ? { publicId } : { url } });
+      await axiosInstance.delete("/upload", { params: { url } });
     } catch (error) {
       console.warn("Could not delete uploaded file:", error);
     }
-  },
-
-  async downloadFile(url: string, filename: string): Promise<void> {
-    const { data } = await axiosInstance.get<Blob>(url, { responseType: "blob" });
-    const objectUrl = URL.createObjectURL(data);
-    const anchor = document.createElement("a");
-    anchor.href = objectUrl;
-    anchor.download = filename;
-    anchor.click();
-    URL.revokeObjectURL(objectUrl);
   },
 };
 

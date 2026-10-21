@@ -9,7 +9,6 @@ import { createHash } from "crypto";
  */
 
 export type CloudinaryResourceType = "image" | "raw";
-type CloudinaryDeliveryType = "upload" | "authenticated";
 
 export interface CloudinaryConfig {
   cloudName: string;
@@ -50,8 +49,10 @@ export interface CloudinaryUploadResult {
   publicId: string;
   url: string;
   resourceType: CloudinaryResourceType;
-  deliveryType: CloudinaryDeliveryType;
   bytes: number;
+  format: string;
+  originalFilename: string;
+  uploadedAt: string;
 }
 
 /**
@@ -62,14 +63,13 @@ export async function uploadToCloudinary(opts: {
   bytes: Buffer;
   publicId: string;
   resourceType: CloudinaryResourceType;
-  deliveryType?: CloudinaryDeliveryType;
   mimeType: string;
   filename: string;
 }): Promise<CloudinaryUploadResult> {
   const { cloudName, apiKey, apiSecret } = getCloudinaryConfig();
   const timestamp = String(Math.floor(Date.now() / 1000));
-  const deliveryType = opts.deliveryType ?? "upload";
-  const signed = { overwrite: "false", public_id: opts.publicId, timestamp, type: deliveryType };
+
+  const signed = { overwrite: "false", public_id: opts.publicId, timestamp };
   const form = new FormData();
   form.append("file", new Blob([new Uint8Array(opts.bytes)], { type: opts.mimeType }), opts.filename);
   form.append("api_key", apiKey);
@@ -81,7 +81,7 @@ export async function uploadToCloudinary(opts: {
     body: form,
   });
   const json = (await response.json().catch(() => null)) as
-    | { public_id?: string; secure_url?: string; bytes?: number; error?: { message?: string } }
+    | { public_id?: string; secure_url?: string; bytes?: number; format?: string; original_filename?: string; created_at?: string; error?: { message?: string } }
     | null;
 
   if (!response.ok || !json?.secure_url || !json.public_id) {
@@ -89,42 +89,29 @@ export async function uploadToCloudinary(opts: {
   }
   return {
     publicId: json.public_id,
-    url: deliveryType === "authenticated"
-      ? `/api/upload?publicId=${encodeURIComponent(json.public_id)}`
-      : json.secure_url,
+    url: json.secure_url,
     resourceType: opts.resourceType,
-    deliveryType,
     bytes: json.bytes ?? opts.bytes.length,
+    format: json.format ?? opts.filename.split(".").pop()?.toLowerCase() ?? "",
+    originalFilename: json.original_filename ?? opts.filename,
+    uploadedAt: json.created_at ?? new Date().toISOString(),
   };
 }
 
-export function authenticatedDeliveryUrl(publicId: string, resourceType: CloudinaryResourceType): string {
-  const { cloudName, apiSecret } = getCloudinaryConfig();
-  const signature = createHash("sha1")
-    .update(`${publicId}${apiSecret}`)
-    .digest("base64")
-    .slice(0, 8)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-  const encodedPublicId = publicId.split("/").map(encodeURIComponent).join("/");
-  return `https://res.cloudinary.com/${cloudName}/${resourceType}/authenticated/s--${signature}--/${encodedPublicId}`;
-}
-
-export async function deleteFromCloudinary(
-  publicId: string,
-  resourceType: CloudinaryResourceType,
-  deliveryType: CloudinaryDeliveryType = "upload",
-): Promise<void> {
+export async function deleteFromCloudinary(publicId: string, resourceType: CloudinaryResourceType): Promise<void> {
   const { cloudName, apiKey, apiSecret } = getCloudinaryConfig();
   const timestamp = String(Math.floor(Date.now() / 1000));
-  const signed = { invalidate: "true", public_id: publicId, timestamp, type: deliveryType };
+  const signed = { invalidate: "true", public_id: publicId, timestamp };
 
   const body = new URLSearchParams({ ...signed, api_key: apiKey, signature: sign(signed, apiSecret) });
   const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/destroy`, {
     method: "POST",
     body,
   });
-  if (!response.ok) throw new CloudinaryRequestError(`Cloudinary delete failed (${response.status}).`);
+  const result = (await response.json().catch(() => null)) as { result?: string; error?: { message?: string } } | null;
+  if (!response.ok || result?.result !== "ok") {
+    throw new CloudinaryRequestError(result?.error?.message || `Cloudinary delete failed (${response.status}): ${result?.result ?? "unknown"}.`);
+  }
 }
 
 /**
