@@ -19,10 +19,12 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ProfileResumes } from "@/features/jobseeker/profile/ProfileResumes";
 import { useProfile } from "@/features/jobseeker/profile/hooks/useProfile";
 import type { ProfileUpdate } from "@/features/jobseeker/profile/services/profile.client";
 import { getApiErrorMessage } from "@/lib/apiError";
 import { JOB_TYPE_OPTIONS, WORK_MODE_OPTIONS, labelize } from "@/lib/profile/options";
+import type { ImportedResume } from "@/lib/resume/importGuard";
 import type { CertificationEntry, EducationEntry, ProfileResponse, WorkExperienceEntry } from "@/types/profile";
 
 const MAX_PROFILE_SKILLS = 50;
@@ -82,6 +84,7 @@ function CheckGroup({
 const emptyEducation = (): EducationEntry => ({ institution: "", degree: "", fieldOfStudy: "", startDate: "", endDate: "", currentlyStudying: false });
 const emptyCertification = (): CertificationEntry => ({ name: "", issuer: "", issueDate: "", expiryDate: "", credentialId: "", credentialUrl: "" });
 const emptyExperience = (): WorkExperienceEntry => ({ jobTitle: "", company: "", location: "", startDate: "", endDate: "", currentlyWorking: false, description: "" });
+const profileMonth = (value: string) => /^\d{4}$/.test(value) ? `${value}-01` : /^\d{4}-(0[1-9]|1[0-2])$/.test(value) ? value : "";
 
 function SkillsEditor({ skills, onChange }: { skills: string[]; onChange: (value: string[]) => void }) {
   const [value, setValue] = useState("");
@@ -185,6 +188,57 @@ function SettingsForm({ initial }: { initial: ProfileResponse }) {
     setStatus(null);
   };
 
+  const applyImportedResume = (resume: ImportedResume) => {
+    const { contact } = resume;
+    if (contact.fullName) update(setName, contact.fullName.slice(0, 100));
+    if (contact.title) update(setHeadline, contact.title.slice(0, 160));
+    if (contact.location) update(setLocation, contact.location.slice(0, 120));
+    if (contact.phone) update(setPhone, contact.phone.slice(0, 40));
+    if (resume.summary) update(setBio, resume.summary.slice(0, 2000));
+    if (contact.website) update(setWebsite, contact.website.slice(0, 300));
+    if (contact.linkedin) update(setLinkedinUrl, contact.linkedin.slice(0, 300));
+    if (contact.github) update(setGithubUrl, contact.github.slice(0, 300));
+
+    const importedSkills = [...new Map(resume.skills.flatMap((group) => group.items)
+      .map((skill) => skill.trim().slice(0, 80))
+      .filter(Boolean)
+      .map((skill) => [skill.toLowerCase(), skill])).values()].slice(0, 40);
+    if (importedSkills.length) update(setSkills, importedSkills);
+
+    const importedExperience: WorkExperienceEntry[] = resume.experience.slice(0, 40).map((entry) => ({
+      jobTitle: entry.role.slice(0, 300),
+      company: entry.company.slice(0, 300),
+      location: entry.location.slice(0, 300),
+      startDate: profileMonth(entry.startDate),
+      endDate: profileMonth(entry.endDate),
+      currentlyWorking: entry.current,
+      description: entry.bullets.join("\n").slice(0, 300),
+    }));
+    if (importedExperience.length) update(setWorkExperience, importedExperience);
+
+    const importedEducation: EducationEntry[] = resume.education.slice(0, 40).map((entry) => ({
+      institution: entry.school.slice(0, 300),
+      degree: entry.degree.slice(0, 300),
+      fieldOfStudy: entry.field.slice(0, 300),
+      startDate: profileMonth(entry.startDate),
+      endDate: profileMonth(entry.endDate),
+      currentlyStudying: false,
+    }));
+    if (importedEducation.length) update(setEducation, importedEducation);
+
+    const importedCertifications: CertificationEntry[] = resume.certifications.slice(0, 40).map((entry) => ({
+      name: entry.name.slice(0, 300),
+      issuer: entry.issuer.slice(0, 300),
+      issueDate: profileMonth(entry.date),
+      expiryDate: "",
+      credentialId: "",
+      credentialUrl: entry.url.slice(0, 300),
+    }));
+    if (importedCertifications.length) update(setCertifications, importedCertifications);
+
+    setStatus({ ok: true, message: "Resume details added. Review the fields and save your profile." });
+  };
+
   useEffect(() => {
     if (!isDirty) return;
     const warnOnUnload = (event: BeforeUnloadEvent) => {
@@ -262,6 +316,7 @@ function SettingsForm({ initial }: { initial: ProfileResponse }) {
         </p>
       </div>
 
+      <ProfileResumes onImported={applyImportedResume} />
       <Card className="space-y-4 border-border p-5 shadow-none">
         <h2 className="font-display text-base font-semibold tracking-tight">Profile</h2>
         <div className="grid gap-4 sm:grid-cols-2">

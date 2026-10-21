@@ -28,3 +28,4 @@ export * from "./interviews";
 export * from "./notifications";
 export * from "./audit-logs";
 export * from "./relations";
+export * from "./profile-resumes";
