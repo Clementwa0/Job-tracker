@@ -1,19 +1,30 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   CheckCircle2,
   AlertCircle,
   BriefcaseBusiness,
+  Info,
   Loader2,
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { resumeToText, scoreResume } from "@/lib/resume/ats";
+import { useDebounce } from "@/hooks/useDebounce";
+import { scoreResume } from "@/lib/resume/ats";
+import { analyzeJobMatch, type JobMatchResult } from "@/lib/resume/jobMatch";
 import type { ResumeData } from "@/lib/resume/types";
 
-function Ring({ value, label }: { value: number; label: string }) {
+function Ring({
+  value,
+  label,
+  suffix = "",
+}: {
+  value: number;
+  label: string;
+  suffix?: string;
+}) {
   const tone =
     value >= 80
       ? "text-success"
@@ -46,6 +57,7 @@ function Ring({ value, label }: { value: number; label: string }) {
         </svg>
         <span className="font-display text-3xl font-bold text-foreground">
           {value}
+          {suffix}
         </span>
       </div>
       <div>
@@ -114,36 +126,262 @@ export function AtsPanel({ data }: { data: ResumeData }) {
   );
 }
 
-const STOP_WORDS = new Set(
-  "about after again against also among because before being below between both could does doing during each few from further have having into itself more most other over same should some such than that their them then there these they this those through under until very what when where which while will with would your you the and for are but not was were has had can our out all any its may who use using role work experience skills required preferred responsibilities requirements including demonstrate strong team ability candidate position knowledge years".split(
-    " ",
-  ),
-);
+const MAX_TAILOR_CHARS = 10_000;
+const MIN_TAILOR_CHARS = 40;
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="space-y-1.5">
+      <h3 className="text-xs font-semibold">{title}</h3>
+      {children}
+    </section>
+  );
+}
+
+function Chips({
+  items,
+  tone,
+  limit = 14,
+}: {
+  items: string[];
+  tone: "success" | "warning";
+  limit?: number;
+}) {
+  const chip = (label: string) => (
+    <li
+      key={label}
+      className={`rounded-full px-2 py-0.5 text-xs ${
+        tone === "success"
+          ? "bg-success-soft text-success-soft-foreground"
+          : "bg-warning-soft text-warning-soft-foreground"
+      }`}
+    >
+      {label}
+    </li>
+  );
+  const shown = items.slice(0, limit);
+  const rest = items.slice(limit);
+  return (
+    <>
+      <ul className="flex flex-wrap gap-1.5">{shown.map(chip)}</ul>
+      {rest.length > 0 && (
+        <details className="text-xs text-muted-foreground">
+          <summary className="cursor-pointer">+{rest.length} more</summary>
+          <ul className="mt-1.5 flex flex-wrap gap-1.5">{rest.map(chip)}</ul>
+        </details>
+      )}
+    </>
+  );
+}
+
+function Check({ ok }: { ok: boolean }) {
+  return ok ? (
+    <>
+      <CheckCircle2 aria-hidden className="mt-0.5 size-3.5 shrink-0 text-success" />
+      <span className="sr-only">Found:</span>
+    </>
+  ) : (
+    <>
+      <AlertCircle aria-hidden className="mt-0.5 size-3.5 shrink-0 text-warning" />
+      <span className="sr-only">Not found:</span>
+    </>
+  );
+}
+
+function Lines({ lines }: { lines: { ok: boolean; text: string }[] }) {
+  return (
+    <ul className="space-y-1">
+      {lines.map((line) => (
+        <li key={line.text} className="flex gap-1.5 text-xs">
+          <Check ok={line.ok} />
+          <span>{line.text}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function RequirementList({
+  title,
+  items,
+}: {
+  title: string;
+  items: { label: string; found: boolean }[];
+}) {
+  if (!items.length) return null;
+  return (
+    <div className="space-y-1">
+      <h4 className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+        {title}
+      </h4>
+      <ul className="grid gap-x-3 gap-y-1 sm:grid-cols-2">
+        {items.map((item) => (
+          <li key={item.label} className="flex gap-1.5 text-xs">
+            <Check ok={item.found} />
+            <span>{item.label}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function JobMatchReport({ result }: { result: JobMatchResult }) {
+  const scored = result.score !== null;
+  const requiredItems = result.required;
+  const preferredItems = result.preferred;
+  return (
+    <div className="space-y-4" aria-live="polite">
+      {scored && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              Job Match Score
+            </p>
+            <Ring value={result.score as number} label={result.band} suffix="%" />
+          </div>
+          <dl className="space-y-1 text-sm">
+            <div className="flex justify-between gap-6">
+              <dt className="text-muted-foreground">Matched</dt>
+              <dd className="font-semibold">{result.matched.length}</dd>
+            </div>
+            <div className="flex justify-between gap-6">
+              <dt className="text-muted-foreground">Missing</dt>
+              <dd className="font-semibold">{result.missing.length}</dd>
+            </div>
+          </dl>
+        </div>
+      )}
+
+      {result.message && (
+        <p className="flex gap-1.5 text-xs text-muted-foreground">
+          <Info aria-hidden className="mt-0.5 size-3.5 shrink-0" />
+          {result.message}
+        </p>
+      )}
+
+      {scored && (
+        <Section title={`Why ${result.score}%?`}>
+          <div className="space-y-2.5 rounded-md border border-border bg-background/60 p-2.5">
+            {result.categories.map((category) => (
+              <div key={category.id}>
+                <div className="mb-1 flex justify-between text-xs">
+                  <span>{category.label}</span>
+                  <span className="text-muted-foreground">
+                    {category.points === null
+                      ? "Not specified"
+                      : `${category.points}/${category.max}`}
+                  </span>
+                </div>
+                {category.points !== null && (
+                  <Progress value={(category.points / category.max) * 100} />
+                )}
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {category.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            A resume-analysis indicator, not an employer&apos;s ATS score.
+            Categories the job description does not specify are left out
+            instead of counting as zero.
+          </p>
+        </Section>
+      )}
+
+      {result.matched.length > 0 && (
+        <Section title="Matched keywords">
+          <Chips tone="success" items={result.matched.map((t) => t.label)} />
+        </Section>
+      )}
+      {result.missing.length > 0 && (
+        <Section title="Missing keywords">
+          <Chips tone="warning" items={result.missing.map((t) => t.label)} />
+          <p className="text-[11px] text-muted-foreground">
+            Not found in your resume. These are never added automatically; only
+            add a skill if you genuinely have it.
+          </p>
+        </Section>
+      )}
+
+      {(requiredItems.length > 0 || preferredItems.length > 0) && (
+        <Section title="Job requirements">
+          <div className="space-y-2.5">
+            <RequirementList title="Required" items={requiredItems} />
+            <RequirementList title="Preferred" items={preferredItems} />
+          </div>
+        </Section>
+      )}
+      {result.experience.length > 0 && (
+        <Section title="Experience alignment">
+          <Lines lines={result.experience} />
+        </Section>
+      )}
+      {result.education.length > 0 && (
+        <Section title="Education & certifications">
+          <Lines lines={result.education} />
+        </Section>
+      )}
+
+      {result.strengths.length > 0 && (
+        <Section title="Your strengths">
+          <Lines lines={result.strengths.map((text) => ({ ok: true, text }))} />
+        </Section>
+      )}
+      {result.gaps.length > 0 && (
+        <Section title="Main gaps">
+          <ul className="space-y-1">
+            {result.gaps.map((gap) => (
+              <li key={gap} className="flex gap-1.5 text-xs">
+                <span aria-hidden className="text-muted-foreground">
+                  •
+                </span>
+                <span>{gap}</span>
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+    </div>
+  );
+}
 
 export function JobMatchPanel({
   data,
   onTailor,
   tailoring,
+  jobDescription,
+  onJobDescriptionChange,
 }: {
   data: ResumeData;
   onTailor?: (jobDescription: string) => void;
   tailoring?: boolean;
+  /** Optional controlled value, so the pasted text survives tab switches. It is held in memory only, never saved. */
+  jobDescription?: string;
+  onJobDescriptionChange?: (value: string) => void;
 }) {
-  const [description, setDescription] = useState("");
-  const result = useMemo(() => {
-    const resume = resumeToText(data).toLowerCase();
-    const terms = [
-      ...new Set(description.toLowerCase().match(/[a-z][a-z+#.-]{2,}/g) ?? []),
-    ].filter((term) => !STOP_WORDS.has(term));
-    const matched = terms.filter((term) => resume.includes(term));
-    return {
-      matched,
-      missing: terms.filter((term) => !resume.includes(term)),
-      score: terms.length
-        ? Math.round((matched.length / terms.length) * 100)
-        : 0,
-    };
-  }, [data, description]);
+  const [local, setLocal] = useState("");
+  const description = jobDescription ?? local;
+  const setDescription = (value: string) => {
+    if (onJobDescriptionChange) onJobDescriptionChange(value);
+    else setLocal(value);
+  };
+  const debounced = useDebounce(description, 300);
+  // Clearing the box resets the panel immediately; typing waits for a short pause.
+  const analysed = description.trim() ? debounced : "";
+  const result = useMemo(
+    () => analyzeJobMatch(data, analysed),
+    [data, analysed],
+  );
+  const trimmed = description.trim();
+  const tooLong = trimmed.length > MAX_TAILOR_CHARS;
 
   return (
     <div className="space-y-4 rounded-md border border-border bg-card/60 p-3">
@@ -152,7 +390,8 @@ export function JobMatchPanel({
         <h2 className="text-sm font-semibold">Job match</h2>
       </div>
       <p className="text-xs text-muted-foreground">
-        Paste a job description to compare its keywords with this resume.
+        How well this resume fits one specific job. This is different from your
+        ATS score, which shows how ATS-friendly the resume is.
       </p>
       <textarea
         aria-label="Job description for match analysis"
@@ -161,60 +400,43 @@ export function JobMatchPanel({
         value={description}
         onChange={(event) => setDescription(event.target.value)}
       />
+
+      {result.status === "empty" && (
+        <p className="text-xs text-muted-foreground" aria-live="polite">
+          Paste a job description to see how well your resume matches this
+          role.
+        </p>
+      )}
+      {result.status === "short" && (
+        <p
+          className="flex gap-1.5 text-xs text-muted-foreground"
+          aria-live="polite"
+        >
+          <Info aria-hidden className="mt-0.5 size-3.5 shrink-0" />
+          {result.message}
+        </p>
+      )}
+      {result.status === "ready" && <JobMatchReport result={result} />}
+
       {onTailor && (
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 border-t border-border pt-3">
           <Button
             type="button"
             variant="outline"
             size="sm"
-            disabled={tailoring || description.trim().length < 40}
-            onClick={() => onTailor(description.trim())}
+            disabled={
+              tailoring || trimmed.length < MIN_TAILOR_CHARS || tooLong
+            }
+            onClick={() => onTailor(trimmed)}
           >
             {tailoring ? <Loader2 className="animate-spin" /> : <Sparkles />}
             {tailoring ? "Tailoring…" : "Tailor to Job"}
           </Button>
           <p className="text-xs text-muted-foreground">
-            Suggests wording and skill order for this role using only what your
-            resume already supports. You review every change.
+            {tooLong
+              ? `Tailor to Job accepts up to ${MAX_TAILOR_CHARS.toLocaleString()} characters. Trim the description to use it.`
+              : "Suggests wording and skill order for this role using only what your resume already supports. Missing keywords are never added, and you review every change."}
           </p>
-        </div>
-      )}
-      {description.trim() && (
-        <div
-          className="space-y-3 rounded-md border border-border bg-card/60 p-3"
-          aria-live="polite"
-        >
-          <div className="flex items-center justify-between text-sm">
-            <span>Keyword coverage</span>
-            <strong>{result.score}%</strong>
-          </div>
-          <Progress value={result.score} />
-          <p className="text-xs text-muted-foreground">
-            A keyword comparison to guide tailoring, not a hiring prediction.
-          </p>
-          {result.matched.length > 0 && (
-            <div>
-              <h3 className="mb-1 text-xs font-semibold">Found in resume</h3>
-              <p className="text-xs text-muted-foreground">
-                {result.matched.join(", ")}
-              </p>
-            </div>
-          )}
-          {result.missing.length > 0 && (
-            <div>
-              <h3 className="mb-1 text-xs font-semibold">
-                Consider addressing
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                {result.missing.join(", ")}
-              </p>
-            </div>
-          )}
-          {!result.matched.length && !result.missing.length && (
-            <p className="text-xs text-muted-foreground">
-              Add more job description text to compare keywords.
-            </p>
-          )}
         </div>
       )}
     </div>

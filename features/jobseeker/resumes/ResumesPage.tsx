@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Check, Copy, FilePlus2, FileUp, Loader2, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Check, Copy, FileDown, FilePlus2, FileUp, Loader2, Trash2 } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import axiosInstance from "@/lib/axiosInstance";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { uploadService } from "@/lib/storage/upload.client";
 import { ScaledResume } from "@/features/jobseeker/resumes/components/templates";
 import { scoreResume } from "@/lib/resume/ats";
 import { useResumes } from "@/lib/resume/storage";
@@ -71,7 +72,15 @@ export default function ResumesPage() {
       });
       const resume = normalizeResume(response.data.data as Partial<ResumeData> & Record<string, unknown>);
       const baseName = file.name.replace(/\.[^.]+$/, "").trim() || "Imported resume";
-      const id = create(resume, baseName);
+      // Keep the original CV in Cloudinary. Best-effort: a storage hiccup must not lose the imported resume.
+      let sourceFile: { url: string; name: string; size: number } | undefined;
+      try {
+        const url = await uploadService.uploadFile(file, { private: true });
+        sourceFile = { url, name: file.name, size: file.size };
+      } catch (uploadError) {
+        console.warn("Could not store the original CV:", uploadError);
+      }
+      const id = create(resume, baseName, sourceFile);
       const { improvements } = response.data;
       const summary = [
         improvements?.experience && "✓ Experience improved",
@@ -143,8 +152,22 @@ export default function ResumesPage() {
                       </span>
                     </Link>
                     <div className="flex shrink-0">
+                      {resume.meta!.sourceFile && (
+                        <button
+                          type="button"
+                          aria-label={`Download original CV for ${resume.meta!.name}`}
+                          className={buttonVariants({ size: "icon-sm", variant: "ghost" })}
+                          onClick={() => void uploadService.downloadFile(resume.meta!.sourceFile!.url, resume.meta!.sourceFile!.name)}
+                        >
+                          <FileDown />
+                        </button>
+                      )}
                       <Button size="icon-sm" variant="ghost" aria-label={`Duplicate ${resume.meta!.name}`} onClick={() => duplicate(id)}><Copy /></Button>
-                      <Button size="icon-sm" variant="ghost" aria-label={`Delete ${resume.meta!.name}`} onClick={() => { if (window.confirm("Delete this resume?")) remove(id); }}><Trash2 /></Button>
+                      <Button size="icon-sm" variant="ghost" aria-label={`Delete ${resume.meta!.name}`} onClick={() => {
+                        if (!window.confirm("Delete this resume?")) return;
+                        if (resume.meta!.sourceFile) void uploadService.deleteFile(resume.meta!.sourceFile.url);
+                        remove(id);
+                      }}><Trash2 /></Button>
                     </div>
                   </div>
                 </Card>

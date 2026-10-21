@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { normalizeResume, uid, type ResumeData } from "./types";
+import { normalizeResume, uid, type ResumeData, type ResumeSourceFile } from "./types";
 
 const KEY = "jobtrail.resumes.v1";
 
@@ -34,9 +34,12 @@ export function useResumes() {
     };
   }, []);
 
-  const create = useCallback((base: ResumeData, name: string) => {
+  const create = useCallback((base: ResumeData, name: string, sourceFile?: ResumeSourceFile) => {
     const now = Date.now();
-    const r = normalizeResume({ ...base, meta: { id: uid(), name, createdAt: now, updatedAt: now } });
+    const r = normalizeResume({
+      ...base,
+      meta: { id: uid(), name, createdAt: now, updatedAt: now, ...(sourceFile ? { sourceFile } : {}) },
+    });
     write([r, ...read()]);
     return r.meta!.id;
   }, []);

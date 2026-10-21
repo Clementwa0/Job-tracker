@@ -48,7 +48,7 @@ const PROFESSION_RE = /\b(engineer|developer|designer|analyst|manager|accountant
 const ROLE_STOP = new Set(["senior", "junior", "lead", "chief", "head", "principal", "associate", "intern", "trainee", "the", "and", "of", "for"]);
 
 /** Searchable domain vocabulary beyond the shared technology list: tools, methods and business terms. */
-const KNOWN_TERMS = new Set([
+export const KNOWN_TERMS = new Set([
   ...TECH_TERMS,
   ...`react,next.js,node.js,express,redux,html5,css3,c++,c#,.net,windows,macos,workstation,printer,router,firewall,vpn,dns,tcp/ip,lan,wan,wifi,server,network,database,cloud,api,rest api,graphql,microservice,web application,website,web app,mobile app,software,hardware,infrastructure,automation,deployment,monitoring,debugging,testing,unit testing,quality assurance,version control,ci/cd,machine learning,data analysis,data science,data entry,data visualization,power bi,excel,microsoft excel,microsoft office,microsoft word,word,powerpoint,outlook,google workspace,google analytics,active directory,office 365,microsoft 365,help desk,technical support,troubleshooting,cybersecurity,security,encryption,linux,ubuntu,sap,erp,crm,hubspot,salesforce,quickbooks,xero,sage,tally,zoho,seo,social media,content creation,copywriting,email marketing,campaign,branding,market research,customer service,customer support,customer,client,stakeholder,vendor,supplier,procurement,logistics,supply chain,inventory,warehouse,budgeting,budget,forecasting,financial reporting,accounting,bookkeeping,payroll,invoicing,invoice,reconciliation,auditing,audit,tax,compliance,risk management,reporting,dashboard,documentation,project management,product management,process improvement,workflow,scheduling,negotiation,recruitment,onboarding,training,coaching,sales,revenue,lead generation,analytics,agile,scrum,kanban,lean,six sigma,teaching,curriculum,lesson planning,patient care,nursing,pharmacy,laboratory,clinical,research,policy,fundraising,grant writing,event planning,translation,photography,video editing,autocad,solidworks,photoshop,illustrator,figma`.split(",").map((t) => t.trim()).filter(Boolean).map(termKey),
 ]);
@@ -296,11 +296,11 @@ function scoreSkills(d: ResumeData, notes: Notes, body: string): { value: number
 /* ------------------------------------------------------------------------------------------------ */
 
 type DateKind = "iso" | "year" | "name" | "slash" | "other";
-interface ParsedDate { kind: DateKind; lo: number; hi: number }
+export interface ParsedDate { kind: DateKind; lo: number; hi: number }
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
 /** Understands 2021-03, 03/2021, Mar 2021, March 2021 and 2021. "Present"/"Current" and empty return null. */
-function parseDate(raw: string): ParsedDate | null {
+export function parseDate(raw: string): ParsedDate | null {
   const s = raw.trim();
   if (!s || /^(present|current|now|ongoing|today)$/i.test(s)) return null;
   const month = (y: number, m: number, kind: DateKind): ParsedDate | null => (m >= 1 && m <= 12 ? { kind, lo: y * 12 + m - 1, hi: y * 12 + m - 1 } : null);

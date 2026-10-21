@@ -52,11 +52,18 @@ export interface ResumeLanguage {
   level: string;
 }
 export type ResumeTemplate = "aurora" | "atlas" | "vertex" | "horizon" | "mono" | "impact";
+/** The CV file the resume was imported from, stored in Cloudinary. */
+export interface ResumeSourceFile {
+  url: string;
+  name: string;
+  size: number;
+}
 export interface ResumeMeta {
   id: string;
   name: string;
   createdAt: number;
   updatedAt: number;
+  sourceFile?: ResumeSourceFile;
 }
 export interface ResumeData {
   meta?: ResumeMeta;

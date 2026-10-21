@@ -1,16 +1,10 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import type { ResumeData, ResumeExperience } from "@/lib/resume/types";
-import { Card } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { ChevronUp, ChevronDown } from "lucide-react";
 
 export const PAGE_W = 794;
 export const PAGE_H = 1123;
-export const PAGE_GAP = 28;
 
 const INK = "#1f2328";
 const SOFT = "#4b5563";
@@ -128,8 +122,8 @@ function Atlas({ d }: { d: ResumeData }) {
     <h2 style={{ margin: "24px 0 12px", fontSize: 15, fontWeight: 700, color: INK, borderBottom: `1.5px solid ${INK}`, paddingBottom: 4 }}>{children}</h2>
   );
   return (
-    <Page style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 12 }}>
-      <aside style={{ float: "left", width: 250, minHeight: PAGE_H, boxSizing: "border-box", background: `${a}10`, borderRight: `4px solid ${a}`, padding: "48px 24px" }}>
+    <Page style={{ display: "grid", gridTemplateColumns: "250px 1fr", fontFamily: "'IBM Plex Sans', sans-serif", fontSize: 12 }}>
+      <aside style={{ background: `${a}10`, borderRight: `4px solid ${a}`, padding: "48px 24px" }}>
         <div style={{ width: 64, height: 64, borderRadius: 8, background: a, color: "#fff", display: "grid", placeItems: "center", fontSize: 24, fontWeight: 700 }}>
           {(d.contact.fullName || "YN").split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
         </div>
@@ -342,7 +336,8 @@ function Impact({ d }: { d: ResumeData }) {
     </h2>
   );
   return (
-    <Page style={{ fontFamily: "'Archivo', sans-serif", borderLeft: `14px solid ${a}` }}>
+    <Page style={{ fontFamily: "'Archivo', sans-serif", display: "grid", gridTemplateColumns: "14px 1fr" }}>
+      <div style={{ background: a }} />
       <div style={{ padding: "44px 52px" }}>
         <header style={{ display: "flex", justifyContent: "space-between", gap: 24, alignItems: "flex-end" }}>
           <div>
@@ -425,102 +420,6 @@ export function ScaledResume({ data, width }: { data: ResumeData; width: number 
       <div style={{ transform: `scale(${scale})`, transformOrigin: "top left", width: PAGE_W }}>
         <ResumeDocument data={data} />
       </div>
-    </div>
-  );
-}
-
-/* ============================================================
- * ResumeStack — vertical scroll of multiple resume pages
- * Uses shadcn ScrollArea + up/down navigation buttons.
- * ============================================================ */
-
-export interface ResumeStackProps {
-  /** One entry per resume preview to render. */
-  items: Array<{
-    id: string;
-    label: string;
-    data: ResumeData;
-  }>;
-  /** Fixed preview width in px for each card (default 420). */
-  cardWidth?: number;
-  /** Max height of the scroll viewport in px (default 720). */
-  viewportHeight?: number;
-}
-
-export function ResumeStack({
-  items,
-  cardWidth = 420,
-  viewportHeight = 720,
-}: ResumeStackProps) {
-  const viewportRef = useRef<HTMLDivElement>(null);
-
-  const scrollBy = (dir: "up" | "down") => {
-    const el = viewportRef.current;
-    if (!el) return;
-    const amount = cardWidth + PAGE_GAP; // step ~ one card + gap
-    el.scrollBy({ top: dir === "up" ? -amount : amount, behavior: "smooth" });
-  };
-
-  return (
-    <div className="relative w-full">
-      {/* Header row */}
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight">Resume previews</h2>
-          <p className="text-sm text-muted-foreground">
-            Scroll down to browse templates.
-          </p>
-        </div>
-        <div className="hidden items-center gap-2 sm:flex">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={() => scrollBy("up")}
-            aria-label="Scroll up"
-          >
-            <ChevronUp className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={() => scrollBy("down")}
-            aria-label="Scroll down"
-          >
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Vertical scroll viewport */}
-      <ScrollArea
-        className="w-full rounded-xl border border-border bg-muted/20"
-        style={{ height: viewportHeight }}
-      >
-        <div className="flex flex-col gap-7 p-4">
-          {items.map((item) => (
-            <Card
-              key={item.id}
-              className="mx-auto overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md"
-              style={{ width: cardWidth }}
-            >
-              <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  {item.label}
-                </span>
-                <span className="text-[10px] text-muted-foreground">
-                  {item.data.template ?? "aurora"}
-                </span>
-              </div>
-              <div className="flex justify-center bg-muted/30 p-4">
-                <ScaledResume data={item.data} width={cardWidth - 32} />
-              </div>
-            </Card>
-          ))}
-        </div>
-        <ScrollBar orientation="vertical" />
-      </ScrollArea>
     </div>
   );
 }
