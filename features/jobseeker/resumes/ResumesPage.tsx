@@ -57,8 +57,8 @@ export default function ResumesPage() {
       toast.error("Choose a PDF, DOCX, or TXT file.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Resume files must be 5 MB or smaller.");
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error("Resume files must be 3 MB or smaller.");
       return;
     }
 
@@ -72,14 +72,10 @@ export default function ResumesPage() {
       });
       const resume = normalizeResume(response.data.data as Partial<ResumeData> & Record<string, unknown>);
       const baseName = file.name.replace(/\.[^.]+$/, "").trim() || "Imported resume";
-      // Keep the original CV in Cloudinary. Best-effort: a storage hiccup must not lose the imported resume.
-      let sourceFile: { url: string; name: string; size: number } | undefined;
-      try {
-        const url = await uploadService.uploadFile(file, { private: true });
-        sourceFile = { url, name: file.name, size: file.size };
-      } catch (uploadError) {
-        console.warn("Could not store the original CV:", uploadError);
-      }
+      // The original CV must be stored in Cloudinary; do not silently continue
+      // with an imported resume whose source document was not persisted.
+      const url = await uploadService.uploadFile(file);
+      const sourceFile = { url, name: file.name, size: file.size };
       const id = create(resume, baseName, sourceFile);
       const { improvements } = response.data;
       const summary = [
@@ -153,14 +149,15 @@ export default function ResumesPage() {
                     </Link>
                     <div className="flex shrink-0">
                       {resume.meta!.sourceFile && (
-                        <button
-                          type="button"
-                          aria-label={`Download original CV for ${resume.meta!.name}`}
+                        <a
+                          href={resume.meta!.sourceFile.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Open original CV for ${resume.meta!.name}`}
                           className={buttonVariants({ size: "icon-sm", variant: "ghost" })}
-                          onClick={() => void uploadService.downloadFile(resume.meta!.sourceFile!.url, resume.meta!.sourceFile!.name)}
                         >
                           <FileDown />
-                        </button>
+                        </a>
                       )}
                       <Button size="icon-sm" variant="ghost" aria-label={`Duplicate ${resume.meta!.name}`} onClick={() => duplicate(id)}><Copy /></Button>
                       <Button size="icon-sm" variant="ghost" aria-label={`Delete ${resume.meta!.name}`} onClick={() => {

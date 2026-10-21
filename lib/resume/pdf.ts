@@ -24,12 +24,13 @@ function collectWords(root: HTMLElement): Word[] {
   return words;
 }
 
-export async function downloadPdf(element: HTMLElement, filename: string, pageCount: number) {
+export async function downloadPdf(element: HTMLElement, filename: string) {
   const [{ toCanvas }, { jsPDF }] = await Promise.all([import("html-to-image"), import("jspdf")]);
   await document.fonts?.ready;
   const words = collectWords(element);
   const cssWidth = element.scrollWidth;
-  const cssHeight = Math.max(element.scrollHeight, PAGE_H * pageCount);
+  const cssHeight = element.scrollHeight;
+  const pageCount = Math.max(1, Math.ceil(cssHeight / PAGE_H));
   const canvas = await toCanvas(element, {
     width: cssWidth,
     height: cssHeight,
@@ -58,9 +59,9 @@ export async function downloadPdf(element: HTMLElement, filename: string, pageCo
     pdf.addImage(slice.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pageWidth, pageHeight);
     for (const word of words) {
       const wordPage = Math.floor(word.y / PAGE_H);
-      if (wordPage !== page) continue;
-      pdf.setFontSize(Math.max(4, word.fontSize * pointsPerCssPixel));
       const localY = word.y - page * PAGE_H;
+      if (wordPage !== page || localY < 0 || localY > PAGE_H) continue;
+      pdf.setFontSize(Math.max(4, word.fontSize * pointsPerCssPixel));
       pdf.text(word.text, word.x * pointsPerCssPixel, localY * pointsPerCssPixel, { baseline: "top", renderingMode: "invisible" } as never);
     }
   }

@@ -1,24 +1,23 @@
 /** Lazy-loaded PDF/DOCX text extraction (keeps heavy deps out of the main bundle). */
 
 export async function extractPdfText(file: File): Promise<string> {
-  const pdfjs = await import("pdfjs-dist").catch(() => {
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs").catch(() => {
     throw new Error("pdfjs-dist is not installed. Run: pnpm add pdfjs-dist");
   });
 
   pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    "pdfjs-dist/build/pdf.worker.min.mjs",
+    "pdfjs-dist/legacy/build/pdf.worker.min.mjs",
     import.meta.url,
   ).toString();
 
   const buf = await file.arrayBuffer();
-  const pdf = await pdfjs.getDocument({ data: buf }).promise;
+  const pdf = await pdfjs.getDocument({ data: new Uint8Array(buf) }).promise;
   let text = "";
 
-  for (let p = 1; p <= Math.min(pdf.numPages, 15); p++) {
+  for (let p = 1; p <= pdf.numPages; p++) {
     const page = await pdf.getPage(p);
     const content = await page.getTextContent();
     text += content.items.map((it) => ("str" in it ? it.str : "")).join(" ") + "\n\n";
-    if (text.length >= 30_000) break;
   }
 
   return text.trim();

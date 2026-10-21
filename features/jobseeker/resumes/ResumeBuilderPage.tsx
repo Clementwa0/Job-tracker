@@ -1,21 +1,22 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Check, Download, FileText, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { downloadPdf } from "@/lib/resume/pdf";
 import { resumeToText } from "@/lib/resume/ats";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useResumes } from "@/lib/resume/storage";
 import { ACCENTS, TEMPLATES, type ResumeData } from "@/lib/resume/types";
-import { ResumeDocument, PAGE_H, PAGE_W } from "@/features/jobseeker/resumes/components/templates";
-import { ContentEditor } from "@/features/jobseeker/resumes/components/editors";
-import { AtsPanel, JobMatchPanel } from "@/features/jobseeker/resumes/components/panels";
+import { ResumeDocument, PAGE_H, PAGE_W } from "./components/templates";
+import { ContentEditor } from "./components/editors";
+import { AtsPanel, JobMatchPanel } from "./components/panels";
 
 export default function ResumeBuilderPage({ id }: { id: string }) {
+  const router = useRouter();
   const { resumes, ready, save } = useResumes();
   const [data, setData] = useState<ResumeData | null>(null);
   const [saved, setSaved] = useState(true);
@@ -25,8 +26,7 @@ export default function ResumeBuilderPage({ id }: { id: string }) {
     if (!exportRef.current || !data) return;
     setExporting(true);
     try {
-      const pageCount = Math.max(1, Math.ceil(exportRef.current.scrollHeight / PAGE_H));
-      await downloadPdf(exportRef.current, data.contact.fullName || data.meta?.name || "resume", pageCount);
+      await downloadPdf(exportRef.current, data.contact.fullName || data.meta?.name || "resume");
     } catch (e) {
       console.error(e);
       toast.error("Couldn't create the PDF. Please try again.");
@@ -71,7 +71,7 @@ export default function ResumeBuilderPage({ id }: { id: string }) {
       <div className="grid min-h-screen place-items-center bg-background text-center">
         <div>
           <p className="font-display text-2xl">Resume not found</p>
-          <Link href="/jobseeker/resumes" className={`${buttonVariants()} mt-4`}>Back to resumes</Link>
+          <Button className="mt-4" onClick={() => router.push("/jobseeker/resumes")}>Back to resumes</Button>
         </div>
       </div>
     );
@@ -79,7 +79,7 @@ export default function ResumeBuilderPage({ id }: { id: string }) {
   return (
     <div className="flex h-screen flex-col bg-background">
       <header className="flex items-center gap-2 border-b border-border px-2 py-2 sm:gap-3 sm:px-4 sm:py-2.5">
-        <Link href="/jobseeker/resumes" className={buttonVariants({ variant: "ghost", size: "icon" })} aria-label="Back"><ArrowLeft /></Link>
+        <Button variant="ghost" size="icon" aria-label="Back" onClick={() => router.push("/jobseeker/resumes")}><ArrowLeft /></Button>
         <Input
           value={data.meta?.name ?? ""}
           onChange={(e) => {
@@ -141,7 +141,7 @@ export default function ResumeBuilderPage({ id }: { id: string }) {
               </div>
             </TabsContent>
             <TabsContent value="ats" className="mt-4"><AtsPanel data={data} /></TabsContent>
-            <TabsContent value="match" className="mt-4"><JobMatchPanel data={data} /></TabsContent>
+            <TabsContent value="match" className="mt-4"><JobMatchPanel data={data} onChange={update} /></TabsContent>
           </Tabs>
         </aside>
         <Preview data={data} visible={mobileView === "preview"} />
