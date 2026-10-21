@@ -32,6 +32,10 @@ The goal is to create a **single career workspace** instead of forcing users to 
 
 ### 🔎 Job Discovery
 
+JobTrail reads aggregated external listings directly from the JobTrail Scraper API at request time. These external listings are mapped into the existing job-board interface in memory and are **not inserted into JobTracker's `job_postings` table**. Employer-created postings remain database-backed. When a user chooses to track an external listing, only their own application/tracker entry is saved.
+
+Configure the server-side `SCRAPER_API_URL` environment variable to the reachable base URL of the scraper API (for example, `http://localhost:8000` in local development). Requests use `no-store`; the job board does not persist or cache the fetched external feed. If the scraper API is unavailable, the job board can still return locally published employer postings.
+
 Job seekers can:
 
 * Browse available jobs
