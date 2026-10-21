@@ -4,12 +4,15 @@ import "./globals.css";
 import { AuthProvider } from "@/features/auth/hooks/AuthContext";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { Inter, Roboto } from "next/font/google";
+import { Inter, Roboto, Source_Serif_4 } from "next/font/google";
 import { cn } from "@/lib/utils";
 
 const robotoHeading = Roboto({subsets:['latin'],variable:'--font-heading'});
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+
+// Classic serif used for headlines on the public job board.
+const sourceSerif = Source_Serif_4({ subsets: ['latin'], variable: '--font-classic' });
 
 export const metadata: Metadata = {
   title: {
@@ -26,7 +29,7 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={cn("font-sans", inter.variable, robotoHeading.variable)}>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", inter.variable, robotoHeading.variable, sourceSerif.variable)}>
       <body>
         <ThemeProvider
           attribute="class"
