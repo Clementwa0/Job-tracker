@@ -5,6 +5,7 @@ import {
   gt,
   ilike,
   isNull,
+  ne,
   or,
   sql,
   type SQL,
@@ -140,6 +141,17 @@ function toPublicPosting(
       type: posting.applyMethodType,
       value: posting.applyMethodValue,
     },
+    applicationInstructions: posting.applicationInstructions || undefined,
+    applyEmailSubject: posting.applyEmailSubject || undefined,
+    applyViaAggregator: posting.applyViaAggregator || undefined,
+    descriptionSections: posting.descriptionSections ?? undefined,
+    source:
+      posting.sourceName || posting.sourceUrl
+        ? {
+            name: posting.sourceName || undefined,
+            url: posting.sourceUrl || undefined,
+          }
+        : undefined,
   };
 }
 
@@ -380,6 +392,8 @@ export async function publicPostings(filters: PublicJobFilters) {
   const conditions: SQL[] = [
     eq(jobPostings.status, "published"),
     isNull(jobPostings.closedAt),
+    // Scraper-imported records are now read live from the source API.
+    or(isNull(companies.source), ne(companies.source, "scraper"))!,
     or(
       isNull(jobPostings.applicationDeadline),
       gt(jobPostings.applicationDeadline, new Date()),
@@ -414,7 +428,7 @@ export async function publicPostings(filters: PublicJobFilters) {
   if (filters.experienceLevel)
     conditions.push(eq(jobPostings.experienceLevel, filters.experienceLevel));
   const page = Math.max(1, filters.page || 1),
-    limit = Math.min(50, Math.max(1, filters.limit || 20));
+    limit = Math.min(5000, Math.max(1, filters.limit || 20));
   const rows = await db
     .select({ posting: jobPostings, company: companies })
     .from(jobPostings)
@@ -452,6 +466,8 @@ export async function publicPostingBySlug(slug: string) {
       and(
         eq(jobPostings.slug, slug),
         eq(jobPostings.status, "published"),
+        // Imported scraper listings are resolved from the live source API.
+        or(isNull(companies.source), ne(companies.source, "scraper"))!,
         isNull(jobPostings.closedAt),
         or(
           isNull(jobPostings.applicationDeadline),

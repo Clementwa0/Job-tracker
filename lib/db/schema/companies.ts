@@ -24,6 +24,10 @@ export const companies = pgTable(
     industry: text("industry").notNull().default(""),
     logo: text("logo").notNull().default(""),
 
+    // Set for companies created by an import (e.g. "scraper"); null for
+    // companies registered by an employer.
+    source: text("source"),
+
     status: companyStatusEnum("status").notNull().default("pending"),
 
     // RESTRICT: a user who created a company can't be hard-deleted out from

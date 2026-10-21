@@ -5,7 +5,6 @@ import { Bookmark } from "lucide-react";
 import { useSavedJobs } from "@/lib/savedJobs";
 import { JOB_TYPES, WORK_MODES } from "@/lib/jobPostings/options";
 import type { PublicJobListItem } from "@/types/jobPosting";
-import AddToTrackerButton from "./AddToTrackerButton";
 import { cn } from "@/lib/utils";
 
 export default function JobBoardCard({ job }: { job: PublicJobListItem }) {
@@ -61,10 +60,6 @@ export default function JobBoardCard({ job }: { job: PublicJobListItem }) {
 
       {/* Actions */}
       <div className="flex shrink-0 items-center gap-1.5">
-        <span className="hidden sm:block">
-          <AddToTrackerButton job={job} />
-        </span>
-
         <button
           type="button"
           onClick={() =>

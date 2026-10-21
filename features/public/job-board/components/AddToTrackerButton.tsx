@@ -92,12 +92,26 @@ export default function AddToTrackerButton({ job, className, size = "sm" }: Prop
 
   const lookupTrackedId = useCallback(async () => {
     try {
+      if (job.id.startsWith("scraper-")) {
+        const { jobs } = await jobService.getJobsPaginated({
+          q: job.title,
+          company: job.company?.name,
+          limit: 50,
+        });
+        const tracked = jobs.find((item) =>
+          item.jobPostingUrl === `/job-board/${job.slug}` ||
+          (item.jobTitle.toLowerCase() === job.title.toLowerCase() &&
+            item.companyName.toLowerCase() === (job.company?.name || "").toLowerCase() &&
+            item.jobPostingId == null),
+        );
+        return tracked?.id ?? null;
+      }
       const { jobs } = await jobService.getJobsPaginated({ jobPostingId: job.id, limit: 1 });
       return jobs[0]?.id ?? null;
     } catch {
       return null;
     }
-  }, [job.id]);
+  }, [job.id, job.title, job.slug, job.company?.name]);
 
   useEffect(() => {
     if (!authed) {

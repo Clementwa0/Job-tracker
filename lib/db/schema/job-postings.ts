@@ -1,11 +1,14 @@
 import { sql } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   index,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -13,6 +16,7 @@ import { timestamps } from "./_helpers";
 import { companies } from "./companies";
 import { applyMethodTypeEnum, jobPostingStatusEnum } from "./enums";
 import { users } from "./users";
+import type { DescriptionSection } from "../../../types/jobPosting";
 
 /**
  * Public job-board postings published by employers. (Not to be confused
@@ -67,6 +71,32 @@ export const jobPostings = pgTable(
       .notNull()
       .default("external_link"),
     applyMethodValue: text("apply_method_value").notNull().default(""),
+    // Apply details that don't fit a single `apply_method_value`: the
+    // employer's own instructions (hard copies, reference numbers, the real
+    // cut-off time), the subject line an email application must use, and
+    // whether an external link goes through a job board before the employer.
+    applicationInstructions: text("application_instructions")
+      .notNull()
+      .default(""),
+    applyEmailSubject: text("apply_email_subject").notNull().default(""),
+    applyViaAggregator: boolean("apply_via_aggregator")
+      .notNull()
+      .default(false),
+
+    // Structured copy of the description (headings, paragraphs, lists) when
+    // the posting was ingested from a source that provides it. `description`
+    // always holds the plain-text version, so this can be ignored safely.
+    descriptionSections: jsonb("description_sections").$type<
+      DescriptionSection[]
+    >(),
+
+    // Provenance for postings ingested from the scraper. All null for
+    // postings created by employers in the app.
+    sourceKey: text("source_key"),
+    sourceName: text("source_name"),
+    sourceJobId: text("source_job_id"),
+    sourceUrl: text("source_url"),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
 
     status: jobPostingStatusEnum("status").notNull().default("draft"),
 
@@ -84,6 +114,12 @@ export const jobPostings = pgTable(
     index("job_postings_company_id_idx").on(table.companyId),
     index("job_postings_created_by_idx").on(table.createdBy),
     index("job_postings_status_idx").on(table.status),
+    // NULLs are distinct in Postgres, so employer-created rows (both null)
+    // never collide; ingested rows are unique per source posting.
+    uniqueIndex("job_postings_source_job_uidx").on(
+      table.sourceKey,
+      table.sourceJobId,
+    ),
   ],
 );
 

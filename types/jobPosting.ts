@@ -1,4 +1,5 @@
-export type JobBoardWorkMode = "remote" | "hybrid" | "onsite";
+/** "" = the posting does not say (common for ingested listings). */
+export type JobBoardWorkMode = "remote" | "hybrid" | "onsite" | "";
 export type JobBoardJobType = "full-time" | "part-time" | "contract" | "internship";
 export type PublicJobSort = "newest" | "salary" | "relevance";
 export type ApplyMethodType = "external_link" | "email" | "whatsapp";
@@ -6,6 +7,12 @@ export type ApplyMethodType = "external_link" | "email" | "whatsapp";
 export interface ApplyMethod {
   type: ApplyMethodType;
   value: string;
+}
+
+export interface DescriptionSection {
+  heading: string | null;
+  paragraphs: string[];
+  lists: Array<{ ordered: boolean; items: string[] }>;
 }
 
 export interface PublicCompany {
@@ -51,6 +58,16 @@ export interface PublicJobDetail extends PublicJobListItem {
   viewCount?: number;
   closedAt?: string;
   applyMethod: ApplyMethod;
+  /** Employer's own apply instructions (ingested postings). */
+  applicationInstructions?: string;
+  /** Subject line an email application must use, when the employer set one. */
+  applyEmailSubject?: string;
+  /** True when an external link passes through a job board first. */
+  applyViaAggregator?: boolean;
+  /** Headings/paragraphs/lists for the description, when available. */
+  descriptionSections?: DescriptionSection[];
+  /** Where an ingested posting was listed. */
+  source?: { name?: string; url?: string };
 }
 
 export interface PublicJobFilters {

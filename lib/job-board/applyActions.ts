@@ -15,8 +15,15 @@ export function getApplyMethodLabel(type: ApplyMethodType): string {
   return LABELS[type] ?? "Apply";
 }
 
-export function executeApply(method: ApplyMethod, jobTitle?: string): void {
-  const subject = jobTitle ? `Application: ${jobTitle}` : "Job application";
+export function executeApply(
+  method: ApplyMethod,
+  jobTitle?: string,
+  options?: { subject?: string },
+): void {
+  // An employer-specified subject line wins over our default.
+  const subject =
+    options?.subject?.trim() ||
+    (jobTitle ? `Application: ${jobTitle}` : "Job application");
 
   switch (method.type) {
     case "external_link": {
@@ -25,7 +32,7 @@ export function executeApply(method: ApplyMethod, jobTitle?: string): void {
       break;
     }
     case "email": {
-      window.location.href = `mailto:${encodeURIComponent(method.value)}?subject=${encodeURIComponent(subject)}`;
+      window.location.href = `mailto:${method.value}?subject=${encodeURIComponent(subject)}`;
       break;
     }
     case "whatsapp": {
