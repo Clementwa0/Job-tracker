@@ -60,7 +60,7 @@ const ROUTES = {
   home: "/",
   jobs: "/job-board",
   login: "/account",
-  dashboard: "/jobseeker",
+  dashboard: "/jobseeker/dashboard",
   resume: "/jobseeker/resume",
   interview: "/jobseeker/interview",
   employerLogin: "/employer/login",

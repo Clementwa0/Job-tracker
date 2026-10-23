@@ -5,10 +5,15 @@ import { Bookmark } from "lucide-react";
 import { useSavedJobs } from "@/lib/savedJobs";
 import { JOB_TYPES, WORK_MODES } from "@/lib/jobPostings/options";
 import type { PublicJobListItem } from "@/types/jobPosting";
-import AddToTrackerButton from "./AddToTrackerButton";
 import { cn } from "@/lib/utils";
 
-export default function JobBoardCard({ job }: { job: PublicJobListItem }) {
+interface JobBoardCardProps {
+  job: PublicJobListItem;
+  /** When provided, clicking the card opens the inline modal instead of navigating. */
+  onOpen?: (slug: string) => void;
+}
+
+export default function JobBoardCard({ job, onOpen }: JobBoardCardProps) {
   const { has, toggle } = useSavedJobs();
   const saved = has(job.slug);
   const hasSalary = Boolean(job.salaryMin || job.salaryMax);
@@ -23,6 +28,13 @@ export default function JobBoardCard({ job }: { job: PublicJobListItem }) {
     <article className="group flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-muted/40 sm:px-4">
       <Link
         href={`/job-board/${job.slug}`}
+        onClick={(e) => {
+          if (!onOpen) return;
+          // Let the browser handle ctrl/cmd/middle-click to open in a new tab.
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+          e.preventDefault();
+          onOpen(job.slug);
+        }}
         className="flex min-w-0 flex-1 items-center gap-3"
       >
         {/* Company logo / initial */}
@@ -34,37 +46,26 @@ export default function JobBoardCard({ job }: { job: PublicJobListItem }) {
         </span>
 
         <div className="min-w-0 flex-1">
-          {/* Job title + posted date */}
           <div className="flex items-baseline justify-between gap-3">
             <h2 className="truncate text-[13.5px] font-semibold leading-tight tracking-tight text-foreground transition-colors group-hover:text-primary">
               {job.title}
             </h2>
-
             <span className="shrink-0 text-[11px] text-muted-foreground">
               {posted(job.publishedAt)}
             </span>
           </div>
 
-          {/* Company + location */}
           <p className="mt-0.5 truncate text-xs text-muted-foreground">
-            {[job.company?.name || "Company", job.location || "Flexible"].join(
-              " · ",
-            )}
+            {[job.company?.name || "Company", job.location || "Flexible"].join(" · ")}
           </p>
 
-          {/* Job metadata */}
           <p className="mt-0.5 truncate text-[11.5px] text-muted-foreground/80">
             {meta.join(" · ")}
           </p>
         </div>
       </Link>
 
-      {/* Actions */}
       <div className="flex shrink-0 items-center gap-1.5">
-        <span className="hidden sm:block">
-          <AddToTrackerButton job={job} />
-        </span>
-
         <button
           type="button"
           onClick={() =>
@@ -85,30 +86,19 @@ export default function JobBoardCard({ job }: { job: PublicJobListItem }) {
               : "text-muted-foreground hover:bg-muted hover:text-foreground",
           )}
         >
-          <Bookmark
-            className={cn("size-4", saved && "fill-current")}
-          />
+          <Bookmark className={cn("size-4", saved && "fill-current")} />
         </button>
       </div>
     </article>
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Helpers                                                                    */
-/* -------------------------------------------------------------------------- */
-
-function label(
-  options: readonly (readonly [string, string])[],
-  value?: string,
-) {
+/* helpers unchanged */
+function label(options: readonly (readonly [string, string])[], value?: string) {
   if (!value) return null;
-
   return (
     options.find(([key]) => key === value)?.[1] ??
-    value
-      .replace(/[-_]/g, " ")
-      .replace(/\b\w/g, (char) => char.toUpperCase())
+    value.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
   );
 }
 
@@ -116,38 +106,18 @@ function salary(job: PublicJobListItem) {
   const currency = job.salaryCurrency || "KES";
   const min = job.salaryMin?.toLocaleString();
   const max = job.salaryMax?.toLocaleString();
-
-  if (min && max) {
-    return `${currency} ${min}–${max}`;
-  }
-
-  if (min) {
-    return `${currency} ${min}+`;
-  }
-
-  if (max) {
-    return `Up to ${currency} ${max}`;
-  }
-
+  if (min && max) return `${currency} ${min}–${max}`;
+  if (min) return `${currency} ${min}+`;
+  if (max) return `Up to ${currency} ${max}`;
   return "";
 }
 
 function posted(value?: string) {
   if (!value) return "New";
-
   const timestamp = new Date(value).getTime();
-
-  if (Number.isNaN(timestamp)) {
-    return "New";
-  }
-
-  const days = Math.max(
-    0,
-    Math.floor((Date.now() - timestamp) / 86_400_000),
-  );
-
+  if (Number.isNaN(timestamp)) return "New";
+  const days = Math.max(0, Math.floor((Date.now() - timestamp) / 86_400_000));
   if (days === 0) return "Today";
   if (days === 1) return "1d ago";
-
   return `${days}d ago`;
 }
