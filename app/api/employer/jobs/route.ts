@@ -1,24 +1,42 @@
 import { fail, ok, readJson } from "@/lib/api/http";
 import { requireActiveAccount } from "@/lib/auth/requireActiveAccount";
 import { createEmployerPosting, listEmployerPostings } from "@/lib/jobPostings/queries";
-import type { EmployerJobPayload } from "@/types/employer";
+import { parseNewPosting } from "@/lib/jobPostings/validation";
 
-function validPayload(value: unknown): value is EmployerJobPayload {
-  const body = value as Partial<EmployerJobPayload> | null;
-  return !!body && typeof body.companyName === "string" && !!body.companyName.trim() && typeof body.title === "string" && !!body.title.trim() && typeof body.description === "string" && typeof body.location === "string" && !!body.location.trim() && !!body.applyMethod?.value;
+function intParam(value: string | null) {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined;
 }
+
+/** GET /api/employer/jobs?status=&q=&page=&limit= - paginated on the server. */
 export async function GET(request: Request) {
   const auth = await requireActiveAccount(request, ["employer"]);
   if (!auth.ok) return fail(auth.message, auth.status);
-  const status = new URL(request.url).searchParams.get("status") || undefined;
-  const jobs = await listEmployerPostings(auth.payload.sub, status);
-  return Response.json({ success: true, data: jobs, meta: { page: 1, limit: jobs.length, total: jobs.length, totalPages: 1 } });
+  const params = new URL(request.url).searchParams;
+  try {
+    const { jobs, meta, counts, totalViews } = await listEmployerPostings(auth.payload.sub, {
+      status: params.get("status") || undefined,
+      q: params.get("q") || undefined,
+      page: intParam(params.get("page")),
+      limit: intParam(params.get("limit")),
+    });
+    return Response.json({ success: true, data: jobs, meta, counts, totalViews });
+  } catch (error) {
+    console.error("Failed to list employer postings:", error);
+    return fail("We couldn't load your job postings. Please try again.", 500);
+  }
 }
+
 export async function POST(request: Request) {
   const auth = await requireActiveAccount(request, ["employer"]);
   if (!auth.ok) return fail(auth.message, auth.status);
-  const body = await readJson(request);
-  if (!validPayload(body)) return fail("Company name, title, location, description, and an application method are required.", 400);
-  const job = await createEmployerPosting(auth.payload.sub, body);
-  return job ? ok(job, 201) : fail("Create a company profile before posting jobs.", 409);
+  const parsed = parseNewPosting(await readJson(request));
+  if (!parsed.ok) return fail(parsed.message, 400);
+  try {
+    const job = await createEmployerPosting(auth.payload.sub, parsed.value);
+    return job ? ok(job, 201) : fail("Create a company profile before posting jobs.", 409);
+  } catch (error) {
+    console.error("Failed to create posting:", error);
+    return fail("We couldn't save this posting. Please try again.", 500);
+  }
 }

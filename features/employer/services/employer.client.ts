@@ -6,7 +6,10 @@ import type {
   EmployerDashboardData,
   EmployerJobPayload,
   EmployerJobPosting,
+  EmployerJobsList,
   EmployerJobsMeta,
+  EmployerJobsQuery,
+  EmployerStatusCounts,
 } from "@/types/employer";
 
 export const employerService = {
@@ -40,11 +43,20 @@ export const employerService = {
     return data.data;
   },
 
-  async listJobs(params?: { status?: string; page?: number; limit?: number }) {
+  async listJobs(params?: EmployerJobsQuery): Promise<EmployerJobsList> {
     const { data } = await axiosInstance.get<
-      ApiSuccessResponse<EmployerJobPosting[]> & { meta: EmployerJobsMeta }
+      ApiSuccessResponse<EmployerJobPosting[]> & {
+        meta: EmployerJobsMeta;
+        counts: EmployerStatusCounts;
+        totalViews: number;
+      }
     >("/employer/jobs", { params });
-    return { jobs: data.data ?? [], meta: data.meta };
+    return {
+      jobs: data.data ?? [],
+      meta: data.meta,
+      counts: data.counts,
+      totalViews: data.totalViews ?? 0,
+    };
   },
 
   async getJob(id: string): Promise<EmployerJobPosting> {

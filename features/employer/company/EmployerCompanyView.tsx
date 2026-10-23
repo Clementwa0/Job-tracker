@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import axios from "axios";
 import Link from "next/link";
 import { ArrowLeft, Building2 } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +14,31 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { CompanyPayload, EmployerCompany } from "@/types/employer";
 import { employerService } from "@/features/employer/services/employer.client";
+import { getApiErrorMessage } from "@/lib/apiError";
+
+// Mirrors COMPANY_LIMITS in lib/jobPostings/validation.ts (the server is the
+// source of truth; this just gives instant feedback).
+const NAME_MIN = 2;
+const NAME_MAX = 120;
+const ABOUT_MAX = 2000;
+
+function validateCompany(form: CompanyPayload): Partial<Record<keyof CompanyPayload, string>> {
+  const errors: Partial<Record<keyof CompanyPayload, string>> = {};
+  const name = (form.name ?? "").trim();
+  if (name.length < NAME_MIN) errors.name = `Company name must be at least ${NAME_MIN} characters.`;
+  else if (name.length > NAME_MAX) errors.name = `Company name must be ${NAME_MAX} characters or fewer.`;
+  const website = (form.website ?? "").trim();
+  if (website) {
+    try {
+      const url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(website) ? website : `https://${website}`);
+      if (!/^https?:$/.test(url.protocol) || !url.hostname.includes(".")) throw new Error();
+    } catch {
+      errors.website = "Enter a valid website, for example https://example.com.";
+    }
+  }
+  if ((form.description ?? "").length > ABOUT_MAX) errors.description = `About must be ${ABOUT_MAX} characters or fewer.`;
+  return errors;
+}
 
 const STATUS_STYLES: Record<EmployerCompany["status"], string> = {
   pending: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
@@ -25,18 +51,46 @@ export default function EmployerCompanyView() {
   const [form, setForm] = useState<CompanyPayload>({ name: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  useEffect(() => { employerService.getCompany().then((value) => { setCompany(value); setForm(value); }).catch(() => setCompany(null)).finally(() => setLoading(false)); }, []);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Partial<Record<keyof CompanyPayload, string>>>({});
+  const load = useCallback(() => {
+    setLoading(true);
+    setLoadError(null);
+    employerService
+      .getCompany()
+      .then((value) => { setCompany(value); setForm(value); })
+      .catch((err) => {
+        // 404 just means "no company yet" - anything else is a real failure.
+        if (axios.isAxiosError(err) && err.response?.status === 404) setCompany(null);
+        else setLoadError(getApiErrorMessage(err));
+      })
+      .finally(() => setLoading(false));
+  }, []);
+  useEffect(() => { load(); }, [load]);
   const dirty = !!company && JSON.stringify(form) !== JSON.stringify({ name: company.name, description: company.description, website: company.website, location: company.location, industry: company.industry });
 
   const handleSave = async () => {
+    const found = validateCompany(form);
+    setErrors(found);
+    if (Object.keys(found).length > 0) return;
     setSaving(true);
     try { const updated = company ? await employerService.updateCompany(form) : await employerService.createCompany(form); setCompany(updated); setForm(updated); toast.success("Company profile saved."); }
-    catch { toast.error("Couldn't save your company profile."); } finally { setSaving(false); }
+    catch (err) { toast.error(getApiErrorMessage(err) || "Couldn't save your company profile."); } finally { setSaving(false); }
   };
 
-  const handleReset = () => company && setForm(company);
+  const handleReset = () => { if (company) setForm(company); setErrors({}); };
 
   if (loading) return <div className="py-12 text-sm text-muted-foreground">Loading company profile…</div>;
+
+  if (loadError) {
+    return (
+      <div role="alert" className="mx-auto flex max-w-3xl flex-col items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-10 text-center">
+        <p className="text-sm font-medium text-foreground">We couldn&apos;t load your company profile</p>
+        <p className="max-w-sm text-xs text-muted-foreground">{loadError}</p>
+        <Button size="sm" variant="outline" onClick={load}>Try again</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-4">
@@ -74,9 +128,12 @@ export default function EmployerCompanyView() {
               <Label htmlFor="company-name">Company name</Label>
               <Input
                 id="company-name"
+                aria-invalid={!!errors.name}
+                maxLength={NAME_MAX}
                 value={form.name || ""}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
+              {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="company-industry">Industry</Label>
@@ -98,10 +155,14 @@ export default function EmployerCompanyView() {
               <Label htmlFor="company-website">Website</Label>
               <Input
                 id="company-website"
-                type="url"
+                type="text"
+                inputMode="url"
+                placeholder="https://example.com"
+                aria-invalid={!!errors.website}
                 value={form.website ?? ""}
                 onChange={(e) => setForm({ ...form, website: e.target.value })}
               />
+              {errors.website && <p className="text-xs text-destructive">{errors.website}</p>}
             </div>
           </div>
 
@@ -112,8 +173,12 @@ export default function EmployerCompanyView() {
               rows={4}
               placeholder="Tell candidates what your company does…"
               value={form.description ?? ""}
+              maxLength={ABOUT_MAX}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
+            <p className="text-right text-[11px] text-muted-foreground">
+              {(form.description ?? "").length}/{ABOUT_MAX}
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-2">

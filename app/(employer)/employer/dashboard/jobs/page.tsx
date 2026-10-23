@@ -1,13 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Briefcase,
+  Building2,
+  ChevronLeft,
+  ChevronRight,
   Eye,
   MapPin,
   Pencil,
   Plus,
+  RotateCw,
   Search,
   X,
 } from "lucide-react";
@@ -34,6 +38,8 @@ import { EmployerDashboardError, EmployerJobsEmptyState } from "@/features/emplo
 import { employerService } from "@/features/employer/services/employer.client";
 import type { EmployerJobPayload, EmployerJobPosting, PostingStatus } from "@/types/employer";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { useDebounce } from "@/hooks/useDebounce";
+import type { EmployerJobsMeta, EmployerStatusCounts } from "@/types/employer";
 
 type Filter = "all" | PostingStatus;
 
@@ -44,6 +50,9 @@ const TABS: { value: Filter; label: string }[] = [
   { value: "draft", label: "Drafts" },
   { value: "closed", label: "Closed" },
 ];
+
+const PAGE_SIZE = 10;
+const EMPTY_COUNTS: EmployerStatusCounts = { all: 0, draft: 0, pending_review: 0, published: 0, closed: 0 };
 
 const formatDate = (date?: string) => {
   if (!date) return "-";
@@ -79,35 +88,78 @@ export default function EmployerJobPostingsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Server-paginated: `jobs` is only the current page. Counts and total views
+  // come from the server and cover every posting, whatever the filters.
   const [jobs, setJobs] = useState<EmployerJobPosting[] | null>(null);
+  const [meta, setMeta] = useState<EmployerJobsMeta>({ page: 1, limit: PAGE_SIZE, total: 0, totalPages: 1 });
+  const [counts, setCounts] = useState<EmployerStatusCounts>(EMPTY_COUNTS);
+  const [totalViews, setTotalViews] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [fetching, setFetching] = useState(false);
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
-  const [companyProfileExists, setCompanyProfileExists] = useState(false);
+  const [page, setPage] = useState(1);
+  const [companyProfileExists, setCompanyProfileExists] = useState<boolean | null>(null);
+  const debouncedQuery = useDebounce(query.trim(), 300);
 
   const [editor, setEditor] = useState<EmployerJobPosting | "new" | null>(null);
   const [form, setForm] = useState<EmployerJobPayload>(emptyJobPostingForm);
   const [busy, setBusy] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
+  const handledDeepLink = useRef<string | null>(null);
+  // Ignore responses from superseded requests (fast typing, quick tab changes).
+  const requestId = useRef(0);
 
   const load = useCallback(async () => {
+    const current = ++requestId.current;
     setLoadError(null);
+    setFetching(true);
     try {
-      const [{ jobs: jobList }, company] = await Promise.all([
-        employerService.listJobs(),
-        employerService.getCompany().catch(() => null),
+      const [list, company] = await Promise.all([
+        employerService.listJobs({
+          status: filter === "all" ? undefined : filter,
+          q: debouncedQuery || undefined,
+          page,
+          limit: PAGE_SIZE,
+        }),
+        employerService.getCompany().then(() => true).catch(() => false),
       ]);
-      setJobs(jobList);
-      setCompanyProfileExists(!!company);
+      if (current !== requestId.current) return;
+      setJobs(list.jobs);
+      setMeta(list.meta);
+      setCounts({ ...EMPTY_COUNTS, ...list.counts });
+      setTotalViews(list.totalViews);
+      setCompanyProfileExists(company);
+      // The server clamps out-of-range pages; keep the UI in sync.
+      if (list.meta.page !== page) setPage(list.meta.page);
     } catch (err) {
+      if (current !== requestId.current) return;
       setLoadError(getApiErrorMessage(err) || "Couldn't load your job postings.");
+    } finally {
+      if (current === requestId.current) setFetching(false);
     }
-  }, []);
+  }, [filter, debouncedQuery, page]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  const changeFilter = (next: Filter) => {
+    setFilter(next);
+    setPage(1);
+  };
+
+  const changeQuery = (next: string) => {
+    setQuery(next);
+    setPage(1);
+  };
+
+  const clearFilters = () => {
+    setFilter("all");
+    setQuery("");
+    setPage(1);
+  };
 
   const open = useCallback((job: EmployerJobPosting | "new") => {
     setEditor(job);
@@ -117,37 +169,36 @@ export default function EmployerJobPostingsPage() {
 
   // Deep-linkable: /employer/dashboard/jobs?edit=<id> opens that posting's
   // editor, and ?new=1 opens a fresh draft - used by dashboard shortcuts.
+  // The posting may be on another page, so it's fetched by id. Each link is
+  // handled once, so reloading the list never re-opens a closed editor.
   useEffect(() => {
-    if (!jobs) return;
+    if (jobs === null) return;
     const editId = searchParams.get("edit");
-    if (editId) {
-      const match = jobs.find((job) => job.id === editId);
-      if (match) open(match);
-    } else if (searchParams.get("new") === "1") {
-      open("new");
+    const key = editId ? `edit:${editId}` : searchParams.get("new") === "1" ? "new" : null;
+    if (!key) {
+      handledDeepLink.current = null;
+      return;
     }
+    if (handledDeepLink.current === key) return;
+    handledDeepLink.current = key;
+    if (!editId) {
+      open("new");
+      return;
+    }
+    const match = jobs.find((job) => job.id === editId);
+    if (match) {
+      open(match);
+      return;
+    }
+    employerService
+      .getJob(editId)
+      .then(open)
+      .catch(() => toast.error("We couldn't find that posting.", { description: "It may have been deleted." }));
   }, [jobs, searchParams, open]);
 
-  const counts = useMemo(() => {
-    const base = { all: 0, draft: 0, pending_review: 0, published: 0, closed: 0 } as Record<Filter, number>;
-    for (const job of jobs ?? []) {
-      base.all += 1;
-      base[job.status] += 1;
-    }
-    return base;
-  }, [jobs]);
-
-  const totalViews = useMemo(
-    () => (jobs ?? []).reduce((sum, job) => sum + job.viewCount, 0),
-    [jobs],
-  );
-
-  const visibleJobs = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return (jobs ?? [])
-      .filter((job) => filter === "all" || job.status === filter)
-      .filter((job) => !q || job.title.toLowerCase().includes(q) || (job.location ?? "").toLowerCase().includes(q));
-  }, [jobs, filter, query]);
+  const hasActiveFilters = filter !== "all" || query.trim().length > 0;
+  const rangeStart = meta.total === 0 ? 0 : (meta.page - 1) * meta.limit + 1;
+  const rangeEnd = Math.min(meta.total, meta.page * meta.limit);
 
   const clearDeepLink = () => {
     if (searchParams.get("edit") || searchParams.get("new")) {
@@ -161,7 +212,7 @@ export default function EmployerJobPostingsPage() {
   };
 
   const ensureCompanyProfile = async () => {
-    if (companyProfileExists) return;
+    if (companyProfileExists === true) return;
     if (!form.companyName?.trim()) {
       throw new Error("Create a company profile before posting jobs.");
     }
@@ -181,7 +232,7 @@ export default function EmployerJobPostingsPage() {
       await load();
     } catch (err) {
       const message = getApiErrorMessage(err);
-      if (message.toLowerCase().includes("company profile")) {
+      if (/create (a|your) company profile/i.test(message)) {
         toast.error("Create your company profile first.", {
           description: "Job postings must belong to a company.",
           action: { label: "Create profile", onClick: () => router.push("/employer/dashboard/company") },
@@ -200,6 +251,7 @@ export default function EmployerJobPostingsPage() {
   // already relies on; no duplicate business logic.
   const saveAndPublish = async () => {
     setBusy(true);
+    let savedOk = false;
     try {
       await ensureCompanyProfile();
       const saved = editor === "new"
@@ -208,19 +260,26 @@ export default function EmployerJobPostingsPage() {
           ? await employerService.updateJob(editor.id, form)
           : null;
       const id = saved?.id ?? (editor !== "new" ? editor?.id : undefined);
+      // The draft now exists. If publishing is rejected below, keep the editor
+      // pointed at it so a retry updates this posting instead of creating a copy.
+      savedOk = true;
+      if (editor === "new" && saved) setEditor(saved);
       if (id) await employerService.publishJob(id);
       toast.success("Posting published.");
       closeEditor();
       await load();
     } catch (err) {
       const message = getApiErrorMessage(err);
-      if (message.toLowerCase().includes("company profile")) {
+      if (/create (a|your) company profile/i.test(message)) {
         toast.error("Create your company profile first.", {
           description: "Job postings must belong to a company.",
           action: { label: "Create profile", onClick: () => router.push("/employer/dashboard/company") },
         });
       } else {
-        toast.error(message || "Couldn't publish posting.");
+        toast.error(message || "Couldn't publish posting.", {
+          description: savedOk ? "Your changes were saved, but the posting isn't live yet." : undefined,
+        });
+        void load();
       }
     } finally {
       setBusy(false);
@@ -274,7 +333,7 @@ export default function EmployerJobPostingsPage() {
             <StatChip label="Total postings" value={counts.all} />
             <StatChip label="Published" value={counts.published} accent="text-emerald-600 dark:text-emerald-400" />
             <StatChip label="Drafts" value={counts.draft} />
-            <StatChip label="Total views" value={totalViews} icon={<Eye className="h-3.5 w-3.5" />} />
+            <StatChip label="Total views" value={totalViews.toLocaleString()} icon={<Eye className="h-3.5 w-3.5" />} />
           </div>
 
           {editor !== null && (
@@ -328,9 +387,9 @@ export default function EmployerJobPostingsPage() {
             value={form}
           />
 
-          <Card className="p-4">
+          <Card className={fetching ? "p-4 opacity-70 transition-opacity" : "p-4"} aria-busy={fetching}>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
+              <Tabs value={filter} onValueChange={(v) => changeFilter(v as Filter)}>
                 <TabsList>
                   {TABS.map(({ value, label }) => (
                     <TabsTrigger key={value} value={value}>
@@ -346,7 +405,7 @@ export default function EmployerJobPostingsPage() {
                 <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => changeQuery(e.target.value)}
                   placeholder="Search by title or location"
                   className="h-9 pl-8 text-sm"
                 />
@@ -354,15 +413,32 @@ export default function EmployerJobPostingsPage() {
             </div>
 
             {loadError ? (
-              <p className="py-8 text-center text-sm text-destructive">{loadError}</p>
-            ) : visibleJobs.length === 0 ? (
-              counts.all === 0 ? (
-                <EmployerJobsEmptyState onPostJob={() => open("new")} />
-              ) : (
+              <div role="alert" className="mt-3 flex flex-col items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-8 text-center">
+                <p className="text-sm font-medium text-foreground">We couldn&apos;t load your postings</p>
+                <p className="max-w-sm text-xs text-muted-foreground">{loadError}</p>
+                <Button variant="outline" size="sm" onClick={() => void load()} disabled={fetching}>
+                  <RotateCw />
+                  Try again
+                </Button>
+              </div>
+            ) : (jobs ?? []).length === 0 ? (
+              hasActiveFilters ? (
                 <EmployerJobsEmptyState
                   title="No postings match"
-                  description="Try a different tab or clear your search."
+                  description="Try a different tab or search, or clear your filters."
+                  actionLabel="Clear filters"
+                  onAction={clearFilters}
                 />
+              ) : companyProfileExists === false ? (
+                <EmployerJobsEmptyState
+                  icon={<Building2 className="h-5 w-5 text-muted-foreground" />}
+                  title="Set up your company profile first"
+                  description="Job postings belong to a company. Create your profile, then post your first role."
+                  actionLabel="Create company profile"
+                  onAction={() => router.push("/employer/dashboard/company")}
+                />
+              ) : (
+                <EmployerJobsEmptyState onPostJob={() => open("new")} />
               )
             ) : (
               <>
@@ -389,7 +465,7 @@ export default function EmployerJobPostingsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {visibleJobs.map((job) => (
+                      {(jobs ?? []).map((job) => (
                         <TableRow key={job.id} className="h-12">
                           <TableCell className="max-w-[260px] py-2">
                             <button onClick={() => open(job)} className="min-w-0 text-left">
@@ -423,7 +499,7 @@ export default function EmployerJobPostingsPage() {
 
                 {/* Cards - mobile only */}
                 <ul className="mt-3 divide-y divide-border sm:hidden">
-                  {visibleJobs.map((job) => (
+                  {(jobs ?? []).map((job) => (
                     <li key={job.id} className="flex items-center gap-2 py-3">
                       <button onClick={() => open(job)} className="min-w-0 flex-1 text-left">
                         <p className="truncate text-sm font-medium text-foreground">{job.title}</p>
@@ -438,6 +514,37 @@ export default function EmployerJobPostingsPage() {
                     </li>
                   ))}
                 </ul>
+                {/* Pagination - the server returns one page at a time */}
+                {meta.totalPages > 1 && (
+                  <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+                    <p className="text-xs text-muted-foreground" aria-live="polite">
+                      Showing {rangeStart}-{rangeEnd} of {meta.total}
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={meta.page <= 1 || fetching}
+                      >
+                        <ChevronLeft />
+                        Previous
+                      </Button>
+                      <span className="px-1 text-xs text-muted-foreground">
+                        Page {meta.page} of {meta.totalPages}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
+                        disabled={meta.page >= meta.totalPages || fetching}
+                      >
+                        Next
+                        <ChevronRight />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </Card>
@@ -454,7 +561,7 @@ function StatChip({
   accent,
 }: {
   label: string;
-  value: number;
+  value: number | string;
   icon?: React.ReactNode;
   accent?: string;
 }) {

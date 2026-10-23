@@ -3,13 +3,18 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
+  AlarmClock,
   Briefcase,
   Building2,
+  CircleSlash,
   ClipboardList,
+  Eye,
   Globe,
+  Hourglass,
   MapPin,
   Plus,
   Send,
+  TrendingUp,
 } from "lucide-react";
 import { useAuth } from "@/features/auth/hooks/AuthContext";
 import { Card } from "@/components/ui/card";
@@ -45,18 +50,10 @@ const formatDate = (date?: string) => {
 export default function EmployerDashboardPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const { status, company, jobs, retry } = useEmployerDashboardData();
+  const { status, error, hasCompany, company, stats, topPostings, jobs, retry } = useEmployerDashboardData();
   const [viewingJob, setViewingJob] = useState<EmployerJobPosting | null>(null);
   const openWorkspace = () => router.push("/employer/dashboard/jobs");
   const openNewPosting = () => router.push("/employer/dashboard/jobs?new=1");
-
-  // Derived from the dummy jobs - not hardcoded.
-  const jobStats = useMemo(() => {
-    const totalJobs = jobs.length;
-    const activeJobs = jobs.filter((job) => job.status === "published").length;
-    const draftJobs = jobs.filter((job) => job.status === "draft").length;
-    return { totalJobs, activeJobs, draftJobs };
-  }, [jobs]);
 
   const companyInitials = useMemo(() => {
     const source = company?.name || "Company";
@@ -73,7 +70,7 @@ export default function EmployerDashboardPage() {
   }
 
   if (status === "error") {
-    return <EmployerDashboardError onRetry={retry} />;
+    return <EmployerDashboardError message={error ?? undefined} onRetry={retry} />;
   }
 
   // Dashboard shows a short preview; the full sortable/filterable list lives
@@ -125,6 +122,16 @@ export default function EmployerDashboardPage() {
         </div>
       </Card>
 
+      {!hasCompany && (
+        <EmployerJobsEmptyState
+          icon={<Building2 className="h-5 w-5 text-muted-foreground" />}
+          title="Set up your company profile"
+          description="Job postings belong to a company. Add yours to start posting and see your stats here."
+          actionLabel="Create company profile"
+          onAction={() => router.push("/employer/dashboard/company")}
+        />
+      )}
+
       {/* ------------------------------------------------------------- */}
       {/* Job Statistics                                                */}
       {/* ------------------------------------------------------------- */}
@@ -136,24 +143,56 @@ export default function EmployerDashboardPage() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        {/* Counts come from the server and cover every posting, not just the preview below. */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           <OverviewStat
             icon={<Briefcase className="h-4 w-4" />}
             iconClass="bg-primary/10 text-primary"
-            label="Total Jobs"
-            value={jobStats.totalJobs}
+            label="Total jobs"
+            value={stats.totalJobs}
           />
           <OverviewStat
             icon={<Send className="h-4 w-4" />}
             iconClass="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-            label="Active Jobs"
-            value={jobStats.activeJobs}
+            label="Live jobs"
+            value={stats.published}
+            hint={stats.expired > 0 ? `${stats.expired} past deadline` : undefined}
           />
           <OverviewStat
             icon={<ClipboardList className="h-4 w-4" />}
             iconClass="bg-slate-500/10 text-slate-600 dark:text-slate-300"
-            label="Draft Jobs"
-            value={jobStats.draftJobs}
+            label="Drafts"
+            value={stats.drafts}
+          />
+          <OverviewStat
+            icon={<Hourglass className="h-4 w-4" />}
+            iconClass="bg-amber-500/10 text-amber-600 dark:text-amber-400"
+            label="Pending review"
+            value={stats.pendingReview}
+          />
+          <OverviewStat
+            icon={<CircleSlash className="h-4 w-4" />}
+            iconClass="bg-rose-500/10 text-rose-600 dark:text-rose-400"
+            label="Closed"
+            value={stats.closed}
+          />
+          <OverviewStat
+            icon={<Eye className="h-4 w-4" />}
+            iconClass="bg-sky-500/10 text-sky-600 dark:text-sky-400"
+            label="Total views"
+            value={stats.totalViews.toLocaleString()}
+          />
+          <OverviewStat
+            icon={<TrendingUp className="h-4 w-4" />}
+            iconClass="bg-violet-500/10 text-violet-600 dark:text-violet-400"
+            label="Avg views / live job"
+            value={stats.avgViewsPerLivePosting.toLocaleString()}
+          />
+          <OverviewStat
+            icon={<AlarmClock className="h-4 w-4" />}
+            iconClass="bg-orange-500/10 text-orange-600 dark:text-orange-400"
+            label="Closing in 7 days"
+            value={stats.closingSoon}
           />
         </div>
       </section>
@@ -169,12 +208,12 @@ export default function EmployerDashboardPage() {
               My Job Postings
             </h2>
           </div>
-          {jobs.length > 0 && (
+          {stats.totalJobs > 0 && (
             <button
               onClick={() => router.push("/employer/dashboard/jobs")}
               className="flex items-center gap-0.5 text-[11px] font-medium text-primary hover:underline"
             >
-              View all
+              View all ({stats.totalJobs})
             </button>
           )}
         </div>
@@ -250,6 +289,31 @@ export default function EmployerDashboardPage() {
         )}
       </Card>
 
+      {topPostings.length > 0 && (
+        <Card className="border-border p-4 shadow-none">
+          <div className="mb-2.5 flex items-center gap-1.5">
+            <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+            <h2 className="font-display text-sm font-semibold tracking-tight text-foreground">
+              Most viewed postings
+            </h2>
+          </div>
+          <ol className="divide-y divide-border">
+            {topPostings.map((posting, index) => (
+              <li key={posting.id} className="flex items-center gap-3 py-2">
+                <span className="w-4 text-[11px] font-medium text-muted-foreground">{index + 1}</span>
+                <span className="min-w-0 flex-1 truncate text-xs font-medium text-foreground">
+                  {posting.title}
+                </span>
+                <PostingStatusBadge status={posting.status} />
+                <span className="w-16 text-right text-xs tabular-nums text-muted-foreground">
+                  {posting.viewCount.toLocaleString()} views
+                </span>
+              </li>
+            ))}
+          </ol>
+        </Card>
+      )}
+
       {/* ------------------------------------------------------------- */}
       {/* Quick Actions                                                 */}
       {/* ------------------------------------------------------------- */}
@@ -271,11 +335,13 @@ function OverviewStat({
   iconClass,
   label,
   value,
+  hint,
 }: {
   icon: ReactNode;
   iconClass: string;
   label: string;
   value: number | string;
+  hint?: string;
 }) {
   return (
     <Card className="gap-0 rounded-xl border-border p-4 shadow-none">
@@ -289,6 +355,7 @@ function OverviewStat({
         <span className="font-display text-xl font-semibold leading-none text-foreground">
           {value}
         </span>
+        {hint && <span className="ml-2 text-[11px] text-muted-foreground">{hint}</span>}
       </div>
     </Card>
   );

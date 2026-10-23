@@ -47,17 +47,39 @@ export interface EmployerJobPosting {
   company?: { id: string; name: string; slug: string };
 }
 
+/**
+ * Posting counts. `published` means live: status "published" and the
+ * application deadline hasn't passed. Published postings past their deadline
+ * are counted in `expired`, so
+ * totalJobs = published + expired + drafts + pendingReview + closed.
+ */
+export interface EmployerPostingStats {
+  totalJobs: number;
+  published: number;
+  expired: number;
+  drafts: number;
+  pendingReview: number;
+  closed: number;
+  totalViews: number;
+  /** Live postings whose deadline falls within the next 7 days. */
+  closingSoon: number;
+  /** Mean views per live posting, rounded; 0 when nothing is live. */
+  avgViewsPerLivePosting: number;
+}
+
+export interface EmployerTopPosting {
+  id: string;
+  title: string;
+  status: PostingStatus;
+  viewCount: number;
+}
+
 export interface EmployerDashboardData {
   hasCompany: boolean;
   company?: EmployerCompany;
-  stats: {
-    totalJobs: number;
-    published: number;
-    drafts: number;
-    pendingReview: number;
-    closed: number;
-    totalViews: number;
-  };
+  stats: EmployerPostingStats;
+  /** Highest-viewed postings (views > 0), most viewed first. */
+  topPostings: EmployerTopPosting[];
   recentPostings: EmployerJobPosting[];
 }
 
@@ -93,6 +115,24 @@ export interface CompanyPayload {
 export interface EmployerJobsMeta {
   page: number;
   limit: number;
+  /** Postings matching the current status + search filters. */
   total: number;
   totalPages: number;
+}
+
+/** Per-status totals for the whole account (ignores the active filters). */
+export type EmployerStatusCounts = Record<"all" | PostingStatus, number>;
+
+export interface EmployerJobsList {
+  jobs: EmployerJobPosting[];
+  meta: EmployerJobsMeta;
+  counts: EmployerStatusCounts;
+  totalViews: number;
+}
+
+export interface EmployerJobsQuery {
+  status?: string;
+  q?: string;
+  page?: number;
+  limit?: number;
 }
