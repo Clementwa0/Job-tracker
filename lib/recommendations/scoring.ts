@@ -2,10 +2,16 @@
  * Job ↔ candidate match scoring. Pure functions only (no DB, no framework),
  * so the whole model can be reasoned about and unit-tested in isolation.
  *
- * The score is a weighted average over *evaluable* dimensions: a dimension is
- * only counted when both the candidate and the posting have data for it, so a
- * posting isn't punished for something we can't actually compare (and the
- * candidate isn't rewarded for blanks). Each dimension yields 0..1.
+ * Two stages:
+ *  1. RELEVANCE GATE - a posting must genuinely fit the candidate's skills or
+ *     target role, otherwise it is never recommended, no matter how well the
+ *     location / salary / job type happen to line up.
+ *  2. SCORE - core fit (skills + role) dominates; logistics (location, work
+ *     mode, job type, experience, salary) can only adjust it, not rescue it.
+ *
+ * A dimension is only counted when both the candidate and the posting have
+ * data for it, so a posting isn't punished for something we can't compare.
+ * Each dimension yields 0..1.
  */
 
 export interface CandidateSignals {
@@ -70,6 +76,15 @@ export const WEIGHTS: Record<DimensionKey, number> = {
   salary: 8,
 };
 
+/** Dimensions that say whether the job is actually *for* this person. */
+const CORE_KEYS: DimensionKey[] = ["skills", "role"];
+/** Below this core fit the posting is not relevant, whatever else matches. */
+export const MIN_CORE_FIT = 0.35;
+/** Share of the final score that comes from core fit (rest is logistics). */
+const CORE_SHARE = 0.7;
+/** A role/title match must reach this to count as "this is my kind of job". */
+const ROLE_HIT = 0.6;
+
 /* ------------------------------ text utils ------------------------------ */
 
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
@@ -113,6 +128,18 @@ export function canonicalSkill(raw: string): string {
   return SKILL_ALIASES[n] ?? n;
 }
 
+/** Appear in nearly every posting, so matching them says nothing about fit. */
+const SOFT_SKILLS = new Set([
+  "communication", "teamwork", "team player", "leadership", "problem solving",
+  "time management", "adaptability", "creativity", "critical thinking",
+  "collaboration", "organization", "organisation", "work ethic", "multitasking",
+  "attention to detail", "interpersonal skills", "hardworking", "flexibility",
+]);
+
+/** Short or common-word skills that false-match prose ("go-getter", "c" level). */
+const AMBIGUOUS_SKILLS = new Set(["go", "r", "c", "swift", "spring", "excel", "word", "rust", "ruby", "flow"]);
+const isAmbiguousSkill = (s: string) => s.length <= 2 || AMBIGUOUS_SKILLS.has(s);
+
 function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -143,6 +170,14 @@ const ROLE_SYNONYMS: Record<string, string> = {
   analysts: "analyst",
 };
 
+/** Job-title nouns shared by thousands of unrelated roles: never a match on their own. */
+const GENERIC_ROLE_WORDS = new Set([
+  "engineer", "manager", "analyst", "officer", "assistant", "specialist",
+  "executive", "consultant", "associate", "coordinator", "administrator",
+  "technician", "supervisor", "representative", "agent", "clerk", "advisor",
+  "adviser", "designer", "developer", "support", "team",
+]);
+
 function roleTokens(text: string): string[] {
   return normalize(text)
     .replace(/-/g, "") // front-end == frontend, full-stack == fullstack
@@ -156,27 +191,51 @@ function roleTokens(text: string): string[] {
 interface SkillsEval {
   score: number | null;
   matched: string[];
+  /** Matches in the title, tags or requirements (what the job actually needs). */
+  strong: number;
+  /** Matches only in passing description prose (weaker evidence). */
+  weak: number;
 }
 
+const NO_SKILLS: SkillsEval = { score: null, matched: [], strong: 0, weak: 0 };
+
 function evalSkills(c: CandidateSignals, p: PostingSignals): SkillsEval {
-  const skills = [...new Set(c.skills.map(canonicalSkill).filter(Boolean))];
-  if (skills.length === 0) return { score: null, matched: [] };
+  const skills = [
+    ...new Set(c.skills.map(canonicalSkill).filter((s) => s && !SOFT_SKILLS.has(s))),
+  ];
+  if (skills.length === 0) return NO_SKILLS;
 
   const tags = [...new Set(p.tags.map(canonicalSkill).filter(Boolean))];
-  const text = normalize(`${p.title} ${p.requirements} ${p.description}`);
-  if (tags.length === 0 && !text) return { score: null, matched: [] };
+  const needs = normalize(`${p.title} ${p.requirements}`);
+  const body = normalize(p.description);
+  if (tags.length === 0 && !needs && !body) return NO_SKILLS;
 
-  // A user skill "shows up" in the posting if it's a tag or appears in the text.
-  const matched = skills.filter((s) => tags.includes(s) || containsTerm(text, s));
+  const strong: string[] = [];
+  const weak: string[] = [];
+  for (const s of skills) {
+    if (tags.includes(s)) {
+      strong.push(s);
+    } else if (isAmbiguousSkill(s)) {
+      continue; // "go", "r", "c"... only trusted as an explicit tag
+    } else if (containsTerm(needs, s)) {
+      strong.push(s);
+    } else if (containsTerm(body, s)) {
+      weak.push(s);
+    }
+  }
+  const matched = [...strong, ...weak];
+  const counts = { strong: strong.length, weak: weak.length };
 
-  const breadth = clamp01(matched.length / 4);
-  if (tags.length === 0) return { score: breadth, matched };
+  const breadth = clamp01((strong.length + 0.5 * weak.length) / 4);
+  if (tags.length === 0) return { score: breadth, matched, ...counts };
 
   // With explicit required-skill tags, coverage of those tags matters most.
   const covered = tags.filter(
-    (t) => skills.includes(t) || skills.some((s) => containsTerm(t, s)),
+    (t) =>
+      skills.includes(t) ||
+      skills.some((s) => !isAmbiguousSkill(s) && containsTerm(t, s)),
   ).length;
-  return { score: 0.7 * (covered / tags.length) + 0.3 * breadth, matched };
+  return { score: 0.7 * (covered / tags.length) + 0.3 * breadth, matched, ...counts };
 }
 
 function evalRole(c: CandidateSignals, p: PostingSignals): number | null {
@@ -196,8 +255,23 @@ function evalRole(c: CandidateSignals, p: PostingSignals): number | null {
     }
     const tokens = roleTokens(role);
     if (tokens.length === 0) continue;
-    const hit = tokens.filter((t) => titleTokens.has(t)).length;
-    best = Math.max(best, hit / tokens.length);
+
+    // The distinctive words ("software", "nurse", "accountant") carry the
+    // meaning; "engineer"/"manager" alone match half the job board.
+    const distinctive = tokens.filter((t) => !GENERIC_ROLE_WORDS.has(t));
+    const weightOf = (t: string) => (GENERIC_ROLE_WORDS.has(t) ? 0.25 : 1);
+    const total = tokens.reduce((sum, t) => sum + weightOf(t), 0);
+    const hit = tokens
+      .filter((t) => titleTokens.has(t))
+      .reduce((sum, t) => sum + weightOf(t), 0);
+
+    let score = hit / total;
+    // Wanted "Software Engineer", posting is "Mechanical Engineer": no overlap
+    // on the part that matters, so it is not a role match.
+    if (distinctive.length > 0 && !distinctive.some((t) => titleTokens.has(t))) {
+      score = Math.min(score, 0.2);
+    }
+    best = Math.max(best, score);
   }
   return best;
 }
@@ -321,14 +395,21 @@ const LABELS: Record<DimensionKey, string> = {
 };
 
 /**
- * Scores one posting against one candidate. Returns null if the candidate has
- * neither skills nor a role to match on - without at least one of those there
- * is no honest basis for a recommendation.
+ * Scores one posting against one candidate. Returns null when the posting is
+ * not a genuine fit - i.e. it matches neither the candidate's skills nor their
+ * target role - or when the candidate has nothing to match on. Logistics such
+ * as location or salary never make an irrelevant job relevant.
  */
 export function scorePosting(c: CandidateSignals, p: PostingSignals): MatchResult | null {
   const skills = evalSkills(c, p);
   const role = evalRole(c, p);
   if (skills.score === null && role === null) return null;
+
+  // Relevance gate: real skill evidence, or a real role match. Otherwise the
+  // job simply isn't for this person.
+  const skillsHit = skills.strong >= 1 || skills.weak >= 2;
+  const roleHit = role !== null && role >= ROLE_HIT;
+  if (!skillsHit && !roleHit) return null;
 
   const raw: Record<DimensionKey, number | null> = {
     skills: skills.score,
@@ -347,17 +428,29 @@ export function scorePosting(c: CandidateSignals, p: PostingSignals): MatchResul
     score: raw[key],
   }));
 
-  let earned = 0;
-  let possible = 0;
-  for (const d of dimensions) {
-    if (d.score === null) continue;
-    earned += d.weight * d.score;
-    possible += d.weight;
-  }
+  const average = (dims: DimensionResult[]): number | null => {
+    let earned = 0;
+    let possible = 0;
+    for (const d of dims) {
+      if (d.score === null) continue;
+      earned += d.weight * d.score;
+      possible += d.weight;
+    }
+    return possible === 0 ? null : earned / possible;
+  };
 
-  const score = possible === 0 ? 0 : Math.round((earned / possible) * 100);
+  const core = average(dimensions.filter((d) => CORE_KEYS.includes(d.key)));
+  if (core === null || core < MIN_CORE_FIT) return null;
+
+  const logistics = average(dimensions.filter((d) => !CORE_KEYS.includes(d.key)));
+  let blended = logistics === null ? core : CORE_SHARE * core + (1 - CORE_SHARE) * logistics;
+
+  // Clearly under-experienced for the level asked (e.g. 2 yrs vs a 5+ yr role):
+  // a weaker recommendation even if the skills line up.
+  if (raw.experience !== null && raw.experience < 0.6) blended *= 0.75;
+
   return {
-    score,
+    score: Math.round(clamp01(blended) * 100),
     matchedSkills: skills.matched,
     reasons: buildReasons(dimensions, skills.matched, p),
     dimensions,

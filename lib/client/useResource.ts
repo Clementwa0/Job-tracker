@@ -21,6 +21,10 @@ interface Entry {
   error: unknown;
   fetchedAt: number;
   inflight: Promise<void> | undefined;
+  /** Last fetcher used, so `invalidateResources` can refetch without a component. */
+  fetcher: (() => Promise<unknown>) | undefined;
+  /** Set when the data was invalidated while a request was already in flight. */
+  dirty: boolean;
   listeners: Set<() => void>;
 }
 
@@ -35,6 +39,8 @@ function entryFor(key: string): Entry {
       error: undefined,
       fetchedAt: 0,
       inflight: undefined,
+      fetcher: undefined,
+      dirty: false,
       listeners: new Set(),
     };
     cache.set(key, entry);
@@ -48,6 +54,7 @@ function notify(entry: Entry) {
 
 function load<T>(key: string, fetcher: () => Promise<T>): Promise<void> {
   const entry = entryFor(key);
+  entry.fetcher = fetcher;
   if (entry.inflight) return entry.inflight;
 
   entry.inflight = (async () => {
@@ -61,6 +68,12 @@ function load<T>(key: string, fetcher: () => Promise<T>): Promise<void> {
     } finally {
       entry.inflight = undefined;
       notify(entry);
+    }
+    // The data changed while we were fetching, so what we just stored may
+    // already be out of date: go round again.
+    if (entry.dirty && entry.fetcher) {
+      entry.dirty = false;
+      await load(key, entry.fetcher as () => Promise<T>);
     }
   })();
 
@@ -80,6 +93,24 @@ export function setResourceData<T>(key: string, next: T | ((prev: T | undefined)
   entry.error = undefined;
   entry.fetchedAt = Date.now();
   notify(entry);
+}
+
+/**
+ * Marks every cached resource whose key starts with one of `prefixes` as stale
+ * and refetches the ones that are currently on screen. Call this after a
+ * mutation so every page showing that data updates, not just the one that
+ * made the change. Entries nobody is watching refetch on next mount.
+ */
+export function invalidateResources(...prefixes: string[]) {
+  for (const [key, entry] of cache) {
+    if (!prefixes.some((p) => key.startsWith(p))) continue;
+    entry.fetchedAt = 0;
+    if (entry.inflight) {
+      entry.dirty = true;
+    } else if (entry.listeners.size > 0 && entry.fetcher) {
+      void load(key, entry.fetcher);
+    }
+  }
 }
 
 /** Drops cached data for keys starting with `prefix` (e.g. on sign-out). */

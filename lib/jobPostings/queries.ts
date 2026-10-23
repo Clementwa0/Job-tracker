@@ -13,10 +13,22 @@ import {
 
 import { db } from "@/lib/db";
 import { companies, employerProfiles, jobPostings } from "@/lib/db/schema";
+import {
+  EMPLOYER_TRANSITIONS,
+  canEditPosting,
+  invalidTransitionMessage,
+  type EmployerPostingAction,
+} from "@/lib/jobPostings/lifecycle";
+import { checkPublishReady, salaryProblem, type CompanyInput } from "@/lib/jobPostings/validation";
 import type {
   EmployerCompany,
   EmployerJobPayload,
   EmployerJobPosting,
+  EmployerJobsList,
+  EmployerPostingStats,
+  EmployerStatusCounts,
+  EmployerTopPosting,
+  PostingStatus,
 } from "@/types/employer";
 import type {
   PublicJobDetail,
@@ -175,78 +187,260 @@ function companySlug(name: string) {
   }-${crypto.randomUUID().slice(0, 8)}`;
 }
 
+export type CreateCompanyResult =
+  | { ok: true; company: EmployerCompany }
+  | { ok: false; reason: "exists" };
+
+/**
+ * Creates the company and links it to the employer's profile in one
+ * transaction. The profile row is locked first, so two concurrent requests
+ * can't both create a company, and a missing profile row can't leave an
+ * orphaned company that no employer is linked to.
+ */
 export async function createEmployerCompany(
   userId: string,
-  input: Pick<
-    EmployerCompany,
-    "name" | "description" | "website" | "location" | "industry"
-  >,
-) {
-  const [company] = await db
-    .insert(companies)
-    .values({
-      ...input,
-      name: input.name.trim(),
-      slug: companySlug(input.name),
-      createdBy: userId,
-      status: "pending",
-    })
-    .returning();
-  await db
-    .update(employerProfiles)
-    .set({ companyId: company.id })
-    .where(eq(employerProfiles.userId, userId));
-  return toCompany(company);
+  input: CompanyInput,
+): Promise<CreateCompanyResult> {
+  return db.transaction(async (tx) => {
+    await tx
+      .insert(employerProfiles)
+      .values({ userId })
+      .onConflictDoNothing({ target: employerProfiles.userId });
+    const [profile] = await tx
+      .select({ companyId: employerProfiles.companyId })
+      .from(employerProfiles)
+      .where(eq(employerProfiles.userId, userId))
+      .for("update");
+    if (profile?.companyId) return { ok: false, reason: "exists" } as const;
+
+    const [company] = await tx
+      .insert(companies)
+      .values({
+        name: input.name.trim(),
+        slug: companySlug(input.name),
+        description: input.description ?? "",
+        website: input.website ?? "",
+        location: input.location ?? "",
+        industry: input.industry ?? "",
+        createdBy: userId,
+        status: "pending",
+      })
+      .returning();
+    await tx
+      .update(employerProfiles)
+      .set({ companyId: company.id })
+      .where(eq(employerProfiles.userId, userId));
+    return { ok: true, company: toCompany(company) } as const;
+  });
 }
 
-export async function updateEmployerCompany(
-  userId: string,
-  input: Partial<
-    Pick<
-      EmployerCompany,
-      "name" | "description" | "website" | "location" | "industry"
-    >
-  >,
-) {
+/**
+ * Only the fields present in `input` change. Renaming the company also
+ * refreshes the name snapshot stored on its postings.
+ */
+export async function updateEmployerCompany(userId: string, input: Partial<CompanyInput>) {
   const company = await employerCompany(userId);
   if (!company) return null;
-  const [updated] = await db
-    .update(companies)
-    .set({ ...input, ...(input.name ? { name: input.name.trim() } : {}) })
-    .where(and(eq(companies.id, company.id), eq(companies.createdBy, userId)))
-    .returning();
-  return updated ? toCompany(updated) : null;
+  const changes = {
+    ...(input.name !== undefined ? { name: input.name.trim() } : {}),
+    ...(input.description !== undefined ? { description: input.description } : {}),
+    ...(input.website !== undefined ? { website: input.website } : {}),
+    ...(input.location !== undefined ? { location: input.location } : {}),
+    ...(input.industry !== undefined ? { industry: input.industry } : {}),
+  };
+  if (Object.keys(changes).length === 0) return company;
+  return db.transaction(async (tx) => {
+    const [updated] = await tx
+      .update(companies)
+      .set(changes)
+      .where(and(eq(companies.id, company.id), eq(companies.createdBy, userId)))
+      .returning();
+    if (!updated) return null;
+    if (changes.name !== undefined) {
+      await tx
+        .update(jobPostings)
+        .set({ companyName: changes.name })
+        .where(eq(jobPostings.companyId, company.id));
+    }
+    return toCompany(updated);
+  });
 }
 
-async function joinedEmployerPosting(userId: string, id: string) {
-  const [row] = await db
+/* ------------------------------------------------------------------ */
+/* Employer postings                                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Ownership rule for every employer posting query: the posting was created
+ * by this user AND still belongs to the company on this user's employer
+ * profile. A posting left behind after the employer was unlinked from, or
+ * moved to, another company is no longer manageable through this API.
+ */
+function ownedPostings(userId: string) {
+  return {
+    join: and(
+      eq(employerProfiles.userId, jobPostings.createdBy),
+      eq(employerProfiles.companyId, jobPostings.companyId),
+    ),
+    where: eq(jobPostings.createdBy, userId),
+  };
+}
+
+async function joinedEmployerPosting(userId: string, id: string, lock = false) {
+  const owned = ownedPostings(userId);
+  const query = db
     .select({ posting: jobPostings, company: companies })
     .from(jobPostings)
     .innerJoin(companies, eq(jobPostings.companyId, companies.id))
-    .where(and(eq(jobPostings.id, id), eq(jobPostings.createdBy, userId)))
+    .innerJoin(employerProfiles, owned.join)
+    .where(and(eq(jobPostings.id, id), owned.where))
     .limit(1);
+  const [row] = await (lock ? query.for("update", { of: jobPostings }) : query);
   return row;
 }
 
-export async function listEmployerPostings(userId: string, status?: string) {
-  const conditions: SQL[] = [eq(jobPostings.createdBy, userId)];
-  if (
-    ["draft", "pending_review", "published", "closed"].includes(status || "")
-  ) {
-    conditions.push(
-      eq(
-        jobPostings.status,
-        status as "draft" | "pending_review" | "published" | "closed",
-      ),
-    );
-  }
+const POSTING_STATUSES: PostingStatus[] = ["draft", "pending_review", "published", "closed"];
+
+export function isPostingStatus(value: string | null | undefined): value is PostingStatus {
+  return POSTING_STATUSES.includes(value as PostingStatus);
+}
+
+export const EMPLOYER_PAGE_SIZE = { default: 10, max: 50 } as const;
+
+export interface EmployerPostingsFilters {
+  status?: string;
+  q?: string;
+  page?: number;
+  limit?: number;
+}
+
+function likePattern(value: string) {
+  return `%${value.replace(/[\\%_]/g, "\\$&")}%`;
+}
+
+/** Per-status totals and total views for the whole account. */
+async function employerStatusCounts(userId: string) {
+  const owned = ownedPostings(userId);
   const rows = await db
-    .select({ posting: jobPostings, company: companies })
+    .select({
+      status: jobPostings.status,
+      count: sql<number>`count(*)::int`,
+      views: sql<number>`coalesce(sum(${jobPostings.viewCount}), 0)::int`,
+    })
     .from(jobPostings)
-    .innerJoin(companies, eq(jobPostings.companyId, companies.id))
-    .where(and(...conditions))
-    .orderBy(desc(jobPostings.updatedAt));
-  return rows.map(toEmployerPosting);
+    .innerJoin(employerProfiles, owned.join)
+    .where(owned.where)
+    .groupBy(jobPostings.status);
+  const counts: EmployerStatusCounts = { all: 0, draft: 0, pending_review: 0, published: 0, closed: 0 };
+  let totalViews = 0;
+  for (const row of rows) {
+    counts[row.status] = row.count;
+    counts.all += row.count;
+    totalViews += row.views;
+  }
+  return { counts, totalViews };
+}
+
+export async function listEmployerPostings(
+  userId: string,
+  filters: EmployerPostingsFilters = {},
+): Promise<EmployerJobsList> {
+  const owned = ownedPostings(userId);
+  const conditions: SQL[] = [owned.where];
+  if (isPostingStatus(filters.status)) conditions.push(eq(jobPostings.status, filters.status));
+  const q = filters.q?.trim().slice(0, 100);
+  if (q) {
+    const pattern = likePattern(q);
+    conditions.push(or(ilike(jobPostings.title, pattern), ilike(jobPostings.location, pattern))!);
+  }
+
+  const limit = Math.min(EMPLOYER_PAGE_SIZE.max, Math.max(1, Math.floor(filters.limit || EMPLOYER_PAGE_SIZE.default)));
+  const requestedPage = Math.max(1, Math.floor(filters.page || 1));
+
+  const [{ total }] = await db
+    .select({ total: sql<number>`count(*)::int` })
+    .from(jobPostings)
+    .innerJoin(employerProfiles, owned.join)
+    .where(and(...conditions));
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  // A page past the end (e.g. after deleting the last row on it) clamps to
+  // the last page instead of returning an empty list.
+  const page = Math.min(requestedPage, totalPages);
+
+  const [rows, { counts, totalViews }] = await Promise.all([
+    db
+      .select({ posting: jobPostings, company: companies })
+      .from(jobPostings)
+      .innerJoin(companies, eq(jobPostings.companyId, companies.id))
+      .innerJoin(employerProfiles, owned.join)
+      .where(and(...conditions))
+      .orderBy(desc(jobPostings.updatedAt), desc(jobPostings.id))
+      .limit(limit)
+      .offset((page - 1) * limit),
+    employerStatusCounts(userId),
+  ]);
+
+  return {
+    jobs: rows.map(toEmployerPosting),
+    meta: { page, limit, total, totalPages },
+    counts,
+    totalViews,
+  };
+}
+
+/**
+ * Dashboard numbers, computed in SQL over every posting the employer owns
+ * (not over a page of them). See EmployerPostingStats for the definitions.
+ */
+export async function employerDashboardStats(userId: string) {
+  const owned = ownedPostings(userId);
+  const published = sql`${jobPostings.status} = 'published'`;
+  const expired = sql`${published} and ${jobPostings.applicationDeadline} is not null and ${jobPostings.applicationDeadline} <= now()`;
+  const live = sql`${published} and (${jobPostings.applicationDeadline} is null or ${jobPostings.applicationDeadline} > now())`;
+  const closingSoon = sql`${live} and ${jobPostings.applicationDeadline} is not null and ${jobPostings.applicationDeadline} <= now() + interval '7 days'`;
+
+  const [[row], top] = await Promise.all([
+    db
+      .select({
+        total: sql<number>`count(*)::int`,
+        live: sql<number>`(count(*) filter (where ${live}))::int`,
+        expired: sql<number>`(count(*) filter (where ${expired}))::int`,
+        drafts: sql<number>`(count(*) filter (where ${jobPostings.status} = 'draft'))::int`,
+        pending: sql<number>`(count(*) filter (where ${jobPostings.status} = 'pending_review'))::int`,
+        closed: sql<number>`(count(*) filter (where ${jobPostings.status} = 'closed'))::int`,
+        closingSoon: sql<number>`(count(*) filter (where ${closingSoon}))::int`,
+        views: sql<number>`coalesce(sum(${jobPostings.viewCount}), 0)::int`,
+        liveViews: sql<number>`coalesce(sum(${jobPostings.viewCount}) filter (where ${live}), 0)::int`,
+      })
+      .from(jobPostings)
+      .innerJoin(employerProfiles, owned.join)
+      .where(owned.where),
+    db
+      .select({
+        id: jobPostings.id,
+        title: jobPostings.title,
+        status: jobPostings.status,
+        viewCount: jobPostings.viewCount,
+      })
+      .from(jobPostings)
+      .innerJoin(employerProfiles, owned.join)
+      .where(and(owned.where, gt(jobPostings.viewCount, 0)))
+      .orderBy(desc(jobPostings.viewCount), desc(jobPostings.id))
+      .limit(5),
+  ]);
+
+  const stats: EmployerPostingStats = {
+    totalJobs: row.total,
+    published: row.live,
+    expired: row.expired,
+    drafts: row.drafts,
+    pendingReview: row.pending,
+    closed: row.closed,
+    totalViews: row.views,
+    closingSoon: row.closingSoon,
+    avgViewsPerLivePosting: row.live > 0 ? Math.round(row.liveViews / row.live) : 0,
+  };
+  return { stats, topPostings: top as EmployerTopPosting[] };
 }
 
 export async function getEmployerPosting(userId: string, id: string) {
@@ -254,62 +448,34 @@ export async function getEmployerPosting(userId: string, id: string) {
   return row ? toEmployerPosting(row) : null;
 }
 
+/** DB-shaped column values for the fields present in `input`. */
 function postingValues(input: Partial<EmployerJobPayload>) {
   return {
     ...(input.title !== undefined ? { title: input.title.trim() } : {}),
-    ...(input.companyName !== undefined
-      ? { companyName: input.companyName.trim() }
-      : {}),
     ...(input.category !== undefined ? { category: input.category || "" } : {}),
-    ...(input.description !== undefined
-      ? { description: input.description }
-      : {}),
-    ...(input.responsibilities !== undefined
-      ? { responsibilities: input.responsibilities || "" }
-      : {}),
-    ...(input.requirements !== undefined
-      ? { requirements: input.requirements || "" }
-      : {}),
+    ...(input.description !== undefined ? { description: input.description } : {}),
+    ...(input.responsibilities !== undefined ? { responsibilities: input.responsibilities || "" } : {}),
+    ...(input.requirements !== undefined ? { requirements: input.requirements || "" } : {}),
     ...(input.location !== undefined ? { location: input.location || "" } : {}),
     ...(input.salaryMin !== undefined ? { salaryMin: input.salaryMin } : {}),
     ...(input.salaryMax !== undefined ? { salaryMax: input.salaryMax } : {}),
-    ...(input.salaryCurrency !== undefined
-      ? { salaryCurrency: input.salaryCurrency }
-      : {}),
+    ...(input.salaryCurrency !== undefined ? { salaryCurrency: input.salaryCurrency } : {}),
     ...(input.jobType !== undefined ? { jobType: input.jobType } : {}),
     ...(input.workMode !== undefined ? { workMode: input.workMode } : {}),
-    ...(input.experienceLevel !== undefined
-      ? { experienceLevel: input.experienceLevel || "" }
-      : {}),
-    ...(input.educationLevel !== undefined
-      ? { educationLevel: input.educationLevel || "" }
-      : {}),
-    ...(input.certifications !== undefined
-      ? { certifications: input.certifications || "" }
-      : {}),
-    ...(input.tags !== undefined
-      ? { tags: input.tags.map((tag) => tag.trim()).filter(Boolean) }
-      : {}),
+    ...(input.experienceLevel !== undefined ? { experienceLevel: input.experienceLevel || "" } : {}),
+    ...(input.educationLevel !== undefined ? { educationLevel: input.educationLevel || "" } : {}),
+    ...(input.certifications !== undefined ? { certifications: input.certifications || "" } : {}),
+    ...(input.tags !== undefined ? { tags: input.tags } : {}),
     ...(input.applyMethod !== undefined
-      ? {
-          applyMethodType: input.applyMethod.type,
-          applyMethodValue: input.applyMethod.value.trim(),
-        }
+      ? { applyMethodType: input.applyMethod.type, applyMethodValue: input.applyMethod.value.trim() }
       : {}),
     ...(input.applicationDeadline !== undefined
-      ? {
-          applicationDeadline: input.applicationDeadline
-            ? new Date(input.applicationDeadline)
-            : null,
-        }
+      ? { applicationDeadline: input.applicationDeadline ? new Date(input.applicationDeadline) : null }
       : {}),
   };
 }
 
-export async function createEmployerPosting(
-  userId: string,
-  input: EmployerJobPayload,
-) {
+export async function createEmployerPosting(userId: string, input: EmployerJobPayload) {
   const company = await employerCompany(userId);
   if (!company) return null;
   const [posting] = await db
@@ -317,6 +483,9 @@ export async function createEmployerPosting(
     .values({
       ...postingValues(input),
       title: input.title.trim(),
+      // The public company name always comes from the company profile, never
+      // from the request - otherwise an employer could post as any brand.
+      companyName: company.name,
       slug: `${
         input.title
           .toLowerCase()
@@ -331,61 +500,136 @@ export async function createEmployerPosting(
   return getEmployerPosting(userId, posting.id);
 }
 
+export type UpdatePostingResult =
+  | { ok: true; posting: EmployerJobPosting }
+  | { ok: false; reason: "not_found" }
+  | { ok: false; reason: "locked"; message: string }
+  | { ok: false; reason: "invalid"; message: string };
+
 export async function updateEmployerPosting(
   userId: string,
   id: string,
   input: Partial<EmployerJobPayload>,
-) {
-  const row = await joinedEmployerPosting(userId, id);
-  if (!row) return null;
-  await db
-    .update(jobPostings)
-    .set(postingValues(input))
-    .where(and(eq(jobPostings.id, id), eq(jobPostings.createdBy, userId)));
-  return getEmployerPosting(userId, id);
+): Promise<UpdatePostingResult> {
+  const outcome = await db.transaction(async (tx) => {
+    const owned = ownedPostings(userId);
+    const [row] = await tx
+      .select({ posting: jobPostings })
+      .from(jobPostings)
+      .innerJoin(employerProfiles, owned.join)
+      .where(and(eq(jobPostings.id, id), owned.where))
+      .limit(1)
+      .for("update", { of: jobPostings });
+    if (!row) return { ok: false, reason: "not_found" } as const;
+    const { posting } = row;
+
+    if (!canEditPosting(posting.status)) {
+      return {
+        ok: false,
+        reason: "locked",
+        message: "This posting is awaiting review. Unpublish it to make changes.",
+      } as const;
+    }
+
+    const values = postingValues(input);
+    const merged = { ...posting, ...values };
+    const salary = salaryProblem(merged.salaryMin, merged.salaryMax);
+    if (salary) return { ok: false, reason: "invalid", message: salary } as const;
+    // A live posting can't be edited into something that couldn't be published.
+    if (posting.status === "published") {
+      const problems = checkPublishReady(merged);
+      if (problems.length) {
+        return { ok: false, reason: "invalid", message: problems.join(" ") } as const;
+      }
+    }
+
+    if (Object.keys(values).length > 0) {
+      await tx
+        .update(jobPostings)
+        .set(values)
+        .where(and(eq(jobPostings.id, id), eq(jobPostings.createdBy, userId), eq(jobPostings.status, posting.status)));
+    }
+    return { ok: true } as const;
+  });
+  if (!outcome.ok) return outcome;
+  const posting = await getEmployerPosting(userId, id);
+  return posting ? { ok: true, posting } : { ok: false, reason: "not_found" };
 }
+
+export type TransitionResult =
+  | { ok: true; posting: EmployerJobPosting }
+  | { ok: false; reason: "not_found" }
+  | { ok: false; reason: "invalid_state"; message: string }
+  | { ok: false; reason: "company_suspended"; message: string }
+  | { ok: false; reason: "not_ready"; message: string };
 
 export async function transitionEmployerPosting(
   userId: string,
   id: string,
-  action: "publish" | "unpublish" | "close",
-) {
-  const row = await joinedEmployerPosting(userId, id);
-  if (!row) return null;
-  const allowed =
-    (action === "publish" &&
-      (row.posting.status === "draft" || row.posting.status === "closed")) ||
-    (action === "unpublish" &&
-      (row.posting.status === "published" ||
-        row.posting.status === "pending_review")) ||
-    (action === "close" && row.posting.status === "published");
-  if (!allowed) return null;
-  const now = new Date();
-  const changes =
-    action === "publish"
-      ? { status: "published" as const, publishedAt: now, closedAt: null }
-      : action === "unpublish"
-        ? { status: "draft" as const, closedAt: null }
-        : { status: "closed" as const, closedAt: now };
-  await db
-    .update(jobPostings)
-    .set(changes)
-    .where(and(eq(jobPostings.id, id), eq(jobPostings.createdBy, userId)));
-  return getEmployerPosting(userId, id);
+  action: EmployerPostingAction,
+): Promise<TransitionResult> {
+  const outcome = await db.transaction(async (tx) => {
+    const owned = ownedPostings(userId);
+    // Row lock: a concurrent double-click or an admin approve/reject waits
+    // here and then sees the new status instead of overwriting it.
+    const [row] = await tx
+      .select({ posting: jobPostings, company: companies })
+      .from(jobPostings)
+      .innerJoin(companies, eq(jobPostings.companyId, companies.id))
+      .innerJoin(employerProfiles, owned.join)
+      .where(and(eq(jobPostings.id, id), owned.where))
+      .limit(1)
+      .for("update", { of: jobPostings });
+    if (!row) return { ok: false, reason: "not_found" } as const;
+
+    const rule = EMPLOYER_TRANSITIONS[action];
+    if (!rule.from.includes(row.posting.status)) {
+      return {
+        ok: false,
+        reason: "invalid_state",
+        message: invalidTransitionMessage(action, row.posting.status),
+      } as const;
+    }
+
+    if (action === "publish") {
+      if (row.company.status === "suspended") {
+        return {
+          ok: false,
+          reason: "company_suspended",
+          message: "Your company profile is suspended, so postings can't be published. Contact support.",
+        } as const;
+      }
+      const problems = checkPublishReady(row.posting);
+      if (problems.length) {
+        return { ok: false, reason: "not_ready", message: problems.join(" ") } as const;
+      }
+    }
+
+    const now = new Date();
+    const changes =
+      action === "publish"
+        ? { status: "published" as const, publishedAt: now, closedAt: null }
+        : action === "unpublish"
+          ? { status: "draft" as const, closedAt: null }
+          : { status: "closed" as const, closedAt: now };
+    await tx.update(jobPostings).set(changes).where(eq(jobPostings.id, id));
+    return { ok: true } as const;
+  });
+  if (!outcome.ok) return outcome;
+  const posting = await getEmployerPosting(userId, id);
+  return posting ? { ok: true, posting } : { ok: false, reason: "not_found" };
 }
 
-export async function deleteEmployerPosting(userId: string, id: string) {
+export type DeletePostingResult = "deleted" | "not_found" | "not_draft";
+
+export async function deleteEmployerPosting(userId: string, id: string): Promise<DeletePostingResult> {
+  const row = await joinedEmployerPosting(userId, id);
+  if (!row) return "not_found";
   const deleted = await db
     .delete(jobPostings)
-    .where(
-      and(
-        eq(jobPostings.id, id),
-        eq(jobPostings.createdBy, userId),
-        eq(jobPostings.status, "draft"),
-      ),
-    )
+    .where(and(eq(jobPostings.id, id), eq(jobPostings.createdBy, userId), eq(jobPostings.status, "draft")))
     .returning({ id: jobPostings.id });
-  return deleted.length > 0;
+  return deleted.length > 0 ? "deleted" : "not_draft";
 }
 
 export async function publicPostings(filters: PublicJobFilters) {

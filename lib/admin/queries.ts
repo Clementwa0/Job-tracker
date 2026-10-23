@@ -48,7 +48,7 @@ function iso(value: Date | null | undefined): string | undefined {
 export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 /** Records an admin action. Call it inside the same transaction as the change it describes. */
-async function logAdminAction(
+export async function logAdminAction(
   tx: Tx,
   adminId: string,
   action: string,

@@ -16,3 +16,14 @@ export function pgErrorCode(error: unknown): string | undefined {
   }
   return undefined;
 }
+
+/** Name of the violated constraint (e.g. "resources_slug_unique"), when the driver reports one. */
+export function pgConstraintName(error: unknown): string | undefined {
+  let current: unknown = error;
+  for (let depth = 0; depth < 4 && current && typeof current === "object"; depth++) {
+    const name = (current as { constraint_name?: unknown }).constraint_name;
+    if (typeof name === "string") return name;
+    current = (current as { cause?: unknown }).cause;
+  }
+  return undefined;
+}

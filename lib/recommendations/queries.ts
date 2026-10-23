@@ -7,8 +7,11 @@ import { loadJobseekerContext } from "@/lib/profile/queries";
 import { scorePosting } from "@/lib/recommendations/scoring";
 import type { RecommendationsResponse, RecommendedJob } from "@/types/profile";
 
-/** Below this the "match" is mostly coincidence, so don't recommend it. */
-export const MIN_MATCH_SCORE = 30;
+/**
+ * Below this the "match" is mostly coincidence, so don't recommend it.
+ * (scorePosting also enforces a skills/role relevance gate on top of this.)
+ */
+export const MIN_MATCH_SCORE = 40;
 /** How many of the newest open postings are scored per request. */
 const CANDIDATE_POOL = 300;
 const DAY_MS = 24 * 60 * 60 * 1000;

@@ -9,6 +9,9 @@ import { interviews } from "./interviews";
 import { jobPostings } from "./job-postings";
 import { jobActivity, jobAttachments, jobReminders, jobs } from "./jobs";
 import { notifications } from "./notifications";
+import { resourceBookmarks } from "./resource-bookmarks";
+import { resourceCategories } from "./resource-categories";
+import { resources } from "./resources";
 import { savedJobs } from "./saved-jobs";
 import { sessions } from "./sessions";
 import { userAccounts } from "./user-accounts";
@@ -31,6 +34,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   savedJobs: many(savedJobs),
   interviews: many(interviews),
   notifications: many(notifications),
+  resourceBookmarks: many(resourceBookmarks),
   createdCompanies: many(companies),
   createdJobPostings: many(jobPostings),
 }));
@@ -183,5 +187,34 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
   actorAdmin: one(adminUsers, {
     fields: [auditLogs.actorAdminId],
     references: [adminUsers.id],
+  }),
+}));
+
+/* ------------------------------- resources ------------------------------ */
+
+export const resourceCategoriesRelations = relations(resourceCategories, ({ many }) => ({
+  resources: many(resources),
+}));
+
+export const resourcesRelations = relations(resources, ({ one, many }) => ({
+  category: one(resourceCategories, {
+    fields: [resources.categoryId],
+    references: [resourceCategories.id],
+  }),
+  author: one(adminUsers, {
+    fields: [resources.createdBy],
+    references: [adminUsers.id],
+  }),
+  bookmarks: many(resourceBookmarks),
+}));
+
+export const resourceBookmarksRelations = relations(resourceBookmarks, ({ one }) => ({
+  user: one(users, {
+    fields: [resourceBookmarks.userId],
+    references: [users.id],
+  }),
+  resource: one(resources, {
+    fields: [resourceBookmarks.resourceId],
+    references: [resources.id],
   }),
 }));

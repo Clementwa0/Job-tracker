@@ -11,6 +11,7 @@
  *  - jobseekers: jobs (+ job_attachments / job_activity / job_reminders),
  *                saved_jobs, interviews
  *  - platform:   notifications, audit_logs
+ *  - resources:  resource_categories, resources, resource_bookmarks (career resources CMS)
  */
 export * from "./enums";
 export * from "./application-status";
@@ -29,3 +30,6 @@ export * from "./notifications";
 export * from "./audit-logs";
 export * from "./relations";
 export * from "./profile-resumes";
+export * from "./resource-categories";
+export * from "./resources";
+export * from "./resource-bookmarks";

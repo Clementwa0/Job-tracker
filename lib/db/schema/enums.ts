@@ -1,5 +1,7 @@
 import { pgEnum } from "drizzle-orm/pg-core";
 
+import { RESOURCE_STATUSES, RESOURCE_TYPES } from "../../resources/constants";
+
 /**
  * Jobseeker vs employer only. Admin is intentionally NOT a value here -
  * admin authentication is a separate system (its own table/auth path, added
@@ -86,3 +88,11 @@ export const notificationStatusEnum = pgEnum("notification_status", [
   "read",
   "failed",
 ]);
+
+/* ------------------------------------------------------------------ */
+/* Career resources CMS                                                */
+/* ------------------------------------------------------------------ */
+
+export const resourceTypeEnum = pgEnum("resource_type", RESOURCE_TYPES);
+
+export const resourceStatusEnum = pgEnum("resource_status", RESOURCE_STATUSES);
