@@ -14,6 +14,7 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import { compareByDate } from "@/lib/jobs/dates";
 import { useJobs } from "@/features/jobseeker/jobs/hooks/JobContext";
 import { applicationStatusColors, type ApplicationStatus } from "@/types/job";
 
@@ -33,16 +34,12 @@ const statusLabel = (status: string) =>
     .join(" ");
 
 const RecentApplicationsTable = () => {
-  const { jobs } = useJobs();
+  const { jobs, isLoading } = useJobs();
 
   const recent = useMemo(
     () =>
       [...jobs]
-        .sort(
-          (a, b) =>
-            new Date(b.applicationDate).getTime() -
-            new Date(a.applicationDate).getTime()
-        )
+        .sort(compareByDate((j) => j.applicationDate, "desc"))
         .slice(0, 5),
     [jobs]
   );
@@ -65,7 +62,13 @@ const RecentApplicationsTable = () => {
         </Link>
       </div>
 
-      {recent.length === 0 ? (
+      {isLoading && jobs.length === 0 ? (
+        <div className="space-y-2" aria-busy="true" aria-label="Loading applications">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-11 animate-pulse rounded-lg bg-muted/40" />
+          ))}
+        </div>
+      ) : recent.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border py-8 text-center">
           <p className="text-xs font-medium text-foreground">No applications yet</p>
           <Link

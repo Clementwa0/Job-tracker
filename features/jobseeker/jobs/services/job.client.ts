@@ -6,6 +6,12 @@ import {
   mapFrontendJobToBackend,
 } from "@/lib/mappers/jobMapper";
 import { uploadService } from "@/lib/storage/upload.client";
+import { invalidateJobData } from "@/lib/client/dataKeys";
+
+/** Server-side cap on `limit` (see app/api/jobs/route.ts MAX_LIMIT). */
+const SERVER_MAX_LIMIT = 200;
+/** Safety stop so a bad `total` can never loop forever (~10,000 applications). */
+const MAX_PAGES = 50;
 
 async function resolveFileField(
   value: string | File | null | undefined,
@@ -64,6 +70,24 @@ export const jobService = {
     };
   },
 
+  /**
+   * Every application matching `filters`, not just the first page. The API
+   * caps page size, so this walks the pages until it has `meta.total` rows.
+   */
+  async getAllJobs(filters?: Omit<JobFilters, "page" | "limit">): Promise<Job[]> {
+    const all: Job[] = [];
+    for (let page = 1; page <= MAX_PAGES; page++) {
+      const { jobs, meta } = await this.getJobsPaginated({
+        ...filters,
+        page,
+        limit: SERVER_MAX_LIMIT,
+      });
+      all.push(...jobs);
+      if (jobs.length === 0 || all.length >= meta.total) break;
+    }
+    return all;
+  },
+
   async getJobById(id: string): Promise<Job> {
     const { data } = await axiosInstance.get<JobResponse>(`/jobs/${id}`);
     return mapBackendJobToFrontend(data.data);
@@ -75,6 +99,7 @@ export const jobService = {
       "/jobs",
       mapFrontendJobToBackend(withFiles)
     );
+    invalidateJobData();
     return mapBackendJobToFrontend(data.data.job);
   },
 
@@ -84,25 +109,30 @@ export const jobService = {
       `/jobs/${id}`,
       mapFrontendJobToBackend(withFiles)
     );
+    invalidateJobData();
     return mapBackendJobToFrontend(data.data);
   },
 
   async deleteJob(id: string): Promise<void> {
     await axiosInstance.delete<ApiSuccessResponse<null>>(`/jobs/${id}`);
+    invalidateJobData();
   },
 
   async duplicateJob(id: string): Promise<Job> {
     const { data } = await axiosInstance.post<JobResponse>(`/jobs/${id}/duplicate`);
+    invalidateJobData();
     return mapBackendJobToFrontend(data.data);
   },
 
   async archiveJob(id: string, archive = true): Promise<Job> {
     const { data } = await axiosInstance.post<JobResponse>(`/jobs/${id}/archive`, { archive });
+    invalidateJobData();
     return mapBackendJobToFrontend(data.data);
   },
 
   async addActivity(id: string, entry: Pick<JobActivity, "type" | "message" | "meta">): Promise<Job> {
     const { data } = await axiosInstance.post<JobResponse>(`/jobs/${id}/activity`, entry);
+    invalidateJobData();
     return mapBackendJobToFrontend(data.data);
   },
 
@@ -111,6 +141,7 @@ export const jobService = {
       "/jobs/bulk/update",
       { ids, patch: mapFrontendJobToBackend(patch) }
     );
+    invalidateJobData();
     return data.data;
   },
 
@@ -119,6 +150,7 @@ export const jobService = {
       "/jobs/bulk/delete",
       { ids }
     );
+    invalidateJobData();
     return data.data;
   },
 

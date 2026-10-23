@@ -4,6 +4,7 @@ import type {
   CreateInterviewRequest,
   Interview,
 } from "@/types/interview";
+import { invalidateJobData } from "@/lib/client/dataKeys";
 
 export const interviewService = {
   async getInterviews(): Promise<Interview[]> {
@@ -27,6 +28,7 @@ export const interviewService = {
       "/interviews",
       payload,
     );
+    invalidateJobData();
     return data.data;
   },
 
@@ -38,6 +40,7 @@ export const interviewService = {
       `/interviews/${id}`,
       payload,
     );
+    invalidateJobData();
     return data.data;
   },
 
@@ -45,6 +48,7 @@ export const interviewService = {
     const { data } = await axiosInstance.delete<
       ApiSuccessResponse<{ message: string }>
     >(`/interviews/${id}`);
+    invalidateJobData();
     return data.message ?? "Interview deleted";
   },
 };

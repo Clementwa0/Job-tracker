@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  BookOpen,
   BrainCircuit,
   BriefcaseBusiness,
   CalendarDays,
@@ -22,7 +23,7 @@ export const jobseekerConfig: DashboardConfig = {
     {
       label: "Workspace",
       items: [
-        { title: "Dashboard", href: "/jobseeker", icon: LayoutDashboard, exact: true },
+        { title: "Dashboard", href: "/jobseeker/dashboard", icon: LayoutDashboard },
         { title: "Applications", href: "/jobseeker/applications", icon: BriefcaseBusiness },
         { title: "Interviews", href: "/jobseeker/interviews", icon: CalendarDays },
         { title: "Calendar", href: "/jobseeker/calendar", icon: CalendarDays },
@@ -34,7 +35,8 @@ export const jobseekerConfig: DashboardConfig = {
       label: "Discover",
       items: [
         {title: "Recommended Jobs", href: "/jobseeker/recommended", icon: BrainCircuit},  
-        { title: "Browse Jobs", href: "/job-board", icon: Search }],
+        { title: "Browse Jobs", href: "/job-board", icon: Search },
+      ],
 
     },
     {
@@ -47,7 +49,7 @@ export const jobseekerConfig: DashboardConfig = {
   ],
 
   mobile: {
-    home: { title: "Home", href: "/jobseeker" },
+    home: { title: "Home", href: "/jobseeker/dashboard" },
     left: [
       { title: "Applications", href: "/jobseeker/applications", icon: ClipboardListIcon },
       { title: "Analytics", href: "/jobseeker/analytics", icon: BarChartIcon },

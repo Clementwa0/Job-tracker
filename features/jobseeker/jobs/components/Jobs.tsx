@@ -56,7 +56,12 @@ const Jobs: React.FC = () => {
 
   const handleEdit = (id: string) => router.push(`/jobseeker/applications/edit/${id}`);
   const handleDelete = async (id: string) => {
-    await deleteJob(id);
+    try {
+      await deleteJob(id);
+    } catch {
+      // deleteJob already toasted the reason; leave the row and drawer as they are.
+      return;
+    }
     if (selectedJob?.id === id) setSelectedJob(null);
     refetch();
   };

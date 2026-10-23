@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, LogOut, Moon, Search, Sun } from "lucide-react";
+import { ChevronDown, LogOut, Menu, Moon, Search, Sun } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -19,6 +19,7 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/features/auth/hooks/AuthContext";
 import NotificationBell from "@/features/notifications/components/NotificationBell";
 import { getInitials } from "./utils";
@@ -26,6 +27,7 @@ import type { DashboardConfig } from "./types";
 
 const Header = ({ config }: { config: DashboardConfig }) => {
   const { user, logout } = useAuth();
+  const { setOpenMobile } = useSidebar();
   const router = useRouter();
   const { resolvedTheme, setTheme } = useTheme();
   const [search, setSearch] = useState("");
@@ -46,6 +48,17 @@ const Header = ({ config }: { config: DashboardConfig }) => {
 
   return (
     <header className="sticky top-0 z-40 flex h-14 w-full items-center gap-2 border-b border-border/70 bg-background/80 px-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 sm:gap-3 sm:px-4 md:px-6">
+      {/* Mobile menu button - opens the sidebar sheet */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-9 w-9 shrink-0 rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:hidden"
+        aria-label="Open menu"
+        onClick={() => setOpenMobile(true)}
+      >
+        <Menu className="h-5 w-5" strokeWidth={2} />
+      </Button>
+
       {/* Search - optional per role; hidden on the smallest screens */}
       {config.header.searchPlaceholder && (
         <div className="relative hidden min-w-0 w-full max-w-sm sm:block">

@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { useJobs } from "@/features/jobseeker/jobs/hooks/JobContext";
-import { useAnalyticsData, type Period } from "@/features/jobseeker/analytics/hooks/useAnalyticsData";
+import { useAnalyticsData, PERIOD_LABELS, type Period } from "@/features/jobseeker/analytics/hooks/useAnalyticsData";
 import { exportJobsAsCsv } from "@/features/jobseeker/analytics/utils/exportReport";
 
 import ApplicationProgressDonut from "@/components/shared/dashboard/ApplicationProgressDonut";
@@ -28,6 +28,7 @@ const AnalyticsBody = () => {
   const {
     metrics,
     outcomeSlices,
+    periodTotal,
     progressSeries,
     sourceData,
     skillsData,
@@ -54,7 +55,7 @@ const AnalyticsBody = () => {
     <div className="space-y-4 sm:space-y-6">
       <AnalyticsHeader period={period} onPeriodChange={setPeriod} onExport={handleExport} />
 
-      <MetricsGrid metrics={metrics} />
+      <MetricsGrid metrics={metrics} periodLabel={PERIOD_LABELS[period]} />
 
       <div className="grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-4">
         {/* Main column */}
@@ -65,7 +66,7 @@ const AnalyticsBody = () => {
               <ApplicationProgressChart data={progressSeries} />
             </div>
             <ApplicationProgressDonut
-              total={jobs.length}
+              total={periodTotal}
               slices={outcomeSlices}
               title="Application Outcomes"
               showViewAll={false}
@@ -94,7 +95,7 @@ const AnalyticsBody = () => {
 };
 
 const Analytics = () => (
-  <div className="min-h-screen bg-background p-4 transition-colors sm:p-6">
+  <div className="bg-background transition-colors">
     <AnalyticsBody />
   </div>
 );

@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import type { Interview, InterviewStage, InterviewStatus } from "@/types/interview";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/apiError";
 import { interviewService } from "@/features/jobseeker/interviews/services/interview.client";
 import { useJobs } from "@/features/jobseeker/jobs/hooks";
 import type { Job } from "@/types/job";
@@ -75,7 +77,7 @@ const InterviewModal = ({ open, onOpenChange, onSuccess }: Props) => {
       onOpenChange(false);
       onSuccess?.(created);
     } catch (err) {
-      console.error(err);
+      toast.error(getApiErrorMessage(err) || "Failed to schedule interview.");
     } finally {
       setLoading(false);
     }

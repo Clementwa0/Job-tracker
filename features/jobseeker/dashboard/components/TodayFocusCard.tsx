@@ -21,8 +21,9 @@ type Tile = {
 };
 
 const TodayFocusCard = () => {
-  const { jobs } = useJobs();
-  const { interviews } = useInterviews();
+  const { jobs, isLoading: jobsLoading } = useJobs();
+  const { interviews, loading: interviewsLoading } = useInterviews();
+  const isLoading = (jobsLoading && jobs.length === 0) || (interviewsLoading && interviews.length === 0);
 
   const tiles = useMemo<Tile[]>(() => {
     const now = Date.now();
@@ -87,7 +88,9 @@ const TodayFocusCard = () => {
         <div>
           <h2 className="font-display text-sm font-semibold tracking-tight">Today&apos;s Focus</h2>
           <p className="mt-0.5 text-[11px] text-muted-foreground">
-            {tiles.length} task{tiles.length === 1 ? "" : "s"} to keep your search moving
+            {isLoading
+              ? "Checking what needs your attention…"
+              : `${tiles.length} task${tiles.length === 1 ? "" : "s"} to keep your search moving`}
           </p>
         </div>
         <Link
@@ -99,8 +102,12 @@ const TodayFocusCard = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-        {tiles.map((tile) => {
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4" aria-busy={isLoading}>
+        {isLoading
+          ? [0, 1, 2].map((i) => (
+              <div key={i} className="h-[116px] animate-pulse rounded-lg border border-border bg-muted/30" />
+            ))
+          : tiles.map((tile) => {
           const Icon = tile.icon;
           return (
             <div

@@ -16,7 +16,8 @@ import {
   SavedJobsCard,
 } from "@/features/jobseeker/dashboard";
 
-import { JobProvider } from "@/features/jobseeker/jobs/hooks/JobContext";
+import { JobProvider, useJobs } from "@/features/jobseeker/jobs/hooks/JobContext";
+import { Button } from "@/components/ui/button";
 
 const Section = ({
   label,
@@ -25,7 +26,7 @@ const Section = ({
   label: string;
   children: React.ReactNode;
 }) => (
-  <section className="space-y-4">
+  <section aria-label={label} className="space-y-4">
     <div className="flex items-center gap-3">
       <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
         {label}
@@ -38,6 +39,25 @@ const Section = ({
   </section>
 );
 
+/** Shown when applications could not be loaded, so empty cards aren't mistaken for "no data". */
+const LoadError = () => {
+  const { error, refetchJobs } = useJobs();
+  if (!error) return null;
+  return (
+    <div
+      role="alert"
+      className="flex flex-col gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-xs sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p className="text-destructive">
+        We couldn&apos;t load your applications ({error}). The numbers below may be incomplete.
+      </p>
+      <Button variant="outline" size="sm" className="h-7 self-start text-xs sm:self-auto" onClick={() => void refetchJobs()}>
+        Try again
+      </Button>
+    </div>
+  );
+};
+
 const DashboardBody = () => {
   return (
     <>
@@ -45,15 +65,14 @@ const DashboardBody = () => {
         className="
           mx-auto
           max-w-[1400px]
-          space-y-10
-          px-2
-          py-2
+          space-y-8
           pb-24
-          md:px-2
-          lg:px-2
+          sm:space-y-10
           lg:pb-5
         "
       >
+        <LoadError />
+
         <DashboardMood />
 
         {/* ACT NOW */}

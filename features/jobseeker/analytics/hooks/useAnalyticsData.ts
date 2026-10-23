@@ -4,6 +4,9 @@ import { useMemo } from "react";
 import { useJobs } from "@/features/jobseeker/jobs/hooks/JobContext";
 import { useInterviews } from "@/features/jobseeker/interviews/hooks/useInterviews";
 import type { Job } from "@/types/job";
+import { computeJobMetrics, hasOffer, isActiveInterview } from "@/lib/jobs/metrics";
+import { compareByDate, toTime } from "@/lib/jobs/dates";
+import { APPLICATION_STATUSES, normalizeStatus, statusLabel } from "@/lib/jobs/status";
 
 export type Period = "7d" | "30d" | "90d" | "all";
 
@@ -14,12 +17,27 @@ export const PERIOD_LABELS: Record<Period, string> = {
   all: "All time",
 };
 
-const PERIOD_DAYS: Record<Period, number> = {
+/** Length of each period in days; `null` means "everything", with no cut-off. */
+const PERIOD_DAYS: Record<Period, number | null> = {
   "7d": 7,
   "30d": 30,
   "90d": 90,
-  all: 365,
+  all: null,
 };
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** One colour per application status, so no status is silently dropped from the outcomes chart. */
+const STATUS_COLORS: Record<string, string> = {
+  applied: "#10B981",
+  waiting_response: "#F59E0B",
+  interviewing: "#3B82F6",
+  offer: "#8B5CF6",
+  rejected: "#EF4444",
+  ghosted: "#94A3B8",
+  completed: "#14B8A6",
+};
+const UNKNOWN_STATUS_COLOR = "#64748B";
 
 const SOURCE_BUCKETS: { label: string; color: string; match: (s: string) => boolean }[] = [
   {
@@ -54,14 +72,46 @@ const NEXT_STEP: Record<string, { label: string; icon: "calendar" | "clock" | "m
   completed: { label: "Archive", icon: "file" },
 };
 
-function dayKey(d: Date) {
-  return d.toISOString().slice(0, 10);
+const startOfDay = (d: Date) => {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+};
+
+type Granularity = "day" | "week" | "month";
+
+/**
+ * Chart buckets covering [start, today]. Short spans get one point per day;
+ * longer ones are grouped by week, then by month, so "All time" stays readable
+ * instead of being cut off at 30 days.
+ */
+function buildBuckets(start: Date, now: Date): { starts: Date[]; granularity: Granularity } {
+  const spanDays = Math.max(1, Math.round((startOfDay(now).getTime() - start.getTime()) / DAY_MS) + 1);
+  const granularity: Granularity = spanDays <= 90 ? "day" : spanDays <= 400 ? "week" : "month";
+
+  const starts: Date[] = [];
+  const cursor = new Date(start);
+  if (granularity === "month") cursor.setDate(1);
+  while (cursor <= now) {
+    starts.push(new Date(cursor));
+    if (granularity === "day") cursor.setDate(cursor.getDate() + 1);
+    else if (granularity === "week") cursor.setDate(cursor.getDate() + 7);
+    else cursor.setMonth(cursor.getMonth() + 1);
+  }
+  return { starts, granularity };
 }
 
-function safeDate(v?: string | Date | null): Date | null {
-  if (!v) return null;
-  const d = new Date(v);
-  return isNaN(d.getTime()) ? null : d;
+/** Index of the bucket containing `t`, or -1 when it falls outside the chart. */
+function bucketIndex(starts: Date[], t: number, now: number): number {
+  if (starts.length === 0 || t < starts[0].getTime() || t > now) return -1;
+  let lo = 0;
+  let hi = starts.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >> 1;
+    if (starts[mid].getTime() <= t) lo = mid;
+    else hi = mid - 1;
+  }
+  return lo;
 }
 
 export function useAnalyticsData(period: Period = "30d") {
@@ -73,111 +123,147 @@ export function useAnalyticsData(period: Period = "30d") {
   const data = useMemo(() => {
     const days = PERIOD_DAYS[period];
     const now = new Date();
-    const periodStart = new Date(now);
-    periodStart.setDate(periodStart.getDate() - days);
-    periodStart.setHours(0, 0, 0, 0);
+    const nowTs = now.getTime();
 
-    const jobsInPeriod = jobs.filter((j) => {
-      const d = safeDate(j.applicationDate);
-      return d ? d >= periodStart : false;
-    });
+    // "All time" has no cut-off. Every other period starts at local midnight N days ago.
+    let periodStart: Date | null = null;
+    if (days !== null) {
+      periodStart = startOfDay(now);
+      periodStart.setDate(periodStart.getDate() - days);
+    }
+
+    // When an application happened: its date, falling back to when it was
+    // added (the same rule the API's stats use).
+    const appliedAt = (j: Job) => toTime(j.applicationDate) ?? toTime(j.createdAt);
+
+    const inPeriod = (t: number | null) =>
+      t !== null && (periodStart === null || t >= periodStart.getTime()) && t <= nowTs;
+
+    const jobsInPeriod = jobs.filter((j) => inPeriod(appliedAt(j)));
+
+    // Same-length window just before this one, for a real trend (none for "all").
+    let previousCount: number | null = null;
+    if (periodStart !== null && days !== null) {
+      const prevStart = periodStart.getTime() - days * DAY_MS;
+      previousCount = jobs.filter((j) => {
+        const t = appliedAt(j);
+        return t !== null && t >= prevStart && t < periodStart!.getTime();
+      }).length;
+    }
+    const applicationsTrend =
+      previousCount && previousCount > 0
+        ? Math.round(((jobsInPeriod.length - previousCount) / previousCount) * 100)
+        : null;
 
     // ---------- Top metrics ----------
-    const activeInterviews = interviews.filter(
-      (i) => i.status !== "completed" && i.status !== "canceled",
-    ).length;
-
+    // Applications follows the selected period; the rest look forward
+    // (upcoming interviews, open reminders, deadlines), so the period doesn't apply.
     const followUps = jobs.reduce(
       (acc, job) => acc + (job.reminders ?? []).filter((r) => !r.done).length,
       0,
     );
 
-    const nowTs = Date.now();
+    const deadlineTs = (job: Job) => toTime(job.applicationDeadline);
     const pendingDeadlines = jobs.filter((job) => {
-      if (!job.applicationDeadline) return false;
-      const d = new Date(job.applicationDeadline).getTime();
-      return !isNaN(d) && d >= nowTs;
+      const d = deadlineTs(job);
+      return d !== null && d >= nowTs;
     }).length;
 
     const upcomingWeekDeadlines = jobs.filter((job) => {
-      if (!job.applicationDeadline) return false;
-      const d = new Date(job.applicationDeadline).getTime();
-      return !isNaN(d) && d >= nowTs && d <= nowTs + 7 * 24 * 60 * 60 * 1000;
+      const d = deadlineTs(job);
+      return d !== null && d >= nowTs && d <= nowTs + 7 * DAY_MS;
     }).length;
 
     const metrics = {
-      totalApplications: jobs.length,
-      interviewsScheduled: activeInterviews,
+      totalApplications: jobsInPeriod.length,
+      applicationsTrend,
+      interviewsScheduled: interviews.filter(isActiveInterview).length,
       followUps,
       pendingDeadlines,
       upcomingWeekDeadlines,
     };
 
+    // Shared definitions (lib/jobs/metrics.ts), applied to the selected period.
+    const periodMetrics = computeJobMetrics(jobsInPeriod, interviews);
+
     // ---------- Status outcome breakdown (donut) ----------
-    const statusCounts: Record<string, number> = {};
-    for (const job of jobs) {
-      statusCounts[job.applicationStatus] = (statusCounts[job.applicationStatus] ?? 0) + 1;
-    }
-    const outcomeSlices = [
-      { label: "Applied", value: statusCounts["applied"] ?? 0, color: "#10B981" },
-      { label: "Interview", value: statusCounts["interviewing"] ?? 0, color: "#3B82F6" },
-      { label: "Offer", value: statusCounts["offer"] ?? 0, color: "#8B5CF6" },
-      { label: "Rejected", value: statusCounts["rejected"] ?? 0, color: "#EF4444" },
-    ].filter((s) => s.value > 0);
+    // Every status gets a slice: nothing the user tracks is left out of the total.
+    const known = [...APPLICATION_STATUSES] as string[];
+    const extra = Object.keys(periodMetrics.statusCounts).filter((k) => !known.includes(k));
+    const outcomeSlices = [...known, ...extra]
+      .map((status) => ({
+        label: statusLabel(status),
+        value: periodMetrics.statusCounts[status] ?? 0,
+        color: STATUS_COLORS[status] ?? UNKNOWN_STATUS_COLOR,
+      }))
+      .filter((s) => s.value > 0);
 
     // ---------- Applications progress (multi-line, cumulative) ----------
-    const chartDays = Math.min(days, 30);
-    const dayList: Date[] = Array.from({ length: chartDays }).map((_, i) => {
-      const d = new Date(now);
-      d.setDate(d.getDate() - (chartDays - 1 - i));
-      d.setHours(0, 0, 0, 0);
-      return d;
-    });
+    // The chart covers the selected period. For "All time" it starts at the
+    // earliest event, so nothing is cut off.
+    let chartStart: Date;
+    if (periodStart) {
+      chartStart = periodStart;
+    } else {
+      const earliest = Math.min(
+        nowTs,
+        ...jobs.map(appliedAt).filter((t): t is number => t !== null),
+      );
+      chartStart = startOfDay(new Date(earliest));
+    }
+    const { starts, granularity } = buildBuckets(chartStart, now);
 
-    const interviewDates = interviews
-      .map((i) => safeDate(i.createdAt) ?? safeDate(i.interviewDate))
-      .filter((d): d is Date => !!d);
+    const interviewTimes = interviews
+      .filter((i) => i.status !== "canceled")
+      .map((i) => toTime(i.createdAt) ?? toTime(i.interviewDate));
+    const offerTimes = jobs
+      .filter((j) => hasOffer(j))
+      .map((j) => toTime(j.offerAt) ?? toTime(j.updatedAt) ?? appliedAt(j));
+    const hiredTimes = jobs
+      .filter((j) => normalizeStatus(j.applicationStatus) === "completed")
+      .map((j) => toTime(j.updatedAt) ?? appliedAt(j));
+    const applicationTimes = jobs.map(appliedAt);
 
-    const offerDates = jobs
-      .filter((j) => j.applicationStatus === "offer")
-      .map((j) => safeDate(j.updatedAt) ?? safeDate(j.applicationDate))
-      .filter((d): d is Date => !!d);
+    const tally = (times: (number | null)[]) => {
+      const counts = new Array<number>(starts.length).fill(0);
+      for (const t of times) {
+        if (t === null) continue;
+        const idx = bucketIndex(starts, t, nowTs);
+        if (idx >= 0) counts[idx] += 1;
+      }
+      return counts;
+    };
+    const appCounts = tally(applicationTimes);
+    const interviewCounts = tally(interviewTimes);
+    const offerCounts = tally(offerTimes);
+    const hiredCounts = tally(hiredTimes);
 
-    const hiredDates = jobs
-      .filter((j) => j.applicationStatus === "completed")
-      .map((j) => safeDate(j.updatedAt) ?? safeDate(j.applicationDate))
-      .filter((d): d is Date => !!d);
+    const labelFor = (d: Date) =>
+      granularity === "month"
+        ? d.toLocaleDateString(undefined, { month: "short", year: "2-digit" })
+        : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 
-    const applicationDates = jobs
-      .map((j) => safeDate(j.applicationDate))
-      .filter((d): d is Date => !!d);
+    const cumulative = (counts: number[]) => {
+      const out: number[] = [];
+      counts.reduce((sum, n, i) => (out[i] = sum + n), 0);
+      return out;
+    };
+    const appTotals = cumulative(appCounts);
+    const interviewTotals = cumulative(interviewCounts);
+    const offerTotals = cumulative(offerCounts);
+    const hiredTotals = cumulative(hiredCounts);
 
-    const countByDay = (dates: Date[], key: string) =>
-      dates.filter((d) => dayKey(d) === key).length;
-
-    let runningApplications = 0;
-    let runningInterviews = 0;
-    let runningOffers = 0;
-    let runningHired = 0;
-
-    const progressSeries = dayList.map((d) => {
-      const key = dayKey(d);
-      runningApplications += countByDay(applicationDates, key);
-      runningInterviews += countByDay(interviewDates, key);
-      runningOffers += countByDay(offerDates, key);
-      runningHired += countByDay(hiredDates, key);
-      return {
-        label: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-        applications: runningApplications,
-        interviews: runningInterviews,
-        offers: runningOffers,
-        hired: runningHired,
-      };
-    });
+    const progressSeries = starts.map((d, i) => ({
+      label: labelFor(d),
+      applications: appTotals[i],
+      interviews: interviewTotals[i],
+      offers: offerTotals[i],
+      hired: hiredTotals[i],
+    }));
 
     // ---------- Applications by source ----------
     const bucketCounts = SOURCE_BUCKETS.map((b) => ({ ...b, count: 0 }));
-    for (const job of jobs) {
+    for (const job of jobsInPeriod) {
       const s = (job.source || "other").toLowerCase();
       const bucket = bucketCounts.find((b) => b.match(s)) ?? bucketCounts[bucketCounts.length - 1];
       bucket.count += 1;
@@ -189,7 +275,7 @@ export function useAnalyticsData(period: Period = "30d") {
     // ---------- Skills / matched keywords ----------
     const keywordCounts: Record<string, number> = {};
     let jobsWithMatch = 0;
-    for (const job of jobs) {
+    for (const job of jobsInPeriod) {
       const matched = job.matchAnalysis?.keywords?.matched ?? [];
       if (matched.length > 0) jobsWithMatch += 1;
       for (const kw of matched) {
@@ -208,7 +294,7 @@ export function useAnalyticsData(period: Period = "30d") {
 
     // ---------- Top job roles ----------
     const roleCounts: Record<string, number> = {};
-    for (const job of jobs) {
+    for (const job of jobsInPeriod) {
       const title = job.jobTitle?.trim() || "Other";
       roleCounts[title] = (roleCounts[title] ?? 0) + 1;
     }
@@ -218,12 +304,12 @@ export function useAnalyticsData(period: Period = "30d") {
       .map(([title, count]) => ({
         title,
         count,
-        pct: jobs.length > 0 ? Math.round((count / jobs.length) * 100) : 0,
+        pct: jobsInPeriod.length > 0 ? Math.round((count / jobsInPeriod.length) * 100) : 0,
       }));
 
     // ---------- Recent applications table ----------
-    const recentApplications = [...jobs]
-      .sort((a, b) => new Date(b.applicationDate).getTime() - new Date(a.applicationDate).getTime())
+    const recentApplications = [...jobsInPeriod]
+      .sort(compareByDate((j: Job) => j.applicationDate, "desc"))
       .slice(0, 6)
       .map((job: Job) => ({
         id: job.id,
@@ -232,19 +318,17 @@ export function useAnalyticsData(period: Period = "30d") {
         applicationDate: job.applicationDate,
         status: job.applicationStatus,
         matchScore: job.matchScore,
-        nextStep: NEXT_STEP[job.applicationStatus] ?? { label: "Review", icon: "file" as const },
+        nextStep: NEXT_STEP[normalizeStatus(job.applicationStatus)] ?? {
+          label: "Review",
+          icon: "file" as const,
+        },
       }));
 
     // ---------- Key insights ----------
-    const interviewRate =
-      jobs.length > 0
-        ? Math.round(((statusCounts["interviewing"] ?? 0) / jobs.length) * 100)
-        : 0;
-
     const topSkills = skillsData.slice(0, 2).map((s) => s.skill);
 
     const jobTypeMatch: Record<string, { total: number; count: number }> = {};
-    for (const job of jobs) {
+    for (const job of jobsInPeriod) {
       if (typeof job.matchScore !== "number") continue;
       const type = job.jobType || "role";
       jobTypeMatch[type] = jobTypeMatch[type] ?? { total: 0, count: 0 };
@@ -260,9 +344,12 @@ export function useAnalyticsData(period: Period = "30d") {
         icon: "trending" as const,
         title:
           jobsInPeriod.length > 0
-            ? `${jobsInPeriod.length} applications in the ${PERIOD_LABELS[period].toLowerCase()}`
-            : "No applications yet this period",
-        description: `Your interview rate is ${interviewRate}%. Keep the momentum going!`,
+            ? `${jobsInPeriod.length} application${jobsInPeriod.length === 1 ? "" : "s"} · ${PERIOD_LABELS[period].toLowerCase()}`
+            : `No applications · ${PERIOD_LABELS[period].toLowerCase()}`,
+        description:
+          jobsInPeriod.length > 0
+            ? `${periodMetrics.interviewRate}% reached an interview and ${periodMetrics.responseRate}% got a response.`
+            : "Applications you add will show up here.",
       },
       {
         icon: "target" as const,
@@ -299,6 +386,7 @@ export function useAnalyticsData(period: Period = "30d") {
 
     return {
       metrics,
+      periodTotal: jobsInPeriod.length,
       outcomeSlices,
       progressSeries,
       sourceData,

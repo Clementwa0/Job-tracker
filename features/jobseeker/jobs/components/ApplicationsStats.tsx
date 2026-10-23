@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Briefcase, CalendarClock, Award, Mail } from "lucide-react";
 import StatCard from "@/features/jobseeker/dashboard/components/StatCard";
 import { useJobs } from "@/features/jobseeker/jobs/hooks/JobContext";
+import { computeJobMetrics } from "@/lib/jobs/metrics";
 import { useInterviews } from "@/features/jobseeker/interviews/hooks/useInterviews";
 
 const ApplicationsStats = () => {
@@ -11,15 +12,11 @@ const ApplicationsStats = () => {
   const { interviews } = useInterviews();
 
   const stats = useMemo(() => {
-    const total = jobs.length;
-
-    const activeInterviews = interviews.filter(
-      (i) => i.status !== "completed" && i.status !== "canceled",
-    ).length;
-
-    const offers = jobs.filter(
-      (j) => j.applicationStatus?.toLowerCase() === "offer",
-    ).length;
+    // Same definitions as the dashboard and analytics (lib/jobs/metrics.ts).
+    const metrics = computeJobMetrics(jobs, interviews);
+    const total = metrics.total;
+    const activeInterviews = metrics.upcomingInterviews;
+    const offers = metrics.offers;
 
     const followUps = jobs.reduce(
       (acc, job) => acc + (job.reminders ?? []).filter((r) => !r.done).length,

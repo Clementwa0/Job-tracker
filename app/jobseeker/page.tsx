@@ -1,5 +1,6 @@
-import DashboardPage from "@/features/jobseeker/dashboard/DashboardPage";
+import { redirect } from "next/navigation";
 
-export default function DashboardLayout(){
-    return  <DashboardPage/>
+/** The dashboard lives at one URL: /jobseeker/dashboard (also where sign-in lands). */
+export default function JobseekerIndex() {
+  redirect("/jobseeker/dashboard");
 }

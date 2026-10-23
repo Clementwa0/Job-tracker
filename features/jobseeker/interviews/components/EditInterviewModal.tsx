@@ -10,6 +10,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/apiError";
 import { interviewService } from "@/features/jobseeker/interviews/services/interview.client";
 import type {
   Interview,
@@ -78,7 +80,7 @@ const EditInterviewModal = ({
       onOpenChange(false);
       onSuccess?.();
     } catch (err) {
-      console.error(err);
+      toast.error(getApiErrorMessage(err) || "Failed to update interview.");
     } finally {
       setLoading(false);
     }

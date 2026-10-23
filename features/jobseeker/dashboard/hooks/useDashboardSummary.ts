@@ -2,36 +2,30 @@
 
 import { useMemo } from "react";
 import { useJobs } from "@/features/jobseeker/jobs/hooks/JobContext";
+import { useInterviews } from "@/features/jobseeker/interviews/hooks/useInterviews";
+import { computeJobMetrics } from "@/lib/jobs/metrics";
+import { toTime } from "@/lib/jobs/dates";
 
 type Mood = "productive" | "balanced" | "slow" | "warning";
 
 export const useDashboardSummary = () => {
   const { jobs } = useJobs();
+  const { interviews } = useInterviews();
 
   return useMemo(() => {
-    const total = jobs.length;
-
-    const interviews = jobs.filter(
-      j => j.applicationStatus?.toLowerCase() === "interviewing"
-    ).length;
-
-    const offers = jobs.filter(
-      j => j.applicationStatus?.toLowerCase() === "offer"
-    ).length;
-
-    const rejected = jobs.filter(
-      j => j.applicationStatus?.toLowerCase() === "rejected"
-    ).length;
-
-    const applied = jobs.filter(
-      j => j.applicationStatus?.toLowerCase() === "applied"
-    ).length;
+    const metrics = computeJobMetrics(jobs, interviews);
+    const total = metrics.total;
+    // Same definitions as the stat cards and analytics (lib/jobs/metrics.ts).
+    const interviewing = metrics.statusCounts["interviewing"] ?? 0;
+    const offers = metrics.offers;
+    const rejected = metrics.rejected;
+    const applied = metrics.statusCounts["applied"] ?? 0;
 
     // Applications submitted in the last 7 days (any status) - what "this week" means.
     const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const appliedLast7Days = jobs.filter((j) => {
-      const t = new Date(j.applicationDate).getTime();
-      return !Number.isNaN(t) && t >= weekAgo && t <= Date.now();
+      const t = toTime(j.applicationDate);
+      return t !== null && t >= weekAgo && t <= Date.now();
     }).length;
 
     // ---- MOOD LOGIC ----
@@ -49,10 +43,10 @@ export const useDashboardSummary = () => {
       message = "Great progress. You're getting offers";
       subtitle = `You already have ${offers} offer(s). Keep going.`;
     } 
-    else if (interviews >= 3) {
+    else if (interviewing >= 3) {
       mood = "productive";
       message = "Strong momentum. Interviews lined up";
-      subtitle = `${interviews} interviews in progress. Stay sharp.`;
+      subtitle = `${interviewing} interviews in progress. Stay sharp.`;
     } 
     else if (applied >= 10) {
       mood = "balanced";
@@ -72,7 +66,7 @@ export const useDashboardSummary = () => {
 
     // ---- NEXT ACTION ----
     const nextAction =
-      interviews > 0
+      interviewing > 0
         ? "Prepare for upcoming interviews"
         : applied < 5
         ? "Apply to at least 5 jobs today"
@@ -87,10 +81,10 @@ export const useDashboardSummary = () => {
         total,
         applied,
         appliedLast7Days,
-        interviews,
+        interviews: interviewing,
         offers,
         rejected,
       },
     };
-  }, [jobs]);
+  }, [jobs, interviews]);
 };

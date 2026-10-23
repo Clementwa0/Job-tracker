@@ -11,6 +11,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/apiError";
 import { interviewService } from "@/features/jobseeker/interviews/services/interview.client";
 
 interface Props {
@@ -39,7 +41,7 @@ const DeleteConfirmDialog = ({
       onOpenChange(false);
       onSuccess?.();
     } catch (err) {
-      console.error(err);
+      toast.error(getApiErrorMessage(err) || "Failed to delete interview.");
     } finally {
       setLoading(false);
     }

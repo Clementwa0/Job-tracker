@@ -9,7 +9,6 @@ import { useAuth } from "@/features/auth/hooks/AuthContext";
 
 import AppSidebar from "./Sidebar";
 import Header from "./Header";
-import { MobileBottomNav } from "./MobileNav";
 import type { DashboardConfig } from "./types";
 
 /**
@@ -73,14 +72,11 @@ export default function DashboardShell({
             tabIndex={-1}
             className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto focus:outline-none"
           >
-            <div className="mx-auto w-full max-w-[1600px] px-4 py-5 pb-24 sm:px-6 lg:px-8 lg:pb-5 xl:px-10">
+            <div className="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 lg:px-8 xl:px-10">
               {children}
             </div>
           </main>
         </div>
-
-        {/* Mobile bottom navigation */}
-        <MobileBottomNav config={config} />
       </div>
     </SidebarProvider>
   );
